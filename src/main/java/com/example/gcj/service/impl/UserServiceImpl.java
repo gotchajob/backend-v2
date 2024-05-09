@@ -1,0 +1,216 @@
+package com.example.gcj.service.impl;
+
+import com.example.gcj.dto.user.*;
+import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.MentorProfile;
+import com.example.gcj.model.User;
+import com.example.gcj.repository.MentorProfileRepository;
+import com.example.gcj.repository.UserRepository;
+import com.example.gcj.service.UserService;
+import com.example.gcj.util.EmailService;
+import com.example.gcj.util.JwtUtil;
+import com.example.gcj.util.Util;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class UserServiceImpl implements UserService {
+
+    final static int MENTOR_ROLE = 2;
+    final static int DEFAULT_MENTOR_STATUS = 2;
+    final static String DEFAULT_PASSWORD = "default";
+
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwt;
+    private final MentorProfileRepository mentorProfileRepository;
+    private final EmailService emailService;
+
+    @Override
+    public LoginResponseDTO login(LoginRequestDTO userLogin) {
+        if (userLogin == null) {
+
+        }
+
+        if(userLogin == null || userLogin.getEmail() == null || userLogin.getPassword() == null){
+            throw new CustomException("LOGIN_FAIL");
+        }
+        User user = userRepository.getUserByEmail(userLogin.getEmail());
+        if (user == null || !bCryptPasswordEncoder.matches(userLogin.getPassword(), user.getPassword()))  {
+            throw new CustomException("Invalid user name or password");
+        }
+
+        if (user.getStatus() == 0) {
+            throw new CustomException("User is banned");
+        }
+
+        if (user.getStatus() == 2) {
+            throw new CustomException("User is not verify");
+        }
+
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userLogin.getEmail(), userLogin.getPassword()));
+
+        String token = jwt.generateToken(user.getEmail());
+        return LoginResponseDTO.builder()
+                .token(token)
+                .roleId(user.getRoleId())
+                .build();
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public void signup(SignupRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("Null input");
+        }
+
+        User _user = userRepository.getUserByEmail(request.getEmail());
+        if (_user != null) {
+            throw new CustomException("Email is exist");
+        }
+
+        String encodePassword = bCryptPasswordEncoder.encode(request.getPassword());
+        User user = new User(request.getEmail(), encodePassword, request.getFirstName(), request.getLastName());
+        userRepository.save(user);
+    }
+
+    @Override
+    public void createMentorAccount(CreateMentorAccountRequestDTO request) {
+        if (request == null) {
+
+        }
+
+        User user = User.builder()
+                .email(request.getEmail())
+                .avatar(request.getAvatar())
+                .address(request.getAddress())
+                .phone(request.getPhone())
+                .password(DEFAULT_PASSWORD)
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .status(DEFAULT_MENTOR_STATUS)
+                .roleId(MENTOR_ROLE)
+                .build();
+        User _user = userRepository.save(user);
+
+        MentorProfile mentorProfile = MentorProfile
+                .builder()
+                .bio(request.getBio())
+                .birthDate(request.getBirthDate())
+                .portfolioUrl(request.getPortfolioUrl())
+                .facebookUrl(request.getFacebookUrl())
+                .twitterUrl(request.getTwitterUrl())
+                .linkedinUrl(request.getLinkedInUrl())
+                .education(request.getEducation())
+                .skill(request.getSkill())
+                .status(1)
+                .build();
+        mentorProfile.setUser(_user);
+        mentorProfileRepository.save(mentorProfile);
+    }
+
+    @Override
+    public GetMentorAccountResponseDTO getMentorAccountNotVerify(int page, int limit) {
+        Pageable pageable = PageRequest.of(page-1, limit);
+
+        List<User> users = userRepository.getUserByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE, pageable);
+        long total = userRepository.countByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE);
+
+        return new GetMentorAccountResponseDTO(users, total);
+    }
+
+    @Override
+    public void updateMentorStatus(Long id, int status) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("User not found");
+        }
+        if (status != 0 && status != 1) {
+
+        }
+        if (user.getRoleId() != MENTOR_ROLE) {
+            throw new CustomException("Account is not mentor!");
+        }
+        if (user.getStatus() != DEFAULT_MENTOR_STATUS) {
+            throw new CustomException("Account verified!");
+        }
+
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        if (status == 0) {
+            sendEmailRejectMentor(user.getEmail(), fullName);
+        }
+
+        if (status == 1) {
+            String password = Util.generateRandomPassword();
+            user.setPassword(bCryptPasswordEncoder.encode(password));
+
+            sendEmailApproveMentor(user.getEmail(), password, fullName);
+        }
+
+        user.setStatus(status);
+        userRepository.save(user);
+
+    }
+
+    private void sendEmailApproveMentor(String email, String password, String fullName) {
+        String subject = "Approval Request to Become a Mentor on Gotchajob";
+        String body = "Dear " + fullName + ",\n" +
+                "\n" +
+                "I hope this email finds you well.\n" +
+                "\n" +
+                "I am reaching out to formally request approval to become a mentor on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
+                "\n" +
+                "To facilitate this process, I have created an account on Gotchajob with the following login credentials:\n" +
+                "\n" +
+                "Username: " + email + "\n" +
+                "Password: " + password +
+                "\n" +
+                "I am committed to upholding the values and standards of Gotchajob and to providing valuable mentorship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
+                "\n" +
+                "Thank you for considering my request. I look forward to the opportunity to serve as a mentor on Gotchajob and make a meaningful difference in the lives of others.\n" +
+                "\n" +
+                "Warm regards,\n" +
+                "\n" +
+                "[GotchaJob]\n";
+
+        emailService.sendEmail(email, subject, body);
+    }
+
+    private void sendEmailRejectMentor(String email, String fullName) {
+        String subject = "Rejection Notification for Mentorship Application on Gotchajob";
+        String body = "Dear "+fullName + ",\n" +
+                "\n" +
+                "I hope this message finds you well.\n" +
+                "\n" +
+                "I am writing to inform you that unfortunately, my application to become a mentor on Gotchajob has been declined. While I am naturally disappointed by this outcome, I respect the decision made by the selection committee.\n" +
+                "\n" +
+                "Although I won't have the opportunity to contribute as a mentor at this time, I remain deeply committed to supporting individuals in their professional growth and development. I will continue to seek out avenues where I can share my expertise and provide guidance to those in need.\n" +
+                "\n" +
+                "I appreciate the time and consideration given to my application. Should there be any feedback or suggestions for improvement, I am open to receiving them as they would help me enhance my qualifications for future opportunities.\n" +
+                "\n" +
+                "Thank you once again for considering my application.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "\n" +
+                "GotchaJob\n";
+
+        emailService.sendEmail(email, subject, body);
+    }
+}
