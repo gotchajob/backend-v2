@@ -1,5 +1,6 @@
 package com.example.gcj.service.impl;
 
+import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.MentorProfile;
@@ -10,12 +11,15 @@ import com.example.gcj.service.UserService;
 import com.example.gcj.util.EmailService;
 import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Util;
+import com.example.gcj.util.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +30,13 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    final static int MENTOR_ROLE = 2;
+    final static int MENTOR_ROLE = 3;
+    final static int USER_ROLE = 4;
     final static int DEFAULT_MENTOR_STATUS = 2;
     final static String DEFAULT_PASSWORD = "default";
+
+    final static int BAN_STATUS = 0;
+    final static int UNBAN_STATUS = 1;
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -71,9 +79,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+        Page<User> users = userRepository.getAllByRoleId(USER_ROLE, pageable);
+
+        return new PageResponseDTO<>(users.map(UserMapper::toDto).toList(), users.getTotalPages());
     }
+
 
     @Override
     public void signup(SignupRequestDTO request) {
@@ -167,6 +179,43 @@ public class UserServiceImpl implements UserService {
         user.setStatus(status);
         userRepository.save(user);
 
+    }
+
+    @Override
+    public void banUser(long id) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("Not found");
+        }
+
+        user.setStatus(BAN_STATUS);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unbanUser(long id) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("Not found");
+        }
+
+        user.setStatus(UNBAN_STATUS);
+        userRepository.save(user);
+    }
+
+    @Override
+    public User currentUser() {
+        String email = currentUserEmail();
+        if (email == null) {
+            return null;
+        }
+
+        return userRepository.getUserByEmail(email);
+    }
+
+    @Override
+    public String currentUserEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     private void sendEmailApproveMentor(String email, String password, String fullName) {

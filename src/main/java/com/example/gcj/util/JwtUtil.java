@@ -71,7 +71,7 @@ public class JwtUtil {
 
     private Key getSignKey() {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(keyBytes);    
     }
 
     public void invalidateToken(String token) {

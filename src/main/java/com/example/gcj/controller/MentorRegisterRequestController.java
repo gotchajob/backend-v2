@@ -6,12 +6,8 @@ import com.example.gcj.dto.mentor_register_request.GetMentorRegisterRequestRespo
 import com.example.gcj.dto.mentor_register_request.RejectMentorRegisterRequestDTO;
 import com.example.gcj.service.MentorRegisterRequestService;
 import com.example.gcj.util.Response;
-import com.example.gcj.util.Role;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,19 +33,21 @@ public class MentorRegisterRequestController {
             return Response.error(e);
         }
     }
+
     @GetMapping("")
     public ResponseEntity<Response<GetMentorRegisterRequestResponseDTO>> get(
-        @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
-        @RequestParam(required = false, defaultValue = "6") @Min(1) int limit
+            @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
+            @RequestParam(required = false, defaultValue = "6") @Min(1) int limit
     ) {
         try {
-            GetMentorRegisterRequestResponseDTO responseDTO =  mentorRegisterRequestService.get(page, limit);
+            GetMentorRegisterRequestResponseDTO responseDTO = mentorRegisterRequestService.get(page, limit);
             return Response.success(responseDTO);
 
         } catch (Exception e) {
             return Response.error(e);
         }
     }
+
     @PatchMapping("/{id}/approve")
     public ResponseEntity<Response<String>> approveRegister(
             @PathVariable long id,

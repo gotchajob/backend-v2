@@ -1,8 +1,11 @@
 package com.example.gcj.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -24,6 +27,9 @@ public class User extends AbstractEntity{
     @OneToOne(mappedBy = "user")
     private MentorProfile mentorProfile;
 
+    @OneToMany(mappedBy = "author")
+    private List<Blog> blogs;
+
 
     public User(String email, String password, String firstName, String lastName) {
         this.email = email;
@@ -32,5 +38,9 @@ public class User extends AbstractEntity{
         this.lastName = lastName;
         this.status = 1;
         this.roleId = 2;
+    }
+
+    public User(long id) {
+        this.setId(id);
     }
 }
