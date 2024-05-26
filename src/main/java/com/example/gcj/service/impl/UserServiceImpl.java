@@ -3,9 +3,9 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
-import com.example.gcj.model.MentorProfile;
+import com.example.gcj.model.Expert;
 import com.example.gcj.model.User;
-import com.example.gcj.repository.MentorProfileRepository;
+import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.UserRepository;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.EmailService;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwt;
-    private final MentorProfileRepository mentorProfileRepository;
+    private final ExpertRepository expertRepository;
     private final EmailService emailService;
 
     @Override
@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
                 .build();
         User _user = userRepository.save(user);
 
-        MentorProfile mentorProfile = MentorProfile
+        Expert expert = Expert
                 .builder()
                 .bio(request.getBio())
                 .birthDate(request.getBirthDate())
@@ -131,11 +131,10 @@ public class UserServiceImpl implements UserService {
                 .twitterUrl(request.getTwitterUrl())
                 .linkedinUrl(request.getLinkedInUrl())
                 .education(request.getEducation())
-                .skill(request.getSkill())
                 .status(1)
                 .build();
-        mentorProfile.setUser(_user);
-        mentorProfileRepository.save(mentorProfile);
+        expert.setUser(_user);
+        expertRepository.save(expert);
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 @Builder
-public class MentorProfile extends AbstractEntity {
+public class Expert extends AbstractEntity {
     private int status;
     private Date birthDate;
     private String bio;
@@ -22,8 +22,7 @@ public class MentorProfile extends AbstractEntity {
     private String twitterUrl;
     private String linkedinUrl;
     private String education;
-    private String skill;
-    private String skillDescription;
+    private int yearExperience;
 
     @OneToOne
     private User user;

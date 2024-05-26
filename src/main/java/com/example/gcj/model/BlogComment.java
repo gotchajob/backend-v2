@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class BlogComment extends AbstractEntity{
+public class BlogComment extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blog_id", referencedColumnName = "id")
     private Blog blog;

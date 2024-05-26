@@ -1,10 +1,10 @@
 package com.example.gcj.controller;
 
-import com.example.gcj.dto.mentor_register_request.ApproveMentorRegisterRequestDTO;
-import com.example.gcj.dto.mentor_register_request.CreateMentorRegisterRequestDTO;
-import com.example.gcj.dto.mentor_register_request.GetMentorRegisterRequestResponseDTO;
-import com.example.gcj.dto.mentor_register_request.RejectMentorRegisterRequestDTO;
-import com.example.gcj.service.MentorRegisterRequestService;
+import com.example.gcj.dto.expert_register_request.ApproveExpertRegisterRequestDTO;
+import com.example.gcj.dto.expert_register_request.CreateExpertRegisterRequestDTO;
+import com.example.gcj.dto.expert_register_request.GetExpertRegisterRequestResponseDTO;
+import com.example.gcj.dto.expert_register_request.RejectExpertRegisterRequestDTO;
+import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.util.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,19 +14,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/mentor-register-request")
+@RequestMapping("/epxert-register-request")
 @RequiredArgsConstructor
-@Tag(name = "Mentor register request controller")
-public class MentorRegisterRequestController {
-    private final MentorRegisterRequestService mentorRegisterRequestService;
+@Tag(name = "Expert Register Request Controller")
+public class ExpertRegisterRequestController {
+    private final ExpertRegisterRequestService expertRegisterRequestService;
 
     @PostMapping("")
     @Operation(summary = "admin, user")
     public ResponseEntity<Response<String>> mentorRegisterRequest(
-            @RequestBody CreateMentorRegisterRequestDTO request
+            @RequestBody CreateExpertRegisterRequestDTO request
     ) {
         try {
-            mentorRegisterRequestService.create(request.getEmail());
+            expertRegisterRequestService.create(request.getEmail());
             return Response.success(null);
 
         } catch (Exception e) {
@@ -35,12 +35,12 @@ public class MentorRegisterRequestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Response<GetMentorRegisterRequestResponseDTO>> get(
+    public ResponseEntity<Response<GetExpertRegisterRequestResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
             @RequestParam(required = false, defaultValue = "6") @Min(1) int limit
     ) {
         try {
-            GetMentorRegisterRequestResponseDTO responseDTO = mentorRegisterRequestService.get(page, limit);
+            GetExpertRegisterRequestResponseDTO responseDTO = expertRegisterRequestService.get(page, limit);
             return Response.success(responseDTO);
 
         } catch (Exception e) {
@@ -51,10 +51,10 @@ public class MentorRegisterRequestController {
     @PatchMapping("/{id}/approve")
     public ResponseEntity<Response<String>> approveRegister(
             @PathVariable long id,
-            @RequestBody ApproveMentorRegisterRequestDTO requestDTO
+            @RequestBody ApproveExpertRegisterRequestDTO requestDTO
     ) {
         try {
-            mentorRegisterRequestService.approveRegister(id, requestDTO.getUrl());
+            expertRegisterRequestService.approveRegister(id, requestDTO.getUrl());
             return Response.success(null);
 
         } catch (Exception e) {
@@ -65,10 +65,10 @@ public class MentorRegisterRequestController {
     @PatchMapping("/{id}/reject")
     public ResponseEntity<Response<String>> rejectRegister(
             @PathVariable long id,
-            @RequestBody(required = false) RejectMentorRegisterRequestDTO requestDTO
+            @RequestBody(required = false) RejectExpertRegisterRequestDTO requestDTO
     ) {
         try {
-            mentorRegisterRequestService.rejectRegister(id, requestDTO.getNote());
+            expertRegisterRequestService.rejectRegister(id, requestDTO.getNote());
             return Response.success(null);
 
         } catch (Exception e) {

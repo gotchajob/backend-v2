@@ -7,6 +7,7 @@ import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
 import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Tag(name = "User Controller")
 public class UserController {
-
     private final UserService userService;
 
     @PostMapping("/login")
@@ -79,8 +80,8 @@ public class UserController {
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin")
     public ResponseEntity<Response<PageResponseDTO<UserListResponseDTO>>> get(
-        @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
-        @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
+            @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
+            @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
     ) {
         try {
             PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize);
@@ -92,10 +93,9 @@ public class UserController {
     }
 
 
-
     @PostMapping("/create-mentor-account")
     public ResponseEntity<Response<String>> createMentorAccount(
-        @RequestBody CreateMentorAccountRequestDTO requestDTO
+            @RequestBody CreateMentorAccountRequestDTO requestDTO
     ) {
         try {
             userService.createMentorAccount(requestDTO);

@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentorRegisterRequest extends AbstractEntity{
+public class ExpertRegisterRequest extends AbstractEntity {
     private String email;
     private String url;
     private String note;

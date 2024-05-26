@@ -25,7 +25,7 @@ public class User extends AbstractEntity{
     private int roleId;
 
     @OneToOne(mappedBy = "user")
-    private MentorProfile mentorProfile;
+    private Expert expert;
 
     @OneToMany(mappedBy = "author")
     private List<Blog> blogs;

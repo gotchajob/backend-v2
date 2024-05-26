@@ -9,8 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Faq extends AbstractEntity {
-    private String question;
-    private String answer;
-    private String status;
+public class Skill extends AbstractEntity {
+    private long categoryId;
+    private String name;
 }

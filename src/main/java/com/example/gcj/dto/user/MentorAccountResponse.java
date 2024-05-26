@@ -1,6 +1,6 @@
 package com.example.gcj.dto.user;
 
-import com.example.gcj.model.MentorProfile;
+import com.example.gcj.model.Expert;
 import com.example.gcj.model.User;
 import lombok.Data;
 
@@ -36,16 +36,15 @@ public class MentorAccountResponse {
         this.phone = user.getPhone();
         this.address = user.getAddress();
 
-        MentorProfile mentorProfile = user.getMentorProfile();
-        if (mentorProfile != null) {
-            this.birthDate = mentorProfile.getBirthDate();
-            this.bio = mentorProfile.getBio();
-            this.portfolioUrl = mentorProfile.getPortfolioUrl();
-            this.facebookUrl = mentorProfile.getFacebookUrl();
-            this.twitterUrl = mentorProfile.getTwitterUrl();
-            this.linkedinUrl = mentorProfile.getLinkedinUrl();
-            this.education = mentorProfile.getEducation();
-            this.skill = mentorProfile.getSkill();
+        Expert expert = user.getExpert();
+        if (expert != null) {
+            this.birthDate = expert.getBirthDate();
+            this.bio = expert.getBio();
+            this.portfolioUrl = expert.getPortfolioUrl();
+            this.facebookUrl = expert.getFacebookUrl();
+            this.twitterUrl = expert.getTwitterUrl();
+            this.linkedinUrl = expert.getLinkedinUrl();
+            this.education = expert.getEducation();
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.example.gcj.service.impl;
 
-import com.example.gcj.dto.mentor_register_request.GetMentorRegisterRequestResponseDTO;
+import com.example.gcj.dto.expert_register_request.GetExpertRegisterRequestResponseDTO;
 import com.example.gcj.exception.CustomException;
-import com.example.gcj.model.MentorRegisterRequest;
+import com.example.gcj.model.ExpertRegisterRequest;
 import com.example.gcj.repository.MentorRegisterRequestRepository;
-import com.example.gcj.service.MentorRegisterRequestService;
+import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.util.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MentorRegisterRequestServiceImpl implements MentorRegisterRequestService {
+public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestService {
     private final static int ACTIVE_STATUS = 1;
     private final static int APPROVE_STATUS = 2;
     private final static int REJECT_STATUS = 3;
@@ -29,46 +29,46 @@ public class MentorRegisterRequestServiceImpl implements MentorRegisterRequestSe
             throw new CustomException("Email is null");
         }
 
-        MentorRegisterRequest mentorRegisterRequest = MentorRegisterRequest
+        ExpertRegisterRequest expertRegisterRequest = ExpertRegisterRequest
                 .builder()
                 .email(email)
                 .status(ACTIVE_STATUS)
                 .build();
-        mentorRegisterRequestRepository.save(mentorRegisterRequest);
+        mentorRegisterRequestRepository.save(expertRegisterRequest);
     }
 
     @Override
-    public GetMentorRegisterRequestResponseDTO get(int page, int limit) {
+    public GetExpertRegisterRequestResponseDTO get(int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<MentorRegisterRequest> list = mentorRegisterRequestRepository.getAllByStatus(ACTIVE_STATUS, pageable);
+        List<ExpertRegisterRequest> list = mentorRegisterRequestRepository.getAllByStatus(ACTIVE_STATUS, pageable);
         long total = mentorRegisterRequestRepository.countByStatus(ACTIVE_STATUS);
 
-        return new GetMentorRegisterRequestResponseDTO(list, total);
+        return new GetExpertRegisterRequestResponseDTO(list, total);
     }
 
     @Override
     public void approveRegister(long id, String url) {
-        MentorRegisterRequest mentorRegisterRequest = mentorRegisterRequestRepository.getById(id);
-        if (mentorRegisterRequest == null) {
+        ExpertRegisterRequest expertRegisterRequest = mentorRegisterRequestRepository.getById(id);
+        if (expertRegisterRequest == null) {
             throw new CustomException("Mentor register request not found!");
         }
 
-        mentorRegisterRequest.setUrl(url);
-        mentorRegisterRequest.setStatus(APPROVE_STATUS);
-        mentorRegisterRequestRepository.save(mentorRegisterRequest);
+        expertRegisterRequest.setUrl(url);
+        expertRegisterRequest.setStatus(APPROVE_STATUS);
+        mentorRegisterRequestRepository.save(expertRegisterRequest);
 
-        emailService.sendEmailGetLinkFormMentor(mentorRegisterRequest.getEmail(), url);
+        emailService.sendEmailGetLinkFormMentor(expertRegisterRequest.getEmail(), url);
     }
 
     @Override
     public void rejectRegister(long id, String note) {
-        MentorRegisterRequest mentorRegisterRequest = mentorRegisterRequestRepository.getById(id);
-        if (mentorRegisterRequest == null) {
+        ExpertRegisterRequest expertRegisterRequest = mentorRegisterRequestRepository.getById(id);
+        if (expertRegisterRequest == null) {
             throw new CustomException("Mentor register request not found!");
         }
 
-        mentorRegisterRequest.setStatus(REJECT_STATUS);
-        mentorRegisterRequest.setNote(note);
-        mentorRegisterRequestRepository.save(mentorRegisterRequest);
+        expertRegisterRequest.setStatus(REJECT_STATUS);
+        expertRegisterRequest.setNote(note);
+        mentorRegisterRequestRepository.save(expertRegisterRequest);
     }
 }

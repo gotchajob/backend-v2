@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Blog extends AbstractEntity{
+public class Blog extends AbstractEntity {
     private String thumbnail;
     private String title;
     private String shortDescription;
