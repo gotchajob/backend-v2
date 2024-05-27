@@ -69,7 +69,6 @@ public class BlogServiceImpl implements BlogService {
         }
 
         List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), NUMBER_RELATE_BLOG);
-//
         return BlogMapper.toDto(blog, relateBlogs);
     }
 }

@@ -29,7 +29,7 @@ public class Response<T> {
         }
 
         System.out.println("Error: " + e.getMessage());
-        Response<T> error = new Response<>(Status.ERROR.name().toLowerCase(), "Server maintaining!", null);
+        Response<T> error = new Response<>(Status.ERROR.name().toLowerCase(), "Error: " + e.getMessage(), null);
         return ResponseEntity.internalServerError().body(error);
     }
 

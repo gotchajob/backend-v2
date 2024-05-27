@@ -93,12 +93,12 @@ public class UserController {
     }
 
 
-    @PostMapping("/create-mentor-account")
-    public ResponseEntity<Response<String>> createMentorAccount(
-            @RequestBody CreateMentorAccountRequestDTO requestDTO
+    @PostMapping("/create-expert-account")
+    public ResponseEntity<Response<String>> createExpertAccount(
+            @RequestBody CreateExpertAccountRequestDTO requestDTO
     ) {
         try {
-            userService.createMentorAccount(requestDTO);
+            userService.createExpertAccount(requestDTO);
             return Response.success(null);
 
         } catch (Exception e) {
@@ -107,26 +107,25 @@ public class UserController {
     }
 
 
-    @GetMapping("/verify-mentor")
-    public ResponseEntity<Response<GetMentorAccountResponseDTO>> getVerifyMentorList(
+    @GetMapping("/verify-expert")
+    public ResponseEntity<Response<PageResponseDTO<ExpertAccountResponse>>> getVerifyExpertList(
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "6") int limit
     ) {
         try {
-            GetMentorAccountResponseDTO response = userService.getMentorAccountNotVerify(page, limit);
+            PageResponseDTO<ExpertAccountResponse> response = userService.getExpertAccountNotVerify(page, limit);
             return Response.success(response);
-
         } catch (Exception e) {
             return Response.error(e);
         }
     }
 
-    @PatchMapping("/{id}/approve-mentor")
-    public ResponseEntity<Response<String>> approveMentor(
+    @PatchMapping("/{id}/approve-expert")
+    public ResponseEntity<Response<String>> approveExpert(
             @PathVariable long id
     ) {
         try {
-            userService.updateMentorStatus(id, 1);
+            userService.updateExpertStatus(id, 1);
             return Response.success(null);
 
         } catch (Exception e) {
@@ -134,12 +133,12 @@ public class UserController {
         }
     }
 
-    @PatchMapping("/{id}/reject-mentor")
-    public ResponseEntity<Response<String>> rejectMentor(
+    @PatchMapping("/{id}/reject-expert")
+    public ResponseEntity<Response<String>> rejectExpert(
             @PathVariable long id
     ) {
         try {
-            userService.updateMentorStatus(id, 0);
+            userService.updateExpertStatus(id, 0);
             return Response.success(null);
 
         } catch (Exception e) {

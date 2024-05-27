@@ -4,13 +4,17 @@ import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Expert;
+import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.UserRepository;
+import com.example.gcj.service.ExpertNationSupportService;
+import com.example.gcj.service.ExpertSkillOptionService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.EmailService;
 import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Util;
+import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +46,12 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwt;
-    private final ExpertRepository expertRepository;
     private final EmailService emailService;
+
+    private final ExpertRepository expertRepository;
+    private final ExpertSkillOptionService expertSkillOptionService;
+    private final ExpertNationSupportService expertNationSupportService;
+
 
     @Override
     public LoginResponseDTO login(LoginRequestDTO userLogin) {
@@ -104,7 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createMentorAccount(CreateMentorAccountRequestDTO request) {
+    public void createExpertAccount(CreateExpertAccountRequestDTO request) {
         if (request == null) {
 
         }
@@ -131,24 +139,27 @@ public class UserServiceImpl implements UserService {
                 .twitterUrl(request.getTwitterUrl())
                 .linkedinUrl(request.getLinkedInUrl())
                 .education(request.getEducation())
+                .yearExperience(request.getYearExperience())
                 .status(1)
                 .build();
         expert.setUser(_user);
-        expertRepository.save(expert);
+        Expert _expert = expertRepository.save(expert);
+
+        expertSkillOptionService.createExpertSkillOption(_expert.getId(), request.getExpertSKillOptionList());
+        expertNationSupportService.create(_expert.getId(), request.getNationSupport());
     }
 
     @Override
-    public GetMentorAccountResponseDTO getMentorAccountNotVerify(int page, int limit) {
+    public PageResponseDTO<ExpertAccountResponse> getExpertAccountNotVerify(int page, int limit) {
         Pageable pageable = PageRequest.of(page-1, limit);
 
-        List<User> users = userRepository.getUserByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE, pageable);
-        long total = userRepository.countByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE);
+        Page<User> experts = userRepository.getUserByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE, pageable);
 
-        return new GetMentorAccountResponseDTO(users, total);
+        return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
     }
 
     @Override
-    public void updateMentorStatus(Long id, int status) {
+    public void updateExpertStatus(Long id, int status) {
         User user = userRepository.getUserById(id);
         if (user == null) {
             throw new CustomException("User not found");
@@ -157,7 +168,7 @@ public class UserServiceImpl implements UserService {
 
         }
         if (user.getRoleId() != MENTOR_ROLE) {
-            throw new CustomException("Account is not mentor!");
+            throw new CustomException("Account is not expert!");
         }
         if (user.getStatus() != DEFAULT_MENTOR_STATUS) {
             throw new CustomException("Account verified!");
@@ -165,14 +176,14 @@ public class UserServiceImpl implements UserService {
 
         String fullName = user.getFirstName() + " " + user.getLastName();
         if (status == 0) {
-            sendEmailRejectMentor(user.getEmail(), fullName);
+            sendEmailRejectExpert(user.getEmail(), fullName);
         }
 
         if (status == 1) {
             String password = Util.generateRandomPassword();
             user.setPassword(bCryptPasswordEncoder.encode(password));
 
-            sendEmailApproveMentor(user.getEmail(), password, fullName);
+            sendEmailApproveExpert(user.getEmail(), password, fullName);
         }
 
         user.setStatus(status);
@@ -217,22 +228,22 @@ public class UserServiceImpl implements UserService {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    private void sendEmailApproveMentor(String email, String password, String fullName) {
-        String subject = "Approval Request to Become a Mentor on Gotchajob";
+    private void sendEmailApproveExpert(String email, String password, String fullName) {
+        String subject = "Approval Request to Become a Expert on Gotchajob";
         String body = "Dear " + fullName + ",\n" +
                 "\n" +
                 "I hope this email finds you well.\n" +
                 "\n" +
-                "I am reaching out to formally request approval to become a mentor on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
+                "I am reaching out to formally request approval to become a expert on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
                 "\n" +
                 "To facilitate this process, I have created an account on Gotchajob with the following login credentials:\n" +
                 "\n" +
                 "Username: " + email + "\n" +
                 "Password: " + password +
                 "\n" +
-                "I am committed to upholding the values and standards of Gotchajob and to providing valuable mentorship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
+                "I am committed to upholding the values and standards of Gotchajob and to providing valuable expertship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
                 "\n" +
-                "Thank you for considering my request. I look forward to the opportunity to serve as a mentor on Gotchajob and make a meaningful difference in the lives of others.\n" +
+                "Thank you for considering my request. I look forward to the opportunity to serve as a expert on Gotchajob and make a meaningful difference in the lives of others.\n" +
                 "\n" +
                 "Warm regards,\n" +
                 "\n" +
@@ -241,15 +252,15 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(email, subject, body);
     }
 
-    private void sendEmailRejectMentor(String email, String fullName) {
-        String subject = "Rejection Notification for Mentorship Application on Gotchajob";
+    private void sendEmailRejectExpert(String email, String fullName) {
+        String subject = "Rejection Notification for Expertship Application on Gotchajob";
         String body = "Dear "+fullName + ",\n" +
                 "\n" +
                 "I hope this message finds you well.\n" +
                 "\n" +
-                "I am writing to inform you that unfortunately, my application to become a mentor on Gotchajob has been declined. While I am naturally disappointed by this outcome, I respect the decision made by the selection committee.\n" +
+                "I am writing to inform you that unfortunately, my application to become a expert on Gotchajob has been declined. While I am naturally disappointed by this outcome, I respect the decision made by the selection committee.\n" +
                 "\n" +
-                "Although I won't have the opportunity to contribute as a mentor at this time, I remain deeply committed to supporting individuals in their professional growth and development. I will continue to seek out avenues where I can share my expertise and provide guidance to those in need.\n" +
+                "Although I won't have the opportunity to contribute as a expert at this time, I remain deeply committed to supporting individuals in their professional growth and development. I will continue to seek out avenues where I can share my expertise and provide guidance to those in need.\n" +
                 "\n" +
                 "I appreciate the time and consideration given to my application. Should there be any feedback or suggestions for improvement, I am open to receiving them as they would help me enhance my qualifications for future opportunities.\n" +
                 "\n" +
