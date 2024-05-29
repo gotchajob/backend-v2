@@ -12,5 +12,5 @@ import lombok.*;
 public class Faq extends AbstractEntity {
     private String question;
     private String answer;
-    private String status;
+    private int status;
 }

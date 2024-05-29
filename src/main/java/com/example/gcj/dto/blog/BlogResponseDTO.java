@@ -20,6 +20,7 @@ public class BlogResponseDTO implements Serializable {
     private String content;
     private String category;
     private Date createdAt;
+    private long numberComment;
 
     private LikeDTO likes;
     private UserProfileDTO profile;
