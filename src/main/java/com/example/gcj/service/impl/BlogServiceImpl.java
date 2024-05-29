@@ -8,6 +8,7 @@ import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Blog;
 import com.example.gcj.model.Category;
 import com.example.gcj.model.User;
+import com.example.gcj.repository.BlogCommentRepository;
 import com.example.gcj.repository.BlogRepository;
 import com.example.gcj.service.BlogService;
 import com.example.gcj.service.UserService;
@@ -28,6 +29,7 @@ public class BlogServiceImpl implements BlogService {
 
     private final BlogRepository blogRepository;
     private final UserService userService;
+    private final BlogCommentRepository blogCommentRepository;
 
 
     @Override
@@ -67,8 +69,11 @@ public class BlogServiceImpl implements BlogService {
         if (blog == null) {
             throw new CustomException("Not found");
         }
+        long numberComment = blogCommentRepository.countByBlogIdAndParentCommentId(blog.getId(), null);
 
         List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), NUMBER_RELATE_BLOG);
-        return BlogMapper.toDto(blog, relateBlogs);
+        BlogResponseDTO response =  BlogMapper.toDto(blog, relateBlogs);
+        response.setNumberComment(numberComment);
+        return response;
     }
 }
