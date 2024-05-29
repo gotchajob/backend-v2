@@ -12,7 +12,7 @@ import lombok.*;
 public class ExpertSkillOption extends AbstractEntity {
     private long expertId;
     private long skillOptionId;
-    private long defaultPoint;
-    private String certificate;
+    private int defaultPoint;
+    private String certification;
     private int status;
 }

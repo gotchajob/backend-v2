@@ -1,14 +1,14 @@
 package com.example.gcj.dto.user;
 
-import lombok.Builder;
+import com.example.gcj.dto.expert_skill_option.CreateExpertSkillOptionDTO;
 import lombok.Data;
-import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
-public class CreateMentorAccountRequestDTO implements Serializable {
+public class CreateExpertAccountRequestDTO implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
@@ -24,7 +24,8 @@ public class CreateMentorAccountRequestDTO implements Serializable {
     private String twitterUrl;
     private String linkedInUrl;
     private String education;
+    private int yearExperience;
 
-    private String skill;
-
+    private List<String> nationSupport;
+    private List<CreateExpertSkillOptionDTO> expertSKillOptionList;
 }
