@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/epxert-register-request")
+@RequestMapping("/expert-register-request")
 @RequiredArgsConstructor
 @Tag(name = "Expert Register Request Controller")
 public class ExpertRegisterRequestController {
