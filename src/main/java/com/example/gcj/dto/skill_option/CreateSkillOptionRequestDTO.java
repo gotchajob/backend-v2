@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CreateSkillOptionRequestDTO {
-    public long skillId;
-    public String name;
+    private long skillId;
+    private String name;
 }

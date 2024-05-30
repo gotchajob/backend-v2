@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class UpdateSkillRequestDTO {
-    public long categoryId;
-    public String name;
+    private long categoryId;
+    private long skillId;
+    private String skillName;
 }

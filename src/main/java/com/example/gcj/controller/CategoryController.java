@@ -20,14 +20,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("")
-    public ResponseEntity<Response<List<Category>>> getAll(
-
-    ) {
-        try {
+    public Response<List<Category>> getAll() {
             List<Category> list = categoryService.getAll();
-            return Response.success(list);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+            return Response.ok(list);
     }
 }

@@ -5,8 +5,11 @@ import com.example.gcj.dto.blog.BlogResponseDTO;
 import com.example.gcj.dto.blog.CreateBlogDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 
+import java.util.List;
+
 public interface BlogService {
     void createBlog(CreateBlogDTO request);
     PageResponseDTO<BlogListResponseDTO> blogList(int pageNumber, int pageSize);
     BlogResponseDTO getBlog(long id);
+    List<BlogListResponseDTO> findByCategoryId(long categoryId, int limit);
 }

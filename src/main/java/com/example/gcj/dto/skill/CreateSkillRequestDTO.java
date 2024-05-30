@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CreateSkillRequestDTO {
-    public long categoryId;
-    public String name;
+    private long categoryId;
+    private String name;
 }

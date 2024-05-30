@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,4 +77,14 @@ public class BlogServiceImpl implements BlogService {
         response.setNumberComment(numberComment);
         return response;
     }
+
+    @Override
+    public List<BlogListResponseDTO> findByCategoryId(long categoryId, int limit) {
+        List<Blog> listBlog = blogRepository.findBlogByCategoryId(categoryId, limit);
+        if(listBlog.isEmpty()) {
+            throw new CustomException("No blog found with this id " + categoryId);
+        }
+        return listBlog.stream().map(BlogMapper::toDto).collect(Collectors.toList());
+    }
+
 }
