@@ -6,6 +6,7 @@ import com.example.gcj.model.User;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
 import com.example.gcj.util.Role;
+import com.example.gcj.util.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
@@ -174,6 +175,17 @@ public class UserController {
         } catch (Exception e) {
             return Response.error(e);
         }
+    }
+
+    @GetMapping("/current")
+    @Secured({Role.ADMIN, Role.USER, Role.EXPERT})
+    @Operation(description = "role: admin/expert/user")
+    public Response<UserProfileDTO> getCurrentUser(
+
+    ) {
+        User user = userService.currentUser();
+        UserProfileDTO userProfile = UserMapper.toUserProfile(user);
+        return Response.ok(userProfile);
     }
 
 }
