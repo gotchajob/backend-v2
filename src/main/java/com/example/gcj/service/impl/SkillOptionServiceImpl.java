@@ -3,6 +3,7 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.skill_option.CreateSkillOptionRequestDTO;
 import com.example.gcj.dto.skill_option.SkillOptionResponseDTO;
 import com.example.gcj.dto.skill_option.UpdateSkillOptionRequestDTO;
+import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.SkillOption;
 import com.example.gcj.repository.SkillOptionRepository;
 import com.example.gcj.service.SkillOptionService;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,12 @@ public class SkillOptionServiceImpl implements SkillOptionService {
     public List<SkillOptionResponseDTO> getAll() {
         List<SkillOption> skillOptionList = skillOptionRepository.findAll();
         return skillOptionList.stream().map(SkillOptionMapper::toDto).toList();
+    }
+
+    @Override
+    public List<SkillOptionResponseDTO> findSkillOptionBySkillId(long skillId) {
+        List<SkillOption> skillOptionList = skillOptionRepository.findBySkillId(skillId);
+        return skillOptionList.stream().map(SkillOptionMapper::toDto).collect(Collectors.toList());
     }
 
 
@@ -42,10 +48,11 @@ public class SkillOptionServiceImpl implements SkillOptionService {
     public List<UpdateSkillOptionRequestDTO> updateSkillOptions(List<UpdateSkillOptionRequestDTO> request) {
         List<UpdateSkillOptionRequestDTO> updateSkillOptionList = new ArrayList<>();
         for (UpdateSkillOptionRequestDTO dto : request) {
-            Optional<SkillOption> existingSkillOption = skillOptionRepository.findById(dto.getSkillId());
+            Optional<SkillOption> existingSkillOption = skillOptionRepository.findById(dto.getId());
             if(existingSkillOption.isPresent()) {
                 SkillOption existing = existingSkillOption.get();
                 existing.setName(dto.getName());
+                existing.setSkillId(dto.getSkillId());
                 skillOptionRepository.save(existing);
                 updateSkillOptionList.add(convertToDTO(existing));
             }
@@ -55,14 +62,11 @@ public class SkillOptionServiceImpl implements SkillOptionService {
 
 
     @Override
-    public boolean deleteSkillOptions(List<Long> skillIds) {
-        List<SkillOption> skillOptionsToDelete = skillOptionRepository.findAllById(skillIds);
-        if (!skillOptionsToDelete.isEmpty()) {
-            skillOptionRepository.deleteAll(skillOptionsToDelete);
-            return true;
-        } else {
-            return false;
+    public void deleteSkillOptions(long id) {
+        if(!skillOptionRepository.existsById(id)) {
+            throw new CustomException("Skill Option is not found with id " + id);
         }
+        skillOptionRepository.deleteById(id);
 
     }
 

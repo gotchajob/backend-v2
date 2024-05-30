@@ -8,6 +8,7 @@ public class SkillOptionMapper {
     public static SkillOptionResponseDTO toDto(SkillOption skill) {
         return SkillOptionResponseDTO.builder()
                 .id(skill.getId())
+                .skillId(skill.getSkillId())
                 .name(skill.getName())
                 .build();
     }

@@ -9,6 +9,7 @@ import lombok.Setter;
 @Builder
 public class SkillOptionResponseDTO {
     private long id;
+    private long skillId;
     private String name;
 }
 

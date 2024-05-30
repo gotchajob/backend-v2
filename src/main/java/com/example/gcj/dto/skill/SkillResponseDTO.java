@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class SkillResponseDTO {
-    public long categoryId;
-    public long id;
-    public String name;
+    private long categoryId;
+    private long id;
+    private String name;
 }

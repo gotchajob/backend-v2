@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/blog")
 @RequiredArgsConstructor
@@ -38,6 +40,15 @@ public class BlogController {
         } catch (Exception e) {
             return Response.error(e);
         }
+    }
+
+    @GetMapping("/category")
+    public ResponseEntity<Response<List<BlogListResponseDTO>>> getBlogByCategoryId(
+            @RequestParam long categoryId,
+            @RequestParam int limit
+    ) {
+        List<BlogListResponseDTO> blogs = blogService.findByCategoryId(categoryId, limit);
+        return Response.success(blogs);
     }
 
     @GetMapping("")

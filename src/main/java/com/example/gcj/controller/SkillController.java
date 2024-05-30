@@ -22,64 +22,40 @@ public class SkillController {
     private final SkillService skillService;
 
     @GetMapping("")
-    public ResponseEntity<Response<List<SkillResponseDTO>>> getSkillList(
-
-    ) {
-        try {
-            List<SkillResponseDTO> skill = skillService.getAll();
-            return Response.success(skill);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+    public Response<List<SkillResponseDTO>> getSkillList() {
+        List<SkillResponseDTO> skill = skillService.getAll();
+        return Response.ok(skill);
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Response<List<SkillResponseDTO>>> getSkillListByCategoryId(
+    public Response<List<SkillResponseDTO>> getSkillListByCategoryId(
             @PathVariable long categoryId
     ) {
-        try {
-            List<SkillResponseDTO> skills = skillService.findSkillByCategoryId(categoryId);
-            return Response.success(skills);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        List<SkillResponseDTO> skills = skillService.findSkillByCategoryId(categoryId);
+        return Response.ok(skills);
     }
 
     @PostMapping("")
-    public ResponseEntity<Response<String>> createSkill(
+    public Response<String> createSkill(
             @RequestBody CreateSkillRequestDTO request
     ) {
-        try {
-            skillService.createSkill(request);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        skillService.createSkill(request);
+        return Response.ok(null);
     }
 
-    @PutMapping("/{skillId}")
-    public ResponseEntity<Response<String>> updateSkill(
-            @PathVariable long id, @RequestBody UpdateSkillRequestDTO request
+    @PutMapping("")
+    public Response<String> updateSkill(
+            @RequestBody List<UpdateSkillRequestDTO> request
     ) {
-        try {
-            skillService.updateSkill(id, request);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+            skillService.updateSkill(request);
+            return Response.ok(null);
     }
 
-    @DeleteMapping("/{skillId}")
-    public ResponseEntity<Response<String>> deleteSkill(
-        @PathVariable long id
+    @DeleteMapping("/{id}")
+    public Response<String> deleteSkill(
+            @PathVariable long id
     ) {
-        try {
             skillService.deleteSkill(id);
-            return Response.success(null);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+            return Response.ok(null);
     }
 }
