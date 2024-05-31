@@ -57,10 +57,14 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public PageResponseDTO<BlogListResponseDTO> blogList(int pageNumber, int pageSize) {
+    public PageResponseDTO<BlogListResponseDTO> blogList(Long categoryId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
-        Page<Blog> blogs = blogRepository.getAllByStatus(ACTIVE, pageable);
-
+        Page<Blog> blogs = null;
+        if (categoryId == null) {
+            blogs = blogRepository.getAllByStatus(ACTIVE, pageable);
+        } else {
+            blogs = blogRepository.getAllByCategoryIdAndStatus(categoryId, ACTIVE, pageable);
+        }
         return new PageResponseDTO<>( blogs.map(BlogMapper::toDto).toList(), blogs.getTotalPages());
     }
 

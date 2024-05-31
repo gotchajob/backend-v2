@@ -1,6 +1,7 @@
 package com.example.gcj.repository;
 
 import com.example.gcj.model.ExpertSkillOption;
+import com.example.gcj.model.SkillOption;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,4 +15,6 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
     List<ExpertSkillOption> findByExpertId(@Param("expertId") long expertId);
 
     ExpertSkillOption findById(long id);
+
+    List<ExpertSkillOption> findAllBySkillOptionIdInAndStatus(List<Long> skillOptionIds, int status);
 }

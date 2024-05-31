@@ -52,16 +52,13 @@ public class BlogController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Response<PageResponseDTO<BlogListResponseDTO>>> get(
+    public Response<PageResponseDTO<BlogListResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
-            @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
+            @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize,
+            @RequestParam(required = false) @Min(1) Long categoryId
     ) {
-        try {
-            PageResponseDTO<BlogListResponseDTO> list = blogService.blogList(pageNumber, pageSize);
-            return Response.success(list);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        PageResponseDTO<BlogListResponseDTO> list = blogService.blogList(categoryId, pageNumber, pageSize);
+        return Response.ok(list);
     }
 
     @GetMapping("/{id}")

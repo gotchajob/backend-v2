@@ -1,6 +1,7 @@
 package com.example.gcj.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class Expert extends AbstractEntity {
     private String education;
     private int yearExperience;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private User user;
 
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface ExpertNationSupportRepository extends JpaRepository<ExpertNationSupport, Long> {
     ExpertNationSupport findByNation(String nation);
     List<ExpertNationSupport> findByExpertId(long expertId);
+    List<ExpertNationSupport> findAllByNationIn(List<String> nations);
 }
