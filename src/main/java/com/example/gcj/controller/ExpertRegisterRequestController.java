@@ -1,9 +1,6 @@
 package com.example.gcj.controller;
 
-import com.example.gcj.dto.expert_register_request.ApproveExpertRegisterRequestDTO;
-import com.example.gcj.dto.expert_register_request.CreateExpertRegisterRequestDTO;
-import com.example.gcj.dto.expert_register_request.GetExpertRegisterRequestResponseDTO;
-import com.example.gcj.dto.expert_register_request.RejectExpertRegisterRequestDTO;
+import com.example.gcj.dto.expert_register_request.*;
 import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.util.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,6 +68,20 @@ public class ExpertRegisterRequestController {
             expertRegisterRequestService.rejectRegister(id, requestDTO.getNote());
             return Response.success(null);
 
+        } catch (Exception e) {
+            return Response.error(e);
+        }
+    }
+
+    @PostMapping("/ban")
+    public ResponseEntity<Response<String>> banEmail(
+            @RequestBody BanEmailRequestDTO request
+    ) {
+        try {
+            //add email to black list
+            //delete all request
+            //check black list when create
+            return Response.success(null);
         } catch (Exception e) {
             return Response.error(e);
         }

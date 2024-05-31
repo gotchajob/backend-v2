@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BlogService {
     void createBlog(CreateBlogDTO request);
-    PageResponseDTO<BlogListResponseDTO> blogList(int pageNumber, int pageSize);
+    PageResponseDTO<BlogListResponseDTO> blogList(Long categoryId, int pageNumber, int pageSize);
     BlogResponseDTO getBlog(long id);
     List<BlogListResponseDTO> findByCategoryId(long categoryId, int limit);
 }

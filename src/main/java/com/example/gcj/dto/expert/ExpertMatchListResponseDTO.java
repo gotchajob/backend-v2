@@ -1,0 +1,26 @@
+package com.example.gcj.dto.expert;
+
+import com.example.gcj.dto.expert_nation_support.ExpertNationSupportResponseDTO;
+import com.example.gcj.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
+import com.example.gcj.dto.skill_option.SkillOptionResponseDTO;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Getter
+@Setter
+@Builder
+public class ExpertMatchListResponseDTO implements Serializable {
+    private long userId;
+    private String fullName;
+    private String avatar;
+    private String email;
+    private int yearExperience;
+    List<ExpertSkillOptionResponseDTO> Skills;
+    List<ExpertNationSupportResponseDTO> nationSupport;
+
+    private int point;
+}

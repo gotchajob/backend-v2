@@ -8,8 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MentorRegisterRequestRepository extends JpaRepository<ExpertRegisterRequest, Long> {
+public interface ExpertRegisterRequestRepository extends JpaRepository<ExpertRegisterRequest, Long> {
     List<ExpertRegisterRequest> getAllByStatus(int status, Pageable pageable);
     long countByStatus(int status);
     ExpertRegisterRequest getById(long id);
+    ExpertRegisterRequest getByEmailAndStatus(String email, int status);
 }
