@@ -16,8 +16,8 @@ public class BlogReaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private int blogId;
-    private int userId;
+    private long blogId;
+    private long userId;
     private int reactionId;
     private int rating;
 }
