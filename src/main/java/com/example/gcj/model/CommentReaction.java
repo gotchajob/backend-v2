@@ -17,6 +17,6 @@ public class CommentReaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private int commentId;
-    private int userId;
+    private long userId;
     private int reactionId;
 }
