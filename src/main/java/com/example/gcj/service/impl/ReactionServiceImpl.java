@@ -1,6 +1,6 @@
 package com.example.gcj.service.impl;
 
-import com.example.gcj.dto.react.ReactionRequestDTO;
+import com.example.gcj.dto.react.CreateReactionRequestDTO;
 import com.example.gcj.dto.react.ReactionResponseDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Reaction;
@@ -24,7 +24,7 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public void create(ReactionRequestDTO request) {
+    public void create(CreateReactionRequestDTO request) {
         if(request == null) {
             throw new CustomException("Null request");
         }

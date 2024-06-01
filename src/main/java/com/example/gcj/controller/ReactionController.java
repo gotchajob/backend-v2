@@ -1,7 +1,7 @@
 package com.example.gcj.controller;
 
 
-import com.example.gcj.dto.react.ReactionRequestDTO;
+import com.example.gcj.dto.react.CreateReactionRequestDTO;
 import com.example.gcj.dto.react.ReactionResponseDTO;
 import com.example.gcj.service.ReactionService;
 import com.example.gcj.util.Response;
@@ -27,7 +27,7 @@ public class ReactionController {
 
     @PostMapping("")
     public Response<String> createReaction(
-            @RequestBody ReactionRequestDTO request
+            @RequestBody CreateReactionRequestDTO request
     ) {
         reactionService.create(request);
         return Response.ok(null);
