@@ -123,7 +123,7 @@ public class BlogController {
     @Secured({Role.ADMIN})
     @Operation(description = "Get all blog reaction")
     public ResponseEntity<Response<List<BlogReactionResponseDTO>>> getBlogReaction() {
-        blogReactionService.getAll();
-        return Response.success(null);
+        List<BlogReactionResponseDTO> list = blogReactionService.getAll();
+        return Response.success(list);
     }
 }
