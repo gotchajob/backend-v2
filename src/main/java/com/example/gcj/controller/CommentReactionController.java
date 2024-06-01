@@ -25,8 +25,8 @@ public class CommentReactionController {
     private final CommentReactionService commentReactionService;
 
     @PostMapping("")
-//    @Secured({Role.ADMIN, Role.EXPERT, Role.USER})
-//    @Operation(description = "role: admin, expert, user")
+    @Secured({Role.ADMIN, Role.EXPERT, Role.USER})
+    @Operation(description = "role: admin, expert, user")
     public ResponseEntity<Response<String>> createCommentReaction(
             @RequestBody CreateCommentReactionRequestDTO request
     ) {
@@ -39,8 +39,8 @@ public class CommentReactionController {
     }
 
     @GetMapping("/get-all")
-//    @Secured({Role.ADMIN, Role.EXPERT, Role.USER})
-//    @Operation(description = "role: admin, expert, user")
+    @Secured({Role.ADMIN, Role.EXPERT, Role.USER})
+    @Operation(description = "role: admin, expert, user")
     public Response<List<CommentReactionResponseDTO>> getAllCommentReaction(
     ) {
         List<CommentReactionResponseDTO> list = commentReactionService.getAllCommentReaction();
