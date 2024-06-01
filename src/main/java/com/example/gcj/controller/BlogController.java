@@ -122,8 +122,8 @@ public class BlogController {
     @GetMapping("/reaction")
     @Secured({Role.ADMIN})
     @Operation(description = "Get all blog reaction")
-    public ResponseEntity<Response<List<BlogReactionResponseDTO>>> getBlogReaction() {
+    public Response<List<BlogReactionResponseDTO>> getBlogReaction() {
         List<BlogReactionResponseDTO> list = blogReactionService.getAll();
-        return Response.success(list);
+        return Response.ok(list);
     }
 }
