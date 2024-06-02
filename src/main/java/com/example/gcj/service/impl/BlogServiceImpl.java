@@ -3,12 +3,15 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.blog.BlogListResponseDTO;
 import com.example.gcj.dto.blog.BlogResponseDTO;
 import com.example.gcj.dto.blog.CreateBlogDTO;
+import com.example.gcj.dto.blog_reaction.BlogReactionOtherResponseDTO;
+import com.example.gcj.dto.other.LikeDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Blog;
 import com.example.gcj.model.Category;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.BlogCommentRepository;
+import com.example.gcj.repository.BlogReactionRepository;
 import com.example.gcj.repository.BlogRepository;
 import com.example.gcj.service.BlogService;
 import com.example.gcj.service.UserService;
@@ -31,6 +34,7 @@ public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
     private final UserService userService;
     private final BlogCommentRepository blogCommentRepository;
+    private final BlogReactionRepository blogReactionRepository;
 
 
     @Override
@@ -58,34 +62,52 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public PageResponseDTO<BlogListResponseDTO> blogList(Long categoryId, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<Blog> blogs = null;
         if (categoryId == null) {
             blogs = blogRepository.getAllByStatus(ACTIVE, pageable);
         } else {
             blogs = blogRepository.getAllByCategoryIdAndStatus(categoryId, ACTIVE, pageable);
         }
-        return new PageResponseDTO<>( blogs.map(BlogMapper::toDto).toList(), blogs.getTotalPages());
+        return new PageResponseDTO<>(blogs.map(BlogMapper::toDto).toList(), blogs.getTotalPages());
     }
 
     @Override
     public BlogResponseDTO getBlog(long id) {
+        User currentUser = userService.currentUser();
+        boolean liked = false;
         Blog blog = blogRepository.getByIdAndStatus(id, ACTIVE);
         if (blog == null) {
             throw new CustomException("Not found");
         }
+        if (currentUser != null) {
+            int checkLiked = blogRepository.isBlogLikedByUser(blog.getId(), currentUser.getId());
+            if (checkLiked == 1) {
+                liked = true;
+            }
+        }
+        long likeCount = blogRepository.countLikesByBlogId(blog.getId());
         long numberComment = blogCommentRepository.countByBlogIdAndParentCommentId(blog.getId(), null);
+        double averageRating = blogReactionRepository.findAverageRating(id);
+        int ratingQuantity = blogReactionRepository.findRatingQuantity(id);
 
         List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), NUMBER_RELATE_BLOG);
-        BlogResponseDTO response =  BlogMapper.toDto(blog, relateBlogs);
+        BlogResponseDTO response = BlogMapper.toDto(blog, relateBlogs);
+        LikeDTO likeDTO = LikeDTO.builder()
+                .liked(liked)
+                .value(likeCount)
+                .build();
+        response.setLikes(likeDTO);
         response.setNumberComment(numberComment);
+        response.setAverageRating(averageRating);
+        response.setRatingQuantity(ratingQuantity);
         return response;
     }
 
     @Override
     public List<BlogListResponseDTO> findByCategoryId(long categoryId, int limit) {
         List<Blog> listBlog = blogRepository.findBlogByCategoryId(categoryId, limit);
-        if(listBlog.isEmpty()) {
+        if (listBlog.isEmpty()) {
             throw new CustomException("No blog found with this id " + categoryId);
         }
         return listBlog.stream().map(BlogMapper::toDto).collect(Collectors.toList());

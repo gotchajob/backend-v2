@@ -14,10 +14,15 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     Page<Blog> getAllByStatus(int status, Pageable pageable);
     Page<Blog> getAllByCategoryIdAndStatus(long categoryId, int status, Pageable pageable);
     Blog getByIdAndStatus(long id, int status);
-
     @Query(value = "SELECT * FROM blog b WHERE b.category_id = :categoryId AND b.id != :excludeBlogId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Blog> findRelateBlogs(long categoryId, long excludeBlogId, int limit);
 
     @Query(value = "SELECT * FROM blog b WHERE b.category_id = :categoryId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Blog> findBlogByCategoryId(long categoryId, int limit);
+
+    @Query(value = "SELECT CASE WHEN COUNT(br.id) > 0 THEN TRUE ELSE FALSE END AS liked FROM blog_reaction br WHERE br.blog_id = :blogId AND br.user_id = :userId AND br.reaction_id = 1", nativeQuery = true)
+    Integer isBlogLikedByUser(long blogId, long userId);
+
+    @Query(value = "SELECT COUNT(br.id) AS value FROM blog_reaction br WHERE br.blog_id = :blogId AND br.reaction_id = 1", nativeQuery = true)
+    long countLikesByBlogId(long blogId);
 }
