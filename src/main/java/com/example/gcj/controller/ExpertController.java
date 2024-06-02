@@ -22,7 +22,7 @@ public class ExpertController {
 
     @GetMapping("/match")
     public Response<List<ExpertMatchListResponseDTO>> matchExpert(
-            @RequestParam(required = false) long categoryId,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) List<Long> skillOptionId,
             @RequestParam(required = false) List<String> nation,
             @RequestParam(required = false, defaultValue = "0") int minYearExperience

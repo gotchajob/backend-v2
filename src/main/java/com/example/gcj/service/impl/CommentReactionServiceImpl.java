@@ -25,6 +25,10 @@ public class CommentReactionServiceImpl implements CommentReactionService {
     public void createCommentReaction(CreateCommentReactionRequestDTO request) {
         User user = userService.currentUser();
 
+        //todo: check user is null?
+        //todo: check user liked, if liked throw CustomerException
+        //todo: check request. commentId is exist?, reactionId is exist?
+
         CommentReaction reaction = CommentReaction.builder()
                 .commentId(request.getCommentId())
                 .reactionId(request.getReactionId())

@@ -4,8 +4,10 @@ import com.example.gcj.dto.skill_option.CreateSkillOptionRequestDTO;
 import com.example.gcj.dto.skill_option.SkillOptionResponseDTO;
 import com.example.gcj.dto.skill_option.UpdateSkillOptionRequestDTO;
 import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.Skill;
 import com.example.gcj.model.SkillOption;
 import com.example.gcj.repository.SkillOptionRepository;
+import com.example.gcj.repository.SkillRepository;
 import com.example.gcj.service.SkillOptionService;
 import com.example.gcj.util.mapper.SkillOptionMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SkillOptionServiceImpl implements SkillOptionService {
     private final SkillOptionRepository skillOptionRepository;
+    private final SkillRepository skillRepository;
 
     @Override
     public List<SkillOptionResponseDTO> getAll() {
@@ -68,6 +71,17 @@ public class SkillOptionServiceImpl implements SkillOptionService {
         }
         skillOptionRepository.deleteById(id);
 
+    }
+
+    @Override
+    public List<SkillOptionResponseDTO> findSkillOptionByCategory(long categoryId) {
+        List<SkillOption> skillOptionList = new ArrayList<>();
+        List<Skill> skills =  skillRepository.findAllByCategoryId(categoryId);
+        for (Skill skill : skills) {
+            skillOptionList.addAll(skillOptionRepository.findBySkillId(skill.getId()));
+        }
+
+        return skillOptionList.stream().map(SkillOptionMapper::toDto).toList();
     }
 
     private UpdateSkillOptionRequestDTO convertToDTO(SkillOption skillOption) {

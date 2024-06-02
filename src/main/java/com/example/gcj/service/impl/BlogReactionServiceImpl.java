@@ -25,6 +25,10 @@ public class BlogReactionServiceImpl implements BlogReactionService {
     public void create(CreateBlogReactionRequestDTO request, long blogId) {
         User user = userService.currentUser();
 
+        //todo: check user is null?
+        //todo: check user liked, if liked throw CustomerException
+        //todo: check request. blog is exist?, reactionId is exist?
+
         BlogReaction reaction = BlogReaction.builder()
                 .blogId(blogId)
                 .reactionId(request.getReactionId())
