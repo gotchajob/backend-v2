@@ -1,5 +1,6 @@
 package com.example.gcj.dto.blog;
 
+import com.example.gcj.dto.blog_reaction.BlogReactionOtherResponseDTO;
 import com.example.gcj.dto.other.LikeDTO;
 import com.example.gcj.dto.user.UserProfileDTO;
 import lombok.Builder;
@@ -21,6 +22,8 @@ public class BlogResponseDTO implements Serializable {
     private String category;
     private Date createdAt;
     private long numberComment;
+    private double averageRating;
+    private int ratingQuantity;
 
     private LikeDTO likes;
     private UserProfileDTO profile;
