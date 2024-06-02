@@ -19,6 +19,7 @@ public class ExpertMatchListResponseDTO implements Serializable {
     private String avatar;
     private String email;
     private int yearExperience;
+    private String bio;
     List<ExpertSkillOptionResponseDTO> Skills;
     List<ExpertNationSupportResponseDTO> nationSupport;
 

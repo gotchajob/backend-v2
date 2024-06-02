@@ -3,7 +3,6 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.blog.BlogListResponseDTO;
 import com.example.gcj.dto.blog.BlogResponseDTO;
 import com.example.gcj.dto.blog.CreateBlogDTO;
-import com.example.gcj.dto.blog_reaction.BlogReactionOtherResponseDTO;
 import com.example.gcj.dto.other.LikeDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.exception.CustomException;
