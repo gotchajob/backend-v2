@@ -38,9 +38,10 @@ public class BlogReactionServiceImpl implements BlogReactionService {
 
     @Override
     public void findBlogReactionByBlogIdAndUserId(UpdateBlogReactionDTO request) {
-        Optional<BlogReaction> existingReaction = blogReactionRepository.findBlogReactionByBlogIdAndUserId(request.getBlogId(), request.getUserId()).stream().findFirst();
+        User user = userService.currentUser();
+        Optional<BlogReaction> existingReaction = blogReactionRepository.findBlogReactionByBlogIdAndUserId(request.getBlogId(), user.getId()).stream().findFirst();
         if (existingReaction.isEmpty()) {
-            throw new CustomException("No reaction found with blogId " + request.getUserId());
+            throw new CustomException("No reaction found with blogId " + user.getId());
         } else {
             BlogReaction reaction = existingReaction.get();
             if (request.getReactionId() != null) {

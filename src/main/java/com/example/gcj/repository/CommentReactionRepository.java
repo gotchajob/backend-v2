@@ -10,4 +10,6 @@ public interface CommentReactionRepository extends JpaRepository<CommentReaction
     List<CommentReaction> findAll();
     List<CommentReaction> findReactionByCommentId(long commentId);
     Optional<CommentReaction> findByUserIdAndCommentId(Long userId, Integer commentId);
+    long countByCommentId(long commentId);
+    boolean existsByCommentIdAndUserId(long commentId, long userId);
 }
