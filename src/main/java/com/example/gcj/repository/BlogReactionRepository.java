@@ -1,6 +1,5 @@
 package com.example.gcj.repository;
 
-import com.example.gcj.dto.blog_reaction.UpdateBlogReactionDTO;
 import com.example.gcj.model.BlogReaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,11 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface BlogReactionRepository extends JpaRepository<BlogReaction, Long> {
-    List<BlogReaction> findAll();
     List<BlogReaction> findReactionByBlogId(long blogId);
     List<BlogReaction> findReactionByUserId(int userId);
-    List<BlogReaction> findReactionByBlogIdAndUserId(long blogId, long userId);
-    long countByBlogId(long blogId);
+    Optional<BlogReaction> findBlogReactionByBlogIdAndUserId(long blogId, long userId);
     boolean existsByBlogIdAndUserId(long blogId, long userId);
 
     @Query(value="SELECT AVG(br.rating) AS averageRating FROM blog_reaction br WHERE br.blog_id = :blogId", nativeQuery = true)

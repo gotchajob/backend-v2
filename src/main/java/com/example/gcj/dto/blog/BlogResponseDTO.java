@@ -1,6 +1,5 @@
 package com.example.gcj.dto.blog;
 
-import com.example.gcj.dto.blog_reaction.BlogReactionOtherResponseDTO;
 import com.example.gcj.dto.other.LikeDTO;
 import com.example.gcj.dto.user.UserProfileDTO;
 import lombok.Builder;
