@@ -6,11 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BlogReactionRepository extends JpaRepository<BlogReaction, Long> {
-    List<BlogReaction> findReactionByBlogId(long blogId);
-    List<BlogReaction> findReactionByUserId(int userId);
     Optional<BlogReaction> findBlogReactionByBlogIdAndUserId(long blogId, long userId);
     boolean existsByBlogIdAndUserId(long blogId, long userId);
 
