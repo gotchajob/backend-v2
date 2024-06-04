@@ -7,6 +7,7 @@ import com.example.gcj.dto.blog_comment.BlogCommentListDTO;
 import com.example.gcj.dto.blog_comment.CreateBlogCommentDTO;
 import com.example.gcj.dto.blog_reaction.BlogReactionResponseDTO;
 import com.example.gcj.dto.blog_reaction.CreateBlogReactionRequestDTO;
+import com.example.gcj.dto.blog_reaction.UpdateBlogReactionDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.service.BlogCommentService;
 import com.example.gcj.service.BlogReactionService;
@@ -30,7 +31,6 @@ import java.util.List;
 public class BlogController {
     private final BlogService blogService;
     private final BlogCommentService blogCommentService;
-    private final BlogReactionService blogReactionService;
 
     @PostMapping("")
     @Secured(Role.ADMIN)
@@ -108,22 +108,5 @@ public class BlogController {
     }
 
 
-    @PostMapping("/{id}/reaction")
-    @Secured({Role.USER, Role.ADMIN, Role.EXPERT})
-    @Operation(description = "role: user, admin, expert")
-    public ResponseEntity<Response<String>> addBlogReaction(
-            @RequestBody CreateBlogReactionRequestDTO request,
-            @PathVariable("id") long id
-    ) {
-        blogReactionService.create(request, id);
-        return Response.success(null);
-    }
 
-    @GetMapping("/reaction")
-    @Secured({Role.ADMIN})
-    @Operation(description = "Get all blog reaction")
-    public Response<List<BlogReactionResponseDTO>> getBlogReaction() {
-        List<BlogReactionResponseDTO> list = blogReactionService.getAll();
-        return Response.ok(list);
-    }
 }

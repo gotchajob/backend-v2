@@ -12,6 +12,7 @@ public interface BlogReactionRepository extends JpaRepository<BlogReaction, Long
     List<BlogReaction> findAll();
     List<BlogReaction> findReactionByBlogId(long blogId);
     List<BlogReaction> findReactionByUserId(int userId);
+    List<BlogReaction> findReactionByBlogIdAndUserId(long blogId, long userId);
     long countByBlogId(long blogId);
     boolean existsByBlogIdAndUserId(long blogId, long userId);
 
