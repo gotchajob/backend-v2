@@ -9,6 +9,7 @@ import lombok.Setter;
 @Builder
 public class CreateBlogReactionRequestDTO {
     private long userId;
+    private long blogId;
     private int reactionId;
     private int rating;
 }
