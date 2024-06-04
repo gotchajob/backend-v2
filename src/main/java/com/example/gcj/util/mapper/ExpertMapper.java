@@ -47,6 +47,7 @@ public class ExpertMapper {
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .yearExperience(expert.getYearExperience())
                 .email(user.getEmail())
+                .bio(expert.getBio())
                 .avatar(user.getAvatar())
                 .point(point)
                 .build();

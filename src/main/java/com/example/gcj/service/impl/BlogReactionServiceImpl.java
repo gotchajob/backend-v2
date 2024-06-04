@@ -28,13 +28,11 @@ public class BlogReactionServiceImpl implements BlogReactionService {
     @Override
     public void create(UpdateBlogReactionDTO request) {
         User user = userService.currentUser();
-
         BlogReaction newReaction = new BlogReaction();
         newReaction.setUserId(user.getId());
         newReaction.setBlogId(request.getBlogId());
         newReaction.setReactionId(request.getReactionId() != null ? request.getReactionId() : null);
         newReaction.setRating(request.getRating());
-
         blogReactionRepository.save(newReaction);
     }
 

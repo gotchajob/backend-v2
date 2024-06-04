@@ -4,6 +4,7 @@ import com.example.gcj.dto.expert_skill_option.CreateExpertSkillOptionDTO;
 import com.example.gcj.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
 import com.example.gcj.dto.expert_skill_option.UpdateExpertSkillOptionPointRequestDTO;
 import com.example.gcj.model.ExpertSkillOption;
+import com.example.gcj.model.SkillOption;
 import com.example.gcj.repository.ExpertSkillOptionRepository;
 import com.example.gcj.service.ExpertSkillOptionService;
 import com.example.gcj.util.mapper.ExpertSkillOptionMapper;
@@ -23,13 +24,14 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
             ExpertSkillOption expertSkillOption = ExpertSkillOption
                     .builder()
                     .expertId(expertId)
-                    .skillOptionId(r.getSkillOptionId())
+                    .skillOption(SkillOption.builder().id(r.getSkillOptionId()).build())
                     .defaultPoint(0)
                     .certification(r.getCertificate())
                     .status(1)
                     .build();
 
             //todo: refactor to save list to db
+            //todo: check exist expert skill option
             expertSkillOptionRepository.save(expertSkillOption);
         }
 
