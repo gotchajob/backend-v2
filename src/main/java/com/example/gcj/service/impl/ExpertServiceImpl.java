@@ -33,33 +33,45 @@ public class ExpertServiceImpl implements ExpertService {
     public List<ExpertMatchListResponseDTO> expertMatch(Long categoryId, List<Long> skillOptionIds, List<String> nations, int yearExperience) {
         int nationPoint = 2;
         int yearExperiencePoint = 3;
-        int skillOptionPoint = 3;
+        int skillOptionPoint = 5;
         HashMap<Long, Integer> listExpert = new HashMap<>();
         List<ExpertMatchListResponseDTO> response = new ArrayList<>();
 
         //expert nation support
-        List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
-        if (!expertNationSupports.isEmpty()) {
-            for (ExpertNationSupport expertNationSupport: expertNationSupports) {
-                addPoint(listExpert, expertNationSupport.getExpertId(), nationPoint);
+        if (!nations.isEmpty()) {
+            List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
+            if (!expertNationSupports.isEmpty()) {
+                for (ExpertNationSupport expertNationSupport: expertNationSupports) {
+                    addPoint(listExpert, expertNationSupport.getExpertId(), nationPoint);
+                }
             }
         }
+
 
         //expert skill option
-        List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findAllBySkillOptionIdInAndStatus(skillOptionIds, 1);
-        if (!expertSkillOptions.isEmpty()) {
-            for (ExpertSkillOption expertSkillOption: expertSkillOptions) {
-                addPoint(listExpert, expertSkillOption.getExpertId(), skillOptionPoint);
+        //todo: point by default point and rating
+        if (!skillOptionIds.isEmpty()) {
+            List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findAllBySkillOptionIdInAndStatus(skillOptionIds, 1);
+            if (!expertSkillOptions.isEmpty()) {
+                for (ExpertSkillOption expertSkillOption: expertSkillOptions) {
+                    addPoint(listExpert, expertSkillOption.getExpertId(), expertSkillOption.getDefaultPoint());
+                }
             }
         }
 
+
         //expert year experience
-        List<Expert> experts = expertRepository.findAllByYearExperienceAfter(yearExperience);
-        if (!experts.isEmpty()) {
-            for (Expert expert : experts) {
-                addPoint(listExpert, expert.getId(), yearExperiencePoint);
+        // todo: more year more point?
+        if (yearExperience > 0) {
+            List<Expert> experts = expertRepository.findAllByYearExperienceAfter(yearExperience);
+            if (!experts.isEmpty()) {
+                for (Expert expert : experts) {
+                    addPoint(listExpert, expert.getId(), yearExperiencePoint);
+                }
             }
         }
+
+        //todo: check expert is verify?
 
         // Get top 5 experts with largest points
         List<Map.Entry<Long, Integer>> top5Experts = listExpert.entrySet()

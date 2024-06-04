@@ -8,8 +8,8 @@ public class ExpertSkillOptionMapper {
         return ExpertSkillOptionResponseDTO
                 .builder()
                 .id(expertSkillOption.getId())
-                .skillOptionId(expertSkillOption.getSkillOptionId())
-                .skillOptionName("coming soon!")
+                .skillOptionId(expertSkillOption.getSkillOption().getId())
+                .skillOptionName(expertSkillOption.getSkillOption().getName())
                 .defaultPoint(expertSkillOption.getDefaultPoint())
                 .certificate(expertSkillOption.getCertification())
                 .build();

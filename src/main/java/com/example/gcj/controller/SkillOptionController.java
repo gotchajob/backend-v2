@@ -18,9 +18,15 @@ public class SkillOptionController {
 
     @GetMapping("")
     public Response<List<SkillOptionResponseDTO>> getOptionList(
+            @RequestParam(required = false) Long categoryId
     ) {
-        List<SkillOptionResponseDTO> skillOption = skillOptionService.getAll();
-        return Response.ok(skillOption);
+        if (categoryId == null) {
+            List<SkillOptionResponseDTO> _skillOption = skillOptionService.getAll();
+            return Response.ok(_skillOption);
+        }
+
+        List<SkillOptionResponseDTO> response = skillOptionService.findSkillOptionByCategory(categoryId);
+        return Response.ok(response);
     }
 
     @GetMapping("/skill/{id}")

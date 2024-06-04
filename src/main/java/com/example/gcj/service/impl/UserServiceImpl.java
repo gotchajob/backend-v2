@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
-        Page<User> users = userRepository.getAllByRoleId(USER_ROLE, pageable);
+        Page<User> users = userRepository.getAllByRoleId(MENTOR_ROLE, pageable);
 
         return new PageResponseDTO<>(users.map(UserMapper::toDto).toList(), users.getTotalPages());
     }

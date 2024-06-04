@@ -12,4 +12,7 @@ public interface SkillOptionService {
     boolean createSkillOption(CreateSkillOptionRequestDTO request);
     List<UpdateSkillOptionRequestDTO> updateSkillOptions(List<UpdateSkillOptionRequestDTO> request);
     void deleteSkillOptions(long skillId);
+
+    List<SkillOptionResponseDTO> findSkillOptionByCategory(long categoryId);
+
 }
