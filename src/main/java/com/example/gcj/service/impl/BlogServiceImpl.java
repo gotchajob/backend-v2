@@ -75,6 +75,7 @@ public class BlogServiceImpl implements BlogService {
     public BlogResponseDTO getBlog(long id) {
         User currentUser = userService.currentUser();
         boolean liked = false;
+        Integer rated = null;
         Blog blog = blogRepository.getByIdAndStatus(id, ACTIVE);
         if (blog == null) {
             throw new CustomException("Not found");
@@ -83,6 +84,10 @@ public class BlogServiceImpl implements BlogService {
             int checkLiked = blogRepository.isBlogLikedByUser(blog.getId(), currentUser.getId());
             if (checkLiked == 1) {
                 liked = true;
+            }
+            Integer ratedDB = blogReactionRepository.existingRatingByBlogIdAndUserId(blog.getId(),currentUser.getId());
+            if(ratedDB != null) {
+                rated = ratedDB;
             }
         }
         long likeCount = blogRepository.countLikesByBlogId(blog.getId());
@@ -100,6 +105,7 @@ public class BlogServiceImpl implements BlogService {
         response.setNumberComment(numberComment);
         response.setAverageRating(averageRating);
         response.setRatingQuantity(ratingQuantity);
+        response.setRated(rated);
         return response;
     }
 

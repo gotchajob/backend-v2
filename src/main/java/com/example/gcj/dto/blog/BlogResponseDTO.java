@@ -23,7 +23,7 @@ public class BlogResponseDTO implements Serializable {
     private long numberComment;
     private double averageRating;
     private int ratingQuantity;
-
+    private Integer rated;
     private LikeDTO likes;
     private UserProfileDTO profile;
     private List<BlogListResponseDTO> relateBlog;

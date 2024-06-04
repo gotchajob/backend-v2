@@ -18,6 +18,6 @@ public class BlogReaction {
     private long id;
     private long blogId;
     private long userId;
-    private int reactionId;
-    private int rating;
+    private Integer reactionId;
+    private Integer rating;
 }
