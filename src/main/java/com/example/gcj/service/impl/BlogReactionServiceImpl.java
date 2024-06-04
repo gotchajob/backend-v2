@@ -2,6 +2,7 @@ package com.example.gcj.service.impl;
 
 import com.example.gcj.dto.blog_reaction.BlogReactionResponseDTO;
 import com.example.gcj.dto.blog_reaction.CreateBlogReactionRequestDTO;
+import com.example.gcj.dto.blog_reaction.UpdateBlogReactionDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.BlogReaction;
 import com.example.gcj.model.User;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +46,7 @@ public class BlogReactionServiceImpl implements BlogReactionService {
     @Override
     public List<BlogReactionResponseDTO> findReactionByBlogId(long blogId) {
         List<BlogReaction> reactList = blogReactionRepository.findReactionByBlogId(blogId);
-        if(reactList.isEmpty()) {
+        if (reactList.isEmpty()) {
             throw new CustomException("No reaction found with blogId " + blogId);
         }
         return reactList.stream().map(BlogReactionMapper::toDto).collect(Collectors.toList());
@@ -53,10 +55,43 @@ public class BlogReactionServiceImpl implements BlogReactionService {
     @Override
     public List<BlogReactionResponseDTO> findReactionByUserId(int userid) {
         List<BlogReaction> reactList = blogReactionRepository.findReactionByUserId(userid);
-        if(reactList.isEmpty()) {
+        if (reactList.isEmpty()) {
             throw new CustomException("No reaction found with blogId " + userid);
         }
         return reactList.stream().map(BlogReactionMapper::toDto).collect(Collectors.toList());
+    }
+
+        @Override
+        public List<BlogReactionResponseDTO> findReactionByBlogIdAndUserId(long blogId, long userId) {
+            List<BlogReaction> reactList = blogReactionRepository.findReactionByBlogIdAndUserId(blogId, userId);
+            if (reactList.isEmpty()) {
+                throw new CustomException("No reaction found with blogId " + userId);
+            }
+            return reactList.stream().map(BlogReactionMapper::toDto).collect(Collectors.toList());
+        }
+
+
+    @Override
+    public void updateBlogReaction(UpdateBlogReactionDTO request, long id) {
+        Optional<BlogReaction> optionalReaction = blogReactionRepository.findById(id);
+        if (optionalReaction.isEmpty()) {
+            throw new CustomException("BlogReaction not found");
+        }
+        BlogReaction reaction = optionalReaction.get();
+        reaction.setBlogId(request.getBlogId());
+        reaction.setUserId(request.getUserId());
+        reaction.setReactionId(request.getReactionId());
+        reaction.setRating(request.getRating());
+
+        blogReactionRepository.save(reaction);
+    }
+
+    @Override
+    public void delteBlogReaction(long id) {
+        if(!blogReactionRepository.existsById(id)) {
+            throw new CustomException("Blog reaction not found with id" + id);
+        }
+        blogReactionRepository.deleteById(id);
     }
 
 
