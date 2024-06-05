@@ -3,24 +3,38 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.dto.expert_nation_support.ExpertNationSupportResponseDTO;
 import com.example.gcj.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
+import com.example.gcj.dto.other.PageResponseDTO;
+import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.model.Expert;
 import com.example.gcj.model.ExpertNationSupport;
 import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.repository.ExpertNationSupportRepository;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.ExpertSkillOptionRepository;
+import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.service.ExpertService;
+import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.ExpertNationSupportMapper;
 import com.example.gcj.util.mapper.ExpertSkillOptionMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.example.gcj.util.Regex.SORT_BY;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +42,7 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final ExpertNationSupportRepository expertNationSupportRepository;
     private final ExpertRepository expertRepository;
+    private final SearchRepository searchRepository;
 
     @Override
     public List<ExpertMatchListResponseDTO> expertMatch(Long categoryId, List<Long> skillOptionIds, List<String> nations, int yearExperience) {
@@ -101,6 +116,20 @@ public class ExpertServiceImpl implements ExpertService {
         }
 
         return response;
+    }
+
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String filter) {
+        List<Sort.Order> sorts = Util.sortConvert(sortBy);
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize, Sort.by(sorts));
+
+        Page<Expert> experts = expertRepository.findAll(pageable);
+        return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
+    }
+
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String... search) {
+        return searchRepository.advanceSearchExpert(pageNumber, pageSize, sortBy, search);
     }
 
     private void addPoint(HashMap<Long, Integer> expertList, long id, int point) {

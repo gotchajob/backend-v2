@@ -11,11 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -84,13 +81,7 @@ public class UserController {
         return Response.ok(response);
     }
 
-    @GetMapping("/expert")
-    public Response<PageResponseDTO<ExpertAccountResponse>> getExpertList(
-            @RequestParam(required = false, defaultValue = "1") int page,
-            @RequestParam(required = false, defaultValue = "6") int limit
-    ) {
-        return Response.ok(null);
-    }
+
 
     @PatchMapping("/{id}/approve-expert")
     public Response<String> approveExpert(

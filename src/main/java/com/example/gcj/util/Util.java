@@ -5,10 +5,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.example.gcj.util.Regex.SORT_BY;
 
 public class Util {
     public static String date() {
@@ -110,6 +115,28 @@ public class Util {
         }
 
         return new String(passwordArray);
+    }
+
+
+    public static List<Sort.Order> sortConvert(String sortBy) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        if (sortBy == null) {
+            return sorts;
+        }
+
+        if (StringUtils.hasLength(sortBy)) {
+            // firstName:asc|desc
+            Pattern pattern = Pattern.compile(SORT_BY);
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    sorts.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                } else {
+                    sorts.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+        }
+        return sorts;
     }
 
 
