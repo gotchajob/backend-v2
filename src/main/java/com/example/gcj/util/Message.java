@@ -5,6 +5,4 @@ public class Message {
     public static final String INVALID_INPUT = "Input is invalid";
     public static final String NOT_FOUND = "not found";
 
-
-
 }

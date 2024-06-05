@@ -1,5 +1,6 @@
 package com.example.gcj.dto.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -11,9 +12,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequestDTO implements Serializable {
-    @NotNull
+    @Schema(example = "user@gmail.com")
     private String email;
-
-    @NotBlank
+    @Schema(example = "Test12345")
     private String password;
 }

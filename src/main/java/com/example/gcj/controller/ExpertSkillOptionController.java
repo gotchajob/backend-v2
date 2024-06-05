@@ -20,29 +20,19 @@ public class ExpertSkillOptionController {
     private final ExpertSkillOptionService expertSkillOptionService;
 
     @GetMapping("")
-    public ResponseEntity<Response<List<ExpertSkillOptionResponseDTO>>> getExpertSkillOption(
+    public Response<List<ExpertSkillOptionResponseDTO>> getExpertSkillOption(
             @RequestParam long expertId
     ) {
-        try {
-            List<ExpertSkillOptionResponseDTO> response = expertSkillOptionService.getByExpertId(expertId);
-            return Response.success(response);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        List<ExpertSkillOptionResponseDTO> response = expertSkillOptionService.getByExpertId(expertId);
+        return Response.ok(response);
     }
 
     @PutMapping("")
-    public ResponseEntity<Response<String>> updateDefaultPoint(
+    public Response<String> updateDefaultPoint(
             @RequestBody List<UpdateExpertSkillOptionPointRequestDTO> request
     ) {
-        try {
-            expertSkillOptionService.updateDefaultPoint(request);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        expertSkillOptionService.updateDefaultPoint(request);
+        return Response.ok(null);
     }
 
 
