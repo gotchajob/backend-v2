@@ -19,72 +19,48 @@ public class ExpertRegisterRequestController {
 
     @PostMapping("")
     @Operation(summary = "admin, user")
-    public ResponseEntity<Response<String>> mentorRegisterRequest(
+    public Response<String> mentorRegisterRequest(
             @RequestBody CreateExpertRegisterRequestDTO request
     ) {
-        try {
-            expertRegisterRequestService.create(request.getEmail());
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        expertRegisterRequestService.create(request.getEmail());
+        return Response.ok(null);
     }
 
     @GetMapping("")
-    public ResponseEntity<Response<GetExpertRegisterRequestResponseDTO>> get(
+    public Response<GetExpertRegisterRequestResponseDTO> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
             @RequestParam(required = false, defaultValue = "6") @Min(1) int limit
     ) {
-        try {
-            GetExpertRegisterRequestResponseDTO responseDTO = expertRegisterRequestService.get(page, limit);
-            return Response.success(responseDTO);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        GetExpertRegisterRequestResponseDTO responseDTO = expertRegisterRequestService.get(page, limit);
+        return Response.ok(responseDTO);
     }
 
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<Response<String>> approveRegister(
+    public Response<String> approveRegister(
             @PathVariable long id,
             @RequestBody ApproveExpertRegisterRequestDTO requestDTO
     ) {
-        try {
-            expertRegisterRequestService.approveRegister(id, requestDTO.getUrl());
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        expertRegisterRequestService.approveRegister(id, requestDTO.getUrl());
+        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/reject")
-    public ResponseEntity<Response<String>> rejectRegister(
+    public Response<String> rejectRegister(
             @PathVariable long id,
             @RequestBody(required = false) RejectExpertRegisterRequestDTO requestDTO
     ) {
-        try {
-            expertRegisterRequestService.rejectRegister(id, requestDTO.getNote());
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        expertRegisterRequestService.rejectRegister(id, requestDTO.getNote());
+        return Response.ok(null);
     }
 
     @PostMapping("/ban")
-    public ResponseEntity<Response<String>> banEmail(
+    public Response<String> banEmail(
             @RequestBody BanEmailRequestDTO request
     ) {
-        try {
-            //add email to black list
-            //delete all request
-            //check black list when create
-            return Response.success(null);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        //add email to black list
+        //delete all request
+        //check black list when create
+        return Response.ok(null);
     }
 
 }

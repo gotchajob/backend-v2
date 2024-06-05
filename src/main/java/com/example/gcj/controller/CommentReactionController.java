@@ -26,8 +26,8 @@ public class CommentReactionController {
 
     @PatchMapping
     @Secured({Role.USER})
-    public ResponseEntity<Response<String>> updateOrCreateCommentReaction(@RequestBody UpdateCommentReactionRequestDTO request) {
+    public Response<String> updateOrCreateCommentReaction(@RequestBody UpdateCommentReactionRequestDTO request) {
         commentReactionService.updateOrCreateCommentReaction(request);
-        return Response.success(null);
+        return Response.ok(null);
     }
 }

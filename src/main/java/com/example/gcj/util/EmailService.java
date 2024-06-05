@@ -8,8 +8,6 @@ import java.util.List;
 
 @Service
 public class EmailService {
-    final static String ADMIN_EMAIL = "gotchajob.vn@gmail.com";
-//    final static String ADMIN_EMAIL = "vchi1201@gmail.com";
     final static String DEV_EMAIL = "gotchajob.dev@gmail.com";
 
     private final JavaMailSender mailSender;
@@ -42,23 +40,6 @@ public class EmailService {
                 "Best regards,\n" +
                 "\n" +
                 "GotchaJob\n";
-
-        sendEmail(email, subject, body);
-    }
-
-    public void sendEmailVerifyEmail(String email, String code, String fullName) {
-        String subject = "Account Verification Code for GotchaJob.com";
-        String body = "Dear " + fullName + ",\n" +
-                "\n" +
-                "Thank you for registering with our service. To complete your registration, please use the following verification code:\n" +
-                code +
-                "\n" +
-                "Enter this code on our website to verify your email address and activate your account.\n" +
-                "\n" +
-                "If you didn't sign up for our service, please ignore this email.\n" +
-                "\n" +
-                "Best regards,\n" +
-                "GotchaJob";
 
         sendEmail(email, subject, body);
     }

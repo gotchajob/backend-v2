@@ -18,15 +18,10 @@ public class ExpertNationSupportController {
 
     @GetMapping("")
     @Operation(summary = "admin, user")
-    public ResponseEntity<Response<List<ExpertNationSupportResponseDTO>>> getExpertNationSupport(
+    public Response<List<ExpertNationSupportResponseDTO>> getExpertNationSupport(
             @RequestParam long expertId
     ) {
-        try {
-            List<ExpertNationSupportResponseDTO> response = expertNationSupportService.getByExpertId(expertId);
-            return Response.success(response);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        List<ExpertNationSupportResponseDTO> response = expertNationSupportService.getByExpertId(expertId);
+        return Response.ok(response);
     }
 }

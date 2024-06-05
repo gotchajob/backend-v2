@@ -26,154 +26,106 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(description = "Email: admin/user/expert + @gmail.com <br>Password: Test12345")
-    public ResponseEntity<Response<LoginResponseDTO>> login(
+    public Response<LoginResponseDTO> login(
             @RequestBody LoginRequestDTO request
     ) {
-        try {
-            LoginResponseDTO responseDTO = userService.login(request);
-            return Response.success(responseDTO);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        LoginResponseDTO responseDTO = userService.login(request);
+        return Response.ok(responseDTO);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Response<String>> signup(
+    public Response<String> signup(
             @RequestBody SignupRequestDTO request
     ) {
-        try {
-            userService.signup(request);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.signup(request);
+        return Response.ok(null);
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<Response<String>> changePassword(
+    public Response<String> changePassword(
 
     ) {
-        try {
-            throw new RuntimeException("test");
-            //return Response.success(null);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        throw new RuntimeException("test");
     }
 
     @PostMapping("/forget-password")
-    public ResponseEntity<Response<String>> forgetPassword(
+    public Response<String> forgetPassword(
 
     ) {
-        try {
-
-            return Response.success("null");
-
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        return Response.ok("null");
     }
 
     @GetMapping("")
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin")
-    public ResponseEntity<Response<PageResponseDTO<UserListResponseDTO>>> get(
+    public Response<PageResponseDTO<UserListResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
             @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
     ) {
-        try {
-            PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize);
-            return Response.success(userList);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize);
+        return Response.ok(userList);
     }
 
     @PostMapping("/create-expert-account")
-    public ResponseEntity<Response<String>> createExpertAccount(
+    public Response<String> createExpertAccount(
             @RequestBody CreateExpertAccountRequestDTO requestDTO
     ) {
-        try {
-            userService.createExpertAccount(requestDTO);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.createExpertAccount(requestDTO);
+        return Response.ok(null);
     }
 
 
     @GetMapping("/verify-expert")
-    public ResponseEntity<Response<PageResponseDTO<ExpertAccountResponse>>> getVerifyExpertList(
+    public Response<PageResponseDTO<ExpertAccountResponse>> getVerifyExpertList(
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "6") int limit
     ) {
-        try {
-            PageResponseDTO<ExpertAccountResponse> response = userService.getExpertAccountNotVerify(page, limit);
-            return Response.success(response);
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        PageResponseDTO<ExpertAccountResponse> response = userService.getExpertAccountNotVerify(page, limit);
+        return Response.ok(response);
+    }
+
+    @GetMapping("/expert")
+    public Response<PageResponseDTO<ExpertAccountResponse>> getExpertList(
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "6") int limit
+    ) {
+        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/approve-expert")
-    public ResponseEntity<Response<String>> approveExpert(
+    public Response<String> approveExpert(
             @PathVariable long id
     ) {
-        try {
-            userService.updateExpertStatus(id, 1);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.updateExpertStatus(id, 1);
+        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/reject-expert")
-    public ResponseEntity<Response<String>> rejectExpert(
+    public Response<String> rejectExpert(
             @PathVariable long id
     ) {
-        try {
-            userService.updateExpertStatus(id, 0);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.updateExpertStatus(id, 0);
+        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/ban")
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin")
-    public ResponseEntity<Response<String>> banUser(
+    public Response<String> banUser(
             @PathVariable long id
     ) {
-        try {
-            userService.banUser(id);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.banUser(id);
+        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/unban")
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin")
-    public ResponseEntity<Response<String>> unbanUser(
+    public Response<String> unbanUser(
             @PathVariable long id
     ) {
-        try {
-            userService.unbanUser(id);
-            return Response.success(null);
-
-        } catch (Exception e) {
-            return Response.error(e);
-        }
+        userService.unbanUser(id);
+        return Response.ok(null);
     }
 
     @GetMapping("/current")
@@ -186,7 +138,6 @@ public class UserController {
         UserProfileDTO userProfile = UserMapper.toUserProfile(user);
         return Response.ok(userProfile);
     }
-
 
 
 }
