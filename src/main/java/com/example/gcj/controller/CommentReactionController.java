@@ -22,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Comment Reaction Controller")
 public class CommentReactionController {
-    private final CommentReactionRepository commentReactionRepository;
     private final CommentReactionService commentReactionService;
 
     @PatchMapping

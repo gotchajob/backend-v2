@@ -25,17 +25,11 @@ public class BlogReactionController {
 
     @PatchMapping("")
     @Secured({Role.USER, Role.EXPERT})
-    public ResponseEntity<Response<String>> updateBlogReaction(
+    public Response<String> updateBlogReaction(
             @RequestBody UpdateBlogReactionDTO request
     ) {
-        boolean exist = blogReactionRepository.existsByBlogIdAndUserId(request.getBlogId(), request.getUserId());
-        log.info("Value of exist: {}", exist);
-        if(!exist) {
-            blogReactionService.create(request);
-        } else {
-            blogReactionService.findBlogReactionByBlogIdAndUserId(request);
-        }
-        return Response.success(null);
+        blogReactionService.addBlogReaction(request);
+        return Response.ok(null);
     }
 
 }

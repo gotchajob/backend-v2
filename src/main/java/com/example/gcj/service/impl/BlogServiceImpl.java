@@ -7,6 +7,7 @@ import com.example.gcj.dto.other.LikeDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Blog;
+import com.example.gcj.model.BlogReaction;
 import com.example.gcj.model.Category;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.BlogCommentRepository;
@@ -75,25 +76,24 @@ public class BlogServiceImpl implements BlogService {
     public BlogResponseDTO getBlog(long id) {
         User currentUser = userService.currentUser();
         boolean liked = false;
-        Integer rated = null;
+        Integer rated = 0;
         Blog blog = blogRepository.getByIdAndStatus(id, ACTIVE);
         if (blog == null) {
             throw new CustomException("Not found");
         }
+
         if (currentUser != null) {
-            int checkLiked = blogRepository.isBlogLikedByUser(blog.getId(), currentUser.getId());
-            if (checkLiked == 1) {
-                liked = true;
-            }
-            Integer ratedDB = blogReactionRepository.existingRatingByBlogIdAndUserId(blog.getId(),currentUser.getId());
-            if(ratedDB != null) {
-                rated = ratedDB;
+            BlogReaction blogReaction = blogReactionRepository.findBlogReactionByBlogIdAndUserId(id, currentUser.getId());
+            if (blogReaction != null) {
+                liked = blogReaction.getReactionId() != null;
+                rated = blogReaction.getRating() == null ? 0 : blogReaction.getRating();
             }
         }
-        long likeCount = blogRepository.countLikesByBlogId(blog.getId());
+        long likeCount = blogReactionRepository.countByBlogIdAndReactionIdNotNull(blog.getId());
         long numberComment = blogCommentRepository.countByBlogIdAndParentCommentId(blog.getId(), null);
-        double averageRating = blogReactionRepository.findAverageRating(id);
-        int ratingQuantity = blogReactionRepository.findRatingQuantity(id);
+        Double _averageRating = blogReactionRepository.findAverageRatingByBlogIdWhereRatingIsNotNull(id);
+        double averageRating = _averageRating == null? 0 : _averageRating.doubleValue();
+        long ratingQuantity = blogReactionRepository.countByBlogIdAndRatingNotNull(id);
 
         List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), NUMBER_RELATE_BLOG);
         BlogResponseDTO response = BlogMapper.toDto(blog, relateBlogs);

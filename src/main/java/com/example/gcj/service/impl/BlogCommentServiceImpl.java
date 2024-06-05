@@ -55,10 +55,10 @@ public class BlogCommentServiceImpl implements BlogCommentService {
         User user = userService.currentUser();
         List<BlogCommentListDTO> blogCommentList = comments.map(BlogCommentMapper::toDto).toList();
         for (BlogCommentListDTO i : blogCommentList) {
-            long value = commentReactionRepository.countByCommentId(i.getId());
+            long value = commentReactionRepository.countByCommentIdAndReactionIdNotNull(i.getId());
             boolean liked = false;
             if (user != null) {
-                liked = commentReactionRepository.existsByCommentIdAndUserId(i.getId(), user.getId());
+                liked = commentReactionRepository.existsByCommentIdAndUserIdAndReactionIdNotNull(i.getId(), user.getId());
             }
             i.setLikes(LikeDTO.builder().liked(liked).value(value).build());
         }

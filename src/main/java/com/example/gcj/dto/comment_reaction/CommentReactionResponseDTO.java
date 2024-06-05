@@ -10,6 +10,6 @@ import lombok.Setter;
 public class CommentReactionResponseDTO {
     private long id;
     private long userId;
-    private int commentId;
-    private int reactionId;
+    private long commentId;
+    private Long reactionId;
 }

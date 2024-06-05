@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CommentReactionRepository extends JpaRepository<CommentReaction, Long> {
     List<CommentReaction> findAll();
     List<CommentReaction> findReactionByCommentId(long commentId);
-    Optional<CommentReaction> findByUserIdAndCommentId(Long userId, Integer commentId);
-    long countByCommentId(long commentId);
-    boolean existsByCommentIdAndUserId(long commentId, long userId);
+    CommentReaction findByUserIdAndCommentId(long userId, long commentId);
+    long countByCommentIdAndReactionIdNotNull(long commentId);
+    boolean existsByCommentIdAndUserIdAndReactionIdNotNull(long commentId, long userId);
 }

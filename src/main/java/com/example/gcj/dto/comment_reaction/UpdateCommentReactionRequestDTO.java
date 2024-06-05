@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateCommentReactionRequestDTO {
-    private int commentId;
-    private int reactionId;
+    private long commentId;
+    private Long reactionId;
 }

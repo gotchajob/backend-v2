@@ -8,5 +8,6 @@ import java.util.List;
 public interface BlogReactionService {
     void create(UpdateBlogReactionDTO request);
     void findBlogReactionByBlogIdAndUserId(UpdateBlogReactionDTO request);
+    void addBlogReaction(UpdateBlogReactionDTO request);
 
 }
