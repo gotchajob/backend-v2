@@ -4,15 +4,11 @@ import com.example.gcj.dto.faq.CreateFaqRequestDTO;
 import com.example.gcj.dto.faq.FaqResponseDTO;
 import com.example.gcj.dto.faq.UpdateFaqRequestDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
-import com.example.gcj.exception.CustomException;
 import com.example.gcj.service.FaqService;
 import com.example.gcj.util.Response;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

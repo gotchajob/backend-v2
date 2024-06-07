@@ -3,17 +3,25 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.dto.expert_nation_support.ExpertNationSupportResponseDTO;
 import com.example.gcj.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
+import com.example.gcj.dto.other.PageResponseDTO;
+import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.model.Expert;
 import com.example.gcj.model.ExpertNationSupport;
 import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.repository.ExpertNationSupportRepository;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.ExpertSkillOptionRepository;
+import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.service.ExpertService;
+import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.ExpertNationSupportMapper;
 import com.example.gcj.util.mapper.ExpertSkillOptionMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +36,7 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final ExpertNationSupportRepository expertNationSupportRepository;
     private final ExpertRepository expertRepository;
+    private final SearchRepository searchRepository;
 
     @Override
     public List<ExpertMatchListResponseDTO> expertMatch(Long categoryId, List<Long> skillOptionIds, List<String> nations, int yearExperience) {
@@ -41,7 +50,7 @@ public class ExpertServiceImpl implements ExpertService {
         if (!nations.isEmpty()) {
             List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
             if (!expertNationSupports.isEmpty()) {
-                for (ExpertNationSupport expertNationSupport: expertNationSupports) {
+                for (ExpertNationSupport expertNationSupport : expertNationSupports) {
                     addPoint(listExpert, expertNationSupport.getExpertId(), nationPoint);
                 }
             }
@@ -53,7 +62,7 @@ public class ExpertServiceImpl implements ExpertService {
         if (!skillOptionIds.isEmpty()) {
             List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findAllBySkillOptionIdInAndStatus(skillOptionIds, 1);
             if (!expertSkillOptions.isEmpty()) {
-                for (ExpertSkillOption expertSkillOption: expertSkillOptions) {
+                for (ExpertSkillOption expertSkillOption : expertSkillOptions) {
                     addPoint(listExpert, expertSkillOption.getExpertId(), expertSkillOption.getDefaultPoint());
                 }
             }
@@ -103,11 +112,30 @@ public class ExpertServiceImpl implements ExpertService {
         return response;
     }
 
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String filter) {
+        List<Sort.Order> sorts = Util.sortConvert(sortBy);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sorts));
+
+        Page<Expert> experts = expertRepository.findAll(pageable);
+        return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
+    }
+
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String... search) {
+        Page<Expert> expertPage = searchRepository.getEntitiesPage(Expert.class, pageNumber, pageSize, sortBy, search);
+        return new PageResponseDTO<>(expertPage.stream().map(ExpertMapper::toDto).toList(), expertPage.getTotalPages());
+    }
+
     private void addPoint(HashMap<Long, Integer> expertList, long id, int point) {
         if (expertList.containsKey(id)) {
             expertList.put(id, expertList.get(id) + point);
         } else {
             expertList.put(id, point);
         }
+    }
+
+    private boolean isUserValid() {
+        return true;
     }
 }

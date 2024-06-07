@@ -7,6 +7,7 @@ import com.example.gcj.model.Expert;
 import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.ExpertRepository;
+import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.repository.UserRepository;
 import com.example.gcj.service.ExpertNationSupportService;
 import com.example.gcj.service.ExpertSkillOptionService;
@@ -42,15 +43,17 @@ public class UserServiceImpl implements UserService {
     final static int BAN_STATUS = 0;
     final static int UNBAN_STATUS = 1;
 
-    private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwt;
+
+    private final ExpertSkillOptionService expertSkillOptionService;
+    private final ExpertNationSupportService expertNationSupportService;
     private final EmailService emailService;
 
     private final ExpertRepository expertRepository;
-    private final ExpertSkillOptionService expertSkillOptionService;
-    private final ExpertNationSupportService expertNationSupportService;
+    private final UserRepository userRepository;
+    private final SearchRepository searchRepository;
 
 
     @Override
@@ -87,10 +90,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
-        Page<User> users = userRepository.getAllByRoleId(MENTOR_ROLE, pageable);
-
+    public PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize, String sortBy, String... search) {
+        Page<User> users = searchRepository.getEntitiesPage(User.class, pageNumber, pageSize, sortBy, search);
         return new PageResponseDTO<>(users.map(UserMapper::toDto).toList(), users.getTotalPages());
     }
 

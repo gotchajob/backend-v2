@@ -11,11 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -57,12 +54,16 @@ public class UserController {
 
     @GetMapping("")
     //@Secured(Role.ADMIN)
-    @Operation(description = "role: admin/super admin")
+    @Operation(description = "role: admin/super admin <br>" +
+            "sortBy: (field):(asc|desc). example: id:asc <br>" +
+            "search: (key)(:|<|>)(value). example: roleId:3, id>10")
     public Response<PageResponseDTO<UserListResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
-            @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
+            @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String... search
     ) {
-        PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize);
+        PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize, sortBy, search);
         return Response.ok(userList);
     }
 
@@ -84,13 +85,6 @@ public class UserController {
         return Response.ok(response);
     }
 
-    @GetMapping("/expert")
-    public Response<PageResponseDTO<ExpertAccountResponse>> getExpertList(
-            @RequestParam(required = false, defaultValue = "1") int page,
-            @RequestParam(required = false, defaultValue = "6") int limit
-    ) {
-        return Response.ok(null);
-    }
 
     @PatchMapping("/{id}/approve-expert")
     public Response<String> approveExpert(

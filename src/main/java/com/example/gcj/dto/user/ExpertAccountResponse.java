@@ -10,6 +10,7 @@ import java.util.Date;
 public class ExpertAccountResponse {
     private long userId;
     private long expertId;
+    private int userStatus;
     private String email;
     private String avatar;
     private String firstName;
