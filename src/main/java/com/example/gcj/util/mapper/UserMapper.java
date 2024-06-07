@@ -6,6 +6,10 @@ import com.example.gcj.model.User;
 
 public class UserMapper {
     public static UserListResponseDTO toDto(User user) {
+        if (user == null) {
+            return UserListResponseDTO.builder().build();
+        }
+
         return UserListResponseDTO.builder()
                 .id(user.getId())
                 .avatar(user.getAvatar())
@@ -14,6 +18,7 @@ public class UserMapper {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .status(user.getStatus())
+                .roleId(user.getRoleId())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

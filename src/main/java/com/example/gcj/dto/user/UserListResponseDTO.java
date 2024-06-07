@@ -17,6 +17,7 @@ public class UserListResponseDTO implements Serializable {
     private String fullName;
     private String phone;
     private String address;
+    private int roleId;
     private int status;
     private Date createdAt;
 

@@ -54,12 +54,16 @@ public class UserController {
 
     @GetMapping("")
     //@Secured(Role.ADMIN)
-    @Operation(description = "role: admin/super admin")
+    @Operation(description = "role: admin/super admin <br>" +
+            "sortBy: (field):(asc|desc). example: id:asc <br>" +
+            "search: (key)(:|<|>)(value). example: roleId:3, id>10")
     public Response<PageResponseDTO<UserListResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
-            @RequestParam(required = false, defaultValue = "12") @Min(1) int pageSize
+            @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String... search
     ) {
-        PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize);
+        PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize, sortBy, search);
         return Response.ok(userList);
     }
 
@@ -80,7 +84,6 @@ public class UserController {
         PageResponseDTO<ExpertAccountResponse> response = userService.getExpertAccountNotVerify(page, limit);
         return Response.ok(response);
     }
-
 
 
     @PatchMapping("/{id}/approve-expert")
