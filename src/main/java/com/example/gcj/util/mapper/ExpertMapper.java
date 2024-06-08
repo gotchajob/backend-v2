@@ -1,6 +1,7 @@
 package com.example.gcj.util.mapper;
 
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.dto.expert.ExpertResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Expert;
@@ -39,7 +40,7 @@ public class ExpertMapper {
 
     }
 
-    public static ExpertMatchListResponseDTO toDto(Expert expert, int point) {
+    public static ExpertMatchListResponseDTO toDto(Expert expert, double point) {
         User user = expert.getUser();
         if (user == null) {
             return null;
@@ -83,6 +84,25 @@ public class ExpertMapper {
                 .linkedinUrl(expert.getLinkedinUrl())
                 .education(expert.getEducation())
 
+                .build();
+    }
+
+    public static ExpertResponseDTO toDtoSimple(Expert expert) {
+        if (expert == null) {
+            return null;
+        }
+
+        return ExpertResponseDTO
+                .builder()
+                .expertId(expert.getId())
+                .status(expert.getStatus())
+                .birthDate(expert.getBirthDate())
+                .bio(expert.getBio())
+                .portfolioUrl(expert.getPortfolioUrl())
+                .facebookUrl(expert.getFacebookUrl())
+                .twitterUrl(expert.getTwitterUrl())
+                .linkedinUrl(expert.getLinkedinUrl())
+                .education(expert.getEducation())
                 .build();
     }
 }

@@ -8,10 +8,7 @@ import com.example.gcj.util.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,6 +41,14 @@ public class ExpertController {
             @RequestParam(required = false) String... search
     ) {
         PageResponseDTO<ExpertAccountResponse> response = expertService.getExpert(page, limit, sortBy, search);
+        return Response.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public Response<ExpertAccountResponse> getExpert(
+            @PathVariable long id
+    ) {
+        ExpertAccountResponse response = expertService.getExpert(id);
         return Response.ok(response);
     }
 }

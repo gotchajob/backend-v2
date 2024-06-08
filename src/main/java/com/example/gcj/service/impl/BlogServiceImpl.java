@@ -112,7 +112,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public List<BlogListResponseDTO> findByCategoryId(long categoryId, int limit) {
         List<Blog> listBlog = blogRepository.findBlogByCategoryId(categoryId, limit);
-        if (listBlog.isEmpty()) {
+        if (listBlog ==  null || listBlog.isEmpty()) {
             throw new CustomException("No blog found with this id " + categoryId);
         }
         return listBlog.stream().map(BlogMapper::toDto).collect(Collectors.toList());

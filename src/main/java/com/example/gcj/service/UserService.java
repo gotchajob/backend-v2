@@ -19,4 +19,6 @@ public interface UserService {
 
     User currentUser();
     String currentUserEmail();
+    ExpertAccountResponse getExpert(long id);
+    boolean isExistEmail(String email);
 }

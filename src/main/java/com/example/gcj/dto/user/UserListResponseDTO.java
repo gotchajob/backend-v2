@@ -1,5 +1,6 @@
 package com.example.gcj.dto.user;
 
+import com.example.gcj.dto.expert.ExpertResponseDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import lombok.*;
@@ -22,5 +23,5 @@ public class UserListResponseDTO implements Serializable {
     private Date createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ExpertAccountResponse expertProfile;
+    private ExpertResponseDTO expert;
 }

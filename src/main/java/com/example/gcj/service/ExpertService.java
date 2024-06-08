@@ -11,4 +11,5 @@ public interface ExpertService {
 
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String filter);
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String ...search);
+    ExpertAccountResponse getExpert(long id);
 }

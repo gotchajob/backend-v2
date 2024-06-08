@@ -14,4 +14,5 @@ public class ExpertRegisterRequest extends AbstractEntity {
     private String url;
     private String note;
     private int status;
+    private Long expertId;
 }

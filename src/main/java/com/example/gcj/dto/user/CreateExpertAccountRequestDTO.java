@@ -9,6 +9,8 @@ import java.util.List;
 
 @Data
 public class CreateExpertAccountRequestDTO implements Serializable {
+    private Long expertRegisterRequestId;
+
     private String email;
     private String firstName;
     private String lastName;
