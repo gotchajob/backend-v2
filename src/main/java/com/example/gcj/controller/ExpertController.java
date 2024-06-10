@@ -1,6 +1,7 @@
 package com.example.gcj.controller;
 
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.service.ExpertService;
@@ -48,5 +49,14 @@ public class ExpertController {
     ) {
         ExpertAccountResponse response = expertService.getExpert(id);
         return Response.ok(response);
+    }
+
+    @PatchMapping("/{id}")
+    public Response<String> updateExpert(
+            @PathVariable long id,
+            @RequestBody UpdateExpertRequestDTO request
+    ) {
+        expertService.updateExpert(id, request);
+        return null;
     }
 }

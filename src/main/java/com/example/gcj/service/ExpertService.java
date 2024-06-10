@@ -1,6 +1,7 @@
 package com.example.gcj.service;
 
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
 
@@ -10,4 +11,6 @@ public interface ExpertService {
     List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience);
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String ...search);
     ExpertAccountResponse getExpert(long id);
+
+    boolean updateExpert(long id, UpdateExpertRequestDTO request);
 }

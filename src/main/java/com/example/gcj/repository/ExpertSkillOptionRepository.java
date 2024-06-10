@@ -1,11 +1,12 @@
 package com.example.gcj.repository;
 
 import com.example.gcj.model.ExpertSkillOption;
-import com.example.gcj.model.SkillOption;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
     List<ExpertSkillOption> findByExpertId(@Param("expertId") long expertId);
 
     ExpertSkillOption findById(long id);
+    ExpertSkillOption findByExpertIdAndSkillOptionId(long expertId, long skillOptionId);
 
     List<ExpertSkillOption> findAllBySkillOptionIdInAndStatus(List<Long> skillOptionIds, int status);
 
@@ -24,4 +26,9 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
             "WHERE eso.skillOption.id = :skillOptionId " +
             "GROUP BY eso")
     List<Object[]> findExpertSkillOptionsWithRatingStatsBySkillOptionId(@Param("skillOptionId") Long skillOptionId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ExpertSkillOption e SET e.status = 0 WHERE e.expertId = :expertId")
+    int updateStatusByExpertId(@Param("expertId") long expertId);
 }

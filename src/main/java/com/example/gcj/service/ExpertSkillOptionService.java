@@ -11,4 +11,5 @@ public interface ExpertSkillOptionService {
     List<ExpertSkillOptionResponseDTO> getByExpertId(long expertId);
 
     boolean updateDefaultPoint(List<UpdateExpertSkillOptionPointRequestDTO> request);
+    boolean deleteAllByExpertId(long expertId);
 }

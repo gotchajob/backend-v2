@@ -18,4 +18,5 @@ public class ExpertNationSupport {
     private long id;
     private long expertId;
     private String nation;
+    private int status;
 }
