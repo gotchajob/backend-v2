@@ -1,11 +1,12 @@
 package com.example.gcj.controller;
 
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
-import com.example.gcj.dto.user.UserProfileDTO;
-import com.example.gcj.model.User;
+import com.example.gcj.dto.other.PageResponseDTO;
+import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.util.Response;
-import com.example.gcj.util.mapper.UserMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,19 @@ public class ExpertController {
 
     ) {
         List<ExpertMatchListResponseDTO> response = expertService.expertMatch(categoryId, skillOptionId, nation, minYearExperience);
+        return Response.ok(response);
+    }
+
+    @GetMapping("")
+    @Operation(description = "sortBy: (field name):asc|desc. example: id:desc <br>" +
+            "search: (key)(:|>|<)(value). example: id:11, bio:123")
+    public Response<PageResponseDTO<ExpertAccountResponse>> getExpertList(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
+            @RequestParam(required = false, defaultValue = "12") @Min(1) int limit,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String... search
+    ) {
+        PageResponseDTO<ExpertAccountResponse> response = expertService.getExpert(page, limit, sortBy, search);
         return Response.ok(response);
     }
 }

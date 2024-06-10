@@ -4,7 +4,6 @@ import com.example.gcj.enums.Status;
 import com.example.gcj.util.ErrorResponse;
 import com.example.gcj.util.Response;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

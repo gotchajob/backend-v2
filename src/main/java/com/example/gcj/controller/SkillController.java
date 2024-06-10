@@ -3,13 +3,10 @@ package com.example.gcj.controller;
 import com.example.gcj.dto.skill.CreateSkillRequestDTO;
 import com.example.gcj.dto.skill.SkillResponseDTO;
 import com.example.gcj.dto.skill.UpdateSkillRequestDTO;
-import com.example.gcj.model.Skill;
 import com.example.gcj.service.SkillService;
 import com.example.gcj.util.Response;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
