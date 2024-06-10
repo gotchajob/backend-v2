@@ -12,7 +12,7 @@ public class ExpertMapper {
     public static ExpertAccountResponse toDto(User user) {
         Expert expert = user.getExpert();
         if (expert == null) {
-            return ExpertAccountResponse.builder().build();
+            return null;
         }
 
         return ExpertAccountResponse
@@ -83,6 +83,7 @@ public class ExpertMapper {
                 .twitterUrl(expert.getTwitterUrl())
                 .linkedinUrl(expert.getLinkedinUrl())
                 .education(expert.getEducation())
+                .yearExperience(expert.getYearExperience())
 
                 .build();
     }
@@ -103,6 +104,7 @@ public class ExpertMapper {
                 .twitterUrl(expert.getTwitterUrl())
                 .linkedinUrl(expert.getLinkedinUrl())
                 .education(expert.getEducation())
+                .yearExperience(expert.getYearExperience())
                 .build();
     }
 }

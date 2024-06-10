@@ -15,21 +15,35 @@ public class PolicyServiceImpl implements PolicyService {
     private final PolicyRepository policyRepository;
 
     @Override
-    public int getByKey(PolicyKey key) {
+    public <T> T getByKey(PolicyKey key, Class<T> type) {
         if (key == null) {
-            throw new CustomException("fail to load policy. key is null");
+            throw new CustomException("Fail to load policy. Key is null");
         }
 
         if (!isExistKey(key)) {
-            throw new CustomException("fail to load policy. key is not exist. key: " + key);
+            throw new CustomException("Fail to load policy. Key does not exist. Key: " + key);
         }
 
         Policy policy = policyRepository.getByKey(key.name());
         if (policy == null) {
-            throw new CustomException("fail to load policy from database. key: " + key);
+            throw new CustomException("Fail to load policy from database. Key: " + key);
         }
 
-        return policy.getValue();
+        String value = policy.getValue();
+
+        try {
+            if (type == Integer.class) {
+                return type.cast(Integer.parseInt(value));
+            } else if (type == Double.class) {
+                return type.cast(Double.parseDouble(value));
+            } else if (type == String.class) {
+                return type.cast(value);
+            } else {
+                throw new CustomException("Unsupported type: " + type.getName());
+            }
+        } catch (NumberFormatException e) {
+            throw new CustomException("Failed to parse policy value. Key: " + key + ", Value: " + value + ", Type: " + type.getName());
+        }
     }
 
     private boolean isExistKey(PolicyKey key) {

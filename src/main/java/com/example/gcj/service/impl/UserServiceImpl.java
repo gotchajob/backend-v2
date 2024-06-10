@@ -123,6 +123,11 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("bad request");
         }
 
+        boolean isExistEmail = userRepository.existsByEmail(request.getEmail());
+        if (isExistEmail) {
+            throw new CustomException("email is existed!");
+        }
+
         ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getExpertRegisterRequestId());
         if (expertRegisterRequest == null) {
             throw new CustomException("expert register request not found with id " + request.getExpertRegisterRequestId());

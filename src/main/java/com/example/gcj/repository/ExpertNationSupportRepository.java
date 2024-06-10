@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ExpertNationSupportRepository extends JpaRepository<ExpertNationSupport, Long> {
-    ExpertNationSupport findByNation(String nation);
+    ExpertNationSupport findByNationAndExpertId(String nation, long expertId);
     List<ExpertNationSupport> findByExpertId(long expertId);
     List<ExpertNationSupport> findAllByNationIn(List<String> nations);
 }
