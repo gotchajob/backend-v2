@@ -1,9 +1,6 @@
 package com.example.gcj.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -16,7 +13,10 @@ public class ExpertSkillRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private long expertSkillId;
-    private long expertFeedbackId;
+    private Long expertFeedBackId;
     private int point;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "expert_skill_option_id", referencedColumnName = "id")
+    private ExpertSkillOption expertSkillOption;
 }

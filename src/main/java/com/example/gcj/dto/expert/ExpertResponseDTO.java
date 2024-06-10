@@ -1,4 +1,4 @@
-package com.example.gcj.dto.user;
+package com.example.gcj.dto.expert;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,19 +7,9 @@ import java.util.Date;
 
 @Getter
 @Builder
-public class ExpertAccountResponse {
-    private long userId;
+public class ExpertResponseDTO {
     private long expertId;
-    private int userStatus;
-    private String email;
-    private String avatar;
-    private String firstName;
-    private String lastName;
-    private String address;
-    private String phone;
-    private int yearExperience;
-
-
+    private int status;
     private Date birthDate;
     private String bio;
     private String portfolioUrl;
@@ -27,4 +17,5 @@ public class ExpertAccountResponse {
     private String twitterUrl;
     private String linkedinUrl;
     private String education;
+    private int yearExperience;
 }

@@ -134,4 +134,24 @@ public class UserController {
     }
 
 
+    @GetMapping("/expert/{userId}")
+    @Operation(description = "role: n/a")
+    public Response<ExpertAccountResponse> getExpert(
+        @PathVariable long userId
+    ) {
+        ExpertAccountResponse response = userService.getExpert(userId);
+        return Response.ok(response);
+    }
+
+    @GetMapping("/check-email/{email}")
+    @Operation(description = "role: n/a <br>" +
+            "200: exist email")
+    public Response<String> checkEmail(
+            @PathVariable String email
+    ) {
+        userService.isExistEmail(email);
+        return Response.ok(null);
+    }
+
+
 }

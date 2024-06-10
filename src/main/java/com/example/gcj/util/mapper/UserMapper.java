@@ -20,6 +20,7 @@ public class UserMapper {
                 .status(user.getStatus())
                 .roleId(user.getRoleId())
                 .createdAt(user.getCreatedAt())
+                .expert(ExpertMapper.toDtoSimple(user.getExpert()))
                 .build();
     }
 
