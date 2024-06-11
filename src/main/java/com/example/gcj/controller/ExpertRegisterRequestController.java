@@ -71,7 +71,7 @@ public class ExpertRegisterRequestController {
             @PathVariable long id,
             @RequestBody(required = false) RejectExpertRegisterRequestDTO requestDTO
     ) {
-        expertRegisterRequestService.rejectRegister(id, requestDTO.getNote());
+        expertRegisterRequestService.rejectRegister(id, requestDTO.getNote(), requestDTO.getUrl());
         return Response.ok(null);
     }
 

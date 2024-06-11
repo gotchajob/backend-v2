@@ -63,7 +63,7 @@ public class ExpertRegisterUpdateServiceImpl implements ExpertRegisterUpdateServ
         String updateUrl = updateRequest.getUpdateUrl();
         int statusUpdated = updateRequest.getStatus();
 
-        emailService.updateExpertRegisForm(email, note, updateUrl, statusUpdated);
+        emailService.sendEmailRejectExpertRequest(email, note, updateUrl);
         return updateRequest;
     }
 }

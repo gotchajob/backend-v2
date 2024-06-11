@@ -86,15 +86,17 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     }
 
     @Override
-    public void rejectRegister(long id, String note) {
+    public void rejectRegister(long id, String note, String url) {
         ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
         if (expertRegisterRequest == null) {
             throw new CustomException("Mentor register request not found!");
         }
-
+        expertRegisterRequest.setUrl(url);
         expertRegisterRequest.setStatus(REJECT_STATUS);
         expertRegisterRequest.setNote(note);
         expertRegisterRequestRepository.save(expertRegisterRequest);
+
+        emailService.sendEmailRejectExpertRequest(expertRegisterRequest.getEmail(), note, url );
     }
 
     @Override

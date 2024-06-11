@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class RejectExpertRegisterRequestDTO {
     private String note;
+    private String url;
 }
