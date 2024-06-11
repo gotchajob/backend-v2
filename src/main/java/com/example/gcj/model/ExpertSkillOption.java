@@ -1,9 +1,10 @@
 package com.example.gcj.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -20,7 +21,4 @@ public class ExpertSkillOption extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_option_id", referencedColumnName = "id")
     private SkillOption skillOption;
-
-    @OneToMany(mappedBy = "expertSkillOption", fetch = FetchType.LAZY)
-    private List<ExpertSkillRating> expertSkillRatings;
 }

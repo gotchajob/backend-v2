@@ -17,7 +17,6 @@ public class ExpertAccountResponse {
     private String lastName;
     private String address;
     private String phone;
-    private int yearExperience;
 
 
     private Date birthDate;

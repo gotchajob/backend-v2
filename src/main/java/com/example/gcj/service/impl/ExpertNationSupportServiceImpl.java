@@ -17,7 +17,7 @@ public class ExpertNationSupportServiceImpl implements ExpertNationSupportServic
 
     @Override
     public boolean create(long expertId, List<String> nations) {
-        if (nations == null || nations.isEmpty()) {
+        if (nations.isEmpty()) {
             return false;
         }
 
@@ -25,7 +25,7 @@ public class ExpertNationSupportServiceImpl implements ExpertNationSupportServic
             if (nation == null) {
                 continue;
             }
-            ExpertNationSupport _expertNationSupport = expertNationSupportRepository.findByNationAndExpertId(nation, expertId);
+            ExpertNationSupport _expertNationSupport = expertNationSupportRepository.findByNation(nation);
             if (_expertNationSupport != null) {
                 continue;
             }
