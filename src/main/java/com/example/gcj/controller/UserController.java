@@ -96,9 +96,10 @@ public class UserController {
 
     @PatchMapping("/{id}/reject-expert")
     public Response<String> rejectExpert(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody RejectExpertDTO request
     ) {
-        userService.updateExpertStatus(id, 0);
+        userService.rejectExpert(id, request);
         return Response.ok(null);
     }
 

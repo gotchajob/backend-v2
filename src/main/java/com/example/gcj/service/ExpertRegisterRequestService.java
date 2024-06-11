@@ -9,6 +9,6 @@ public interface ExpertRegisterRequestService {
     PageResponseDTO<ExpertRegisterRequestResponseDTO> get(int pageNumber, int pageSize, String sortBy, String... search);
     ExpertRegisterRequestResponseDTO get(long id);
     void approveRegister(long id, String url);
-    void rejectRegister(long id, String note, String url);
+    void rejectRegister(long id, String note);
     boolean checkRequest(long id);
 }

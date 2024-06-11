@@ -215,6 +215,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void rejectExpert(long expertId, RejectExpertDTO request) {
+        User user = userRepository.getUserById(expertId);
+        if (user == null) {
+            throw new CustomException("User not found");
+        }
+        user.setStatus(3);
+        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getId());
+        if (expertRegisterRequest == null) {
+            throw new CustomException("Mentor register request not found!");
+        }
+        expertRegisterRequest.setUrl(request.getUrl());
+        expertRegisterRequest.setStatus(4);
+        expertRegisterRequest.setNote(request.getNote());
+        expertRegisterRequestRepository.save(expertRegisterRequest);
+
+        emailService.sendEmailRejectExpertRequest(expertRegisterRequest.getEmail(), request.getNote(), request.getUrl() );
+    }
+
+    @Override
     public void banUser(long id) {
         User user = userRepository.getUserById(id);
         if (user == null) {

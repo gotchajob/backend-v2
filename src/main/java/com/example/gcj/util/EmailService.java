@@ -55,6 +55,27 @@ public class EmailService {
         sendEmail(email, subject, body);
     }
 
+    public void updateExpertRegisForm(String email, String note, int status) {
+        String subject = "";
+        String body = "";
+        if (status == 2) {
+            subject = "Chúc mừng! Form cập nhật thông tin của bạn đã được chấp nhận";
+            body = "Kính gửi " + email + ",\n\n" +
+                    "Chúc mừng! Form cập nhật thông tin của bạn đã được chấp nhận. " +
+                    "Thông tin của bạn sẽ được cập nhật trong hệ thống của chúng tôi.\n\n" +
+                    "Trân trọng,\n" +
+                    "Đội ngũ hỗ trợ";
+        } else if (status == 3) {
+            subject = "Yêu cầu tạo tài khoản của đã bị từ chối";
+            body = "Kính gửi " + email + ",\n\n" +
+                    "Email đăng kí cập nhật thông tin của bạn cần được chỉnh sửa.\n" +
+                    "Lý do: " + note + "\n\n" +
+                    "Trân trọng,\n" +
+                    "Đội ngũ hỗ trợ";
+        }
+        sendEmail(email, subject, body);
+    }
+
 
     public void sendEmailRejectExpertRequest(String email, String note, String updateUrl) {
         String subject = "Yêu cầu chỉnh sửa form cập nhật thông tin";

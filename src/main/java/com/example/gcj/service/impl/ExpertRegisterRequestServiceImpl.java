@@ -25,6 +25,7 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     private final static int ACTIVE_STATUS = 1;
     private final static int APPROVE_STATUS = 2;
     private final static int REJECT_STATUS = 3;
+    private final static int UPDATING_STATUS = 4;
 
     private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
     private final SearchRepository searchRepository;
@@ -86,17 +87,16 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     }
 
     @Override
-    public void rejectRegister(long id, String note, String url) {
+    public void rejectRegister(long id, String note) {
         ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
         if (expertRegisterRequest == null) {
             throw new CustomException("Mentor register request not found!");
         }
-        expertRegisterRequest.setUrl(url);
         expertRegisterRequest.setStatus(REJECT_STATUS);
         expertRegisterRequest.setNote(note);
         expertRegisterRequestRepository.save(expertRegisterRequest);
 
-        emailService.sendEmailRejectExpertRequest(expertRegisterRequest.getEmail(), note, url );
+        emailService.updateExpertRegisForm(expertRegisterRequest.getEmail(), note, REJECT_STATUS);
     }
 
     @Override
