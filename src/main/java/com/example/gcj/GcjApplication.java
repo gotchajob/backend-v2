@@ -8,8 +8,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @SpringBootApplication
 public class GcjApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GcjApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GcjApplication.class, args);
+    }
 
 }
