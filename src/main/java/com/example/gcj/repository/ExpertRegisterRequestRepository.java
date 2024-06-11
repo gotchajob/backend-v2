@@ -11,4 +11,5 @@ import java.util.List;
 public interface ExpertRegisterRequestRepository extends JpaRepository<ExpertRegisterRequest, Long> {
     ExpertRegisterRequest getById(long id);
     ExpertRegisterRequest getByEmailAndStatus(String email, int status);
+    ExpertRegisterRequest getByEmail(String email);
 }

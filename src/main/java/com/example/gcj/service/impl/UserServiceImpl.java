@@ -19,6 +19,7 @@ import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
+import com.example.gcj.util.status.ExpertRegisterRequestStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -123,10 +124,7 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("bad request");
         }
 
-        boolean isExistEmail = userRepository.existsByEmail(request.getEmail());
-        if (isExistEmail) {
-            throw new CustomException("email is existed!");
-        }
+
 
         ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getExpertRegisterRequestId());
         if (expertRegisterRequest == null) {
@@ -136,8 +134,13 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("expert register request status invalid");
         }
 
+        boolean isExistEmail = userRepository.existsByEmail(expertRegisterRequest.getEmail());
+        if (isExistEmail) {
+            throw new CustomException("email is existed!");
+        }
+
         User user = User.builder()
-                .email(request.getEmail())
+                .email(expertRegisterRequest.getEmail())
                 .avatar(request.getAvatar())
                 .address(request.getAddress())
                 .phone(request.getPhone())
@@ -152,6 +155,7 @@ public class UserServiceImpl implements UserService {
         Expert expert = Expert
                 .builder()
                 .bio(request.getBio())
+                .emailContact(request.getEmail())
                 .birthDate(request.getBirthDate())
                 .portfolioUrl(request.getPortfolioUrl())
                 .facebookUrl(request.getFacebookUrl())
@@ -168,7 +172,7 @@ public class UserServiceImpl implements UserService {
         expertNationSupportService.create(_expert.getId(), request.getNationSupport());
 
         expertRegisterRequest.setExpertId(_expert.getId());
-        expertRegisterRequest.setStatus(5);
+        expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.WAIT_TO_APPROVE_FORM);
         expertRegisterRequestRepository.save(expertRegisterRequest);
     }
 
@@ -274,12 +278,7 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("invalid input");
         }
 
-        boolean result = userRepository.existsByEmail(email);
-        if (result == false) {
-            throw new CustomException("email " + email + " is not exist");
-        }
-
-        return true;
+        return userRepository.existsByEmail(email);
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {

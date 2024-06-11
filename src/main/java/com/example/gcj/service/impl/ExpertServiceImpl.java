@@ -15,12 +15,16 @@ import com.example.gcj.service.ExpertNationSupportService;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.service.ExpertSkillOptionService;
 import com.example.gcj.service.PolicyService;
+import com.example.gcj.util.EmailService;
 import com.example.gcj.util.Status;
+import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.ExpertNationSupportMapper;
 import com.example.gcj.util.mapper.ExpertSkillOptionMapper;
+import com.example.gcj.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,10 +33,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExpertServiceImpl implements ExpertService {
-    private final PolicyService policyService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final PolicyService policyService;
     private final ExpertNationSupportService expertNationSupportService;
     private final ExpertSkillOptionService expertSkillOptionService;
+    private final EmailService emailService;
 
     private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final ExpertNationSupportRepository expertNationSupportRepository;
@@ -103,6 +109,7 @@ public class ExpertServiceImpl implements ExpertService {
         }
 
         expert.setBio(request.getBio());
+        expert.setEmailContact(request.getEmail());
         expert.setPortfolioUrl(request.getPortfolioUrl());
         expert.setFacebookUrl(request.getFacebookUrl());
         expert.setTwitterUrl(request.getTwitterUrl());
@@ -128,6 +135,27 @@ public class ExpertServiceImpl implements ExpertService {
         expertSkillOptionService.createExpertSkillOption(id, request.getExpertSKillOptionList());
 
         return true;
+    }
+
+    @Override
+    public boolean verifyExpert(long expertId) {
+        Expert expert = expertRepository.getById(expertId);
+        if (expert == null) {
+            throw new CustomException("not found expert with id" + expertId);
+        }
+        User user = expert.getUser();
+        if (user == null) {
+            throw new CustomException("user not found");
+        }
+
+        user.setStatus(UserStatus.ACTIVE);
+        String password = Util.generateRandomPassword();
+        user.setPassword(bCryptPasswordEncoder.encode(password));
+        userRepository.save(user);
+
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        sendEmailApproveExpert(user.getEmail(), password, fullName);
+        return false;
     }
 
     private void addPoint(HashMap<Long, Double> expertPoints, long expertId, double point) {
@@ -213,5 +241,29 @@ public class ExpertServiceImpl implements ExpertService {
                 }
             }
         }
+    }
+
+    private void sendEmailApproveExpert(String email, String password, String fullName) {
+        String subject = "Approval Request to Become a Expert on Gotchajob";
+        String body = "Dear " + fullName + ",\n" +
+                "\n" +
+                "I hope this email finds you well.\n" +
+                "\n" +
+                "I am reaching out to formally request approval to become a expert on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
+                "\n" +
+                "To facilitate this process, I have created an account on Gotchajob with the following login credentials:\n" +
+                "\n" +
+                "Username: " + email + "\n" +
+                "Password: " + password +
+                "\n" +
+                "I am committed to upholding the values and standards of Gotchajob and to providing valuable expertship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
+                "\n" +
+                "Thank you for considering my request. I look forward to the opportunity to serve as a expert on Gotchajob and make a meaningful difference in the lives of others.\n" +
+                "\n" +
+                "Warm regards,\n" +
+                "\n" +
+                "[GotchaJob]\n";
+
+        emailService.sendEmail(email, subject, body);
     }
 }

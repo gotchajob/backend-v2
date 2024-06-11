@@ -13,4 +13,5 @@ public interface ExpertService {
     ExpertAccountResponse getExpert(long id);
 
     boolean updateExpert(long id, UpdateExpertRequestDTO request);
+    boolean verifyExpert(long expertId);
 }

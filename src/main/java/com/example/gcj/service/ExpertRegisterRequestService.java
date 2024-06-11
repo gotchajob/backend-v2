@@ -2,6 +2,7 @@ package com.example.gcj.service;
 
 
 import com.example.gcj.dto.expert_register_request.ExpertRegisterRequestResponseDTO;
+import com.example.gcj.dto.expert_register_request.RejectFromRegisterRequestDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 
 public interface ExpertRegisterRequestService {
@@ -11,4 +12,8 @@ public interface ExpertRegisterRequestService {
     void approveRegister(long id, String url);
     void rejectRegister(long id, String note);
     boolean checkRequest(long id);
+    boolean banRequest(long id);
+
+    boolean approveFormRegister(long id);
+    boolean rejectFormRegister(long id, RejectFromRegisterRequestDTO request);
 }

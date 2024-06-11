@@ -17,6 +17,7 @@ import java.util.Date;
 public class Expert extends AbstractEntity {
     private int status;
     private Date birthDate;
+    private String emailContact;
     private String bio;
     private String portfolioUrl;
     private String facebookUrl;

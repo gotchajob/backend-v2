@@ -2,6 +2,7 @@ package com.example.gcj.controller;
 
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
+import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.User;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
@@ -149,7 +150,11 @@ public class UserController {
     public Response<String> checkEmail(
             @PathVariable String email
     ) {
-        userService.isExistEmail(email);
+        boolean isExistEmail = userService.isExistEmail(email);
+        if (!isExistEmail) {
+            throw new CustomException("Email " + email + " is not exist!");
+        }
+
         return Response.ok(null);
     }
 
