@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ExpertRegisterRequestRepository extends JpaRepository<ExpertRegisterRequest, Long> {
+    List<ExpertRegisterRequest> getAllByStatus(int status, Pageable pageable);
+    long countByStatus(int status);
     ExpertRegisterRequest getById(long id);
     ExpertRegisterRequest getByEmailAndStatus(String email, int status);
     ExpertRegisterRequest getByEmail(String email);

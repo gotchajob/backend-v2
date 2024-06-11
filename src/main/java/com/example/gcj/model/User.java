@@ -1,7 +1,6 @@
 package com.example.gcj.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.*;
@@ -25,10 +24,10 @@ public class User extends AbstractEntity{
     private int status;
     private int roleId;
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user")
     private Expert expert;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author")
     private List<Blog> blogs;
 
 

@@ -4,13 +4,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EmailService {
     final static String DEV_EMAIL = "gotchajob.dev@gmail.com";
 
     private final JavaMailSender mailSender;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -27,7 +26,7 @@ public class EmailService {
 
     public void sendEmailResetPassword(String email, String code, String fullName) {
         String subject = " Password Reset Request for GotchaJob.com";
-        String body = "Dear "+ fullName +",\n" +
+        String body = "Dear " + fullName + ",\n" +
                 "\n" +
                 "I hope this email finds you well. It appears that you have requested a password reset for your account. To ensure the security of your account, we have initiated the password reset process.\n" +
                 "\n" +
@@ -53,6 +52,39 @@ public class EmailService {
                 "Best regards,\n" +
                 "GotchaJob";
 
+        sendEmail(email, subject, body);
+    }
+
+    public void updateExpertRegisForm(String email, String note, int status) {
+        String subject = "";
+        String body = "";
+        if (status == 2) {
+            subject = "Chúc mừng! Form cập nhật thông tin của bạn đã được chấp nhận";
+            body = "Kính gửi " + email + ",\n\n" +
+                    "Chúc mừng! Form cập nhật thông tin của bạn đã được chấp nhận. " +
+                    "Thông tin của bạn sẽ được cập nhật trong hệ thống của chúng tôi.\n\n" +
+                    "Trân trọng,\n" +
+                    "Đội ngũ hỗ trợ";
+        } else if (status == 3) {
+            subject = "Yêu cầu tạo tài khoản của đã bị từ chối";
+            body = "Kính gửi " + email + ",\n\n" +
+                    "Email đăng kí cập nhật thông tin của bạn cần được chỉnh sửa.\n" +
+                    "Lý do: " + note + "\n\n" +
+                    "Trân trọng,\n" +
+                    "Đội ngũ hỗ trợ";
+        }
+        sendEmail(email, subject, body);
+    }
+
+
+    public void sendEmailRejectExpertRequest(String email, String note, String updateUrl) {
+        String subject = "Yêu cầu chỉnh sửa form cập nhật thông tin";
+        String body = "Kính gửi " + email + ",\n\n" +
+                "Form cập nhật thông tin của bạn cần được chỉnh sửa.\n" +
+                "Lý do: " + note + "\n\n" +
+                "Vui lòng truy cập link sau để chỉnh sửa form của bạn: " + updateUrl + "\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ hỗ trợ";
         sendEmail(email, subject, body);
     }
 }

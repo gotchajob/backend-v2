@@ -6,7 +6,6 @@ import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.ExpertRegisterRequest;
 import com.example.gcj.repository.ExpertRegisterRequestRepository;
-import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.service.UserService;
@@ -15,7 +14,6 @@ import com.example.gcj.util.Status;
 import com.example.gcj.util.mapper.ExpertRegisterRequestMapper;
 import com.example.gcj.util.status.ExpertRegisterRequestStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,9 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestService {
     private final static int REJECT_STATUS = 3;
+    private final static int UPDATING_STATUS = 4;
 
     private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
-    private final SearchRepository searchRepository;
     private final EmailService emailService;
     private final ExpertService expertService;
     private final UserService userService;
@@ -64,19 +62,12 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     }
 
     @Override
-    public PageResponseDTO<ExpertRegisterRequestResponseDTO> get(int pageNumber, int pageSize, String sortBy, String... search) {
-        Page<ExpertRegisterRequest> expertRegisterRequestPage = searchRepository.getEntitiesPage(ExpertRegisterRequest.class, pageNumber, pageSize, sortBy, search);
-        return new PageResponseDTO<>(expertRegisterRequestPage.map(ExpertRegisterRequestMapper::toDto).toList(), expertRegisterRequestPage.getTotalPages());
-    }
+    public GetExpertRegisterRequestResponseDTO get(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<ExpertRegisterRequest> list = expertRegisterRequestRepository.getAllByStatus(ACTIVE_STATUS, pageable);
+        long total = expertRegisterRequestRepository.countByStatus(ACTIVE_STATUS);
 
-    @Override
-    public ExpertRegisterRequestResponseDTO get(long id) {
-        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
-        if (expertRegisterRequest == null) {
-            throw new CustomException("expert register request not found with id=" + id);
-        }
-
-        return ExpertRegisterRequestMapper.toDto(expertRegisterRequest);
+        return new GetExpertRegisterRequestResponseDTO(list, total);
     }
 
     @Override
@@ -118,8 +109,8 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
                 || expertRegisterRequest.getStatus() == ExpertRegisterRequestStatus.UPDATING_FORM)) {
             throw new CustomException("invalid url");
         }
-
-        return true;
+      
+        emailService.updateExpertRegisForm(expertRegisterRequest.getEmail(), note, REJECT_STATUS);
     }
 
     @Override

@@ -4,10 +4,8 @@ import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Expert;
-import com.example.gcj.model.ExpertRegisterRequest;
 import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.model.User;
-import com.example.gcj.repository.ExpertRegisterRequestRepository;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.repository.UserRepository;
@@ -30,7 +28,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -39,9 +36,9 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    final static int EXPERT_ROLE = 3;
+    final static int MENTOR_ROLE = 3;
     final static int USER_ROLE = 4;
-    final static int DEFAULT_EXPERT_STATUS = 2;
+    final static int DEFAULT_MENTOR_STATUS = 2;
     final static String DEFAULT_PASSWORD = "default";
 
     final static int BAN_STATUS = 0;
@@ -58,30 +55,28 @@ public class UserServiceImpl implements UserService {
     private final ExpertRepository expertRepository;
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
-    private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
 
 
     @Override
     public LoginResponseDTO login(LoginRequestDTO userLogin) {
         if (userLogin == null) {
-            throw new CustomException("invalid request");
+
         }
 
-        if (!StringUtils.hasText(userLogin.getEmail()) || !StringUtils.hasText(userLogin.getPassword())) {
-            throw new CustomException("invalid data request");
+        if(userLogin == null || userLogin.getEmail() == null || userLogin.getPassword() == null){
+            throw new CustomException("LOGIN_FAIL");
         }
-
         User user = userRepository.getUserByEmail(userLogin.getEmail());
-        if (user == null || !bCryptPasswordEncoder.matches(userLogin.getPassword(), user.getPassword())) {
-            throw new CustomException("invalid user name or password");
+        if (user == null || !bCryptPasswordEncoder.matches(userLogin.getPassword(), user.getPassword()))  {
+            throw new CustomException("Invalid user name or password");
         }
 
         if (user.getStatus() == 0) {
-            throw new CustomException("user is banned");
+            throw new CustomException("User is banned");
         }
 
         if (user.getStatus() == 2) {
-            throw new CustomException("user is not verify");
+            throw new CustomException("User is not verify");
         }
 
 
@@ -126,12 +121,6 @@ public class UserServiceImpl implements UserService {
 
 
 
-        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getExpertRegisterRequestId());
-        if (expertRegisterRequest == null) {
-            throw new CustomException("expert register request not found with id " + request.getExpertRegisterRequestId());
-        }
-        if (expertRegisterRequest.getStatus() != 2) {
-            throw new CustomException("expert register request status invalid");
         }
 
         boolean isExistEmail = userRepository.existsByEmail(expertRegisterRequest.getEmail());
@@ -147,8 +136,8 @@ public class UserServiceImpl implements UserService {
                 .password(DEFAULT_PASSWORD)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .status(DEFAULT_EXPERT_STATUS)
-                .roleId(EXPERT_ROLE)
+                .status(DEFAULT_MENTOR_STATUS)
+                .roleId(MENTOR_ROLE)
                 .build();
         User _user = userRepository.save(user);
 
@@ -178,9 +167,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponseDTO<ExpertAccountResponse> getExpertAccountNotVerify(int page, int limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Pageable pageable = PageRequest.of(page-1, limit);
 
-        Page<User> experts = userRepository.getUserByStatusAndRoleId(DEFAULT_EXPERT_STATUS, EXPERT_ROLE, pageable);
+        Page<User> experts = userRepository.getUserByStatusAndRoleId(DEFAULT_MENTOR_STATUS, MENTOR_ROLE, pageable);
 
         return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
     }
@@ -194,10 +183,10 @@ public class UserServiceImpl implements UserService {
         if (status != 0 && status != 1) {
 
         }
-        if (user.getRoleId() != EXPERT_ROLE) {
+        if (user.getRoleId() != MENTOR_ROLE) {
             throw new CustomException("Account is not expert!");
         }
-        if (user.getStatus() != DEFAULT_EXPERT_STATUS) {
+        if (user.getStatus() != DEFAULT_MENTOR_STATUS) {
             throw new CustomException("Account verified!");
         }
 
@@ -216,6 +205,25 @@ public class UserServiceImpl implements UserService {
         user.setStatus(status);
         userRepository.save(user);
 
+    }
+
+    @Override
+    public void rejectExpert(long expertId, RejectExpertDTO request) {
+        User user = userRepository.getUserById(expertId);
+        if (user == null) {
+            throw new CustomException("User not found");
+        }
+        user.setStatus(3);
+        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getId());
+        if (expertRegisterRequest == null) {
+            throw new CustomException("Mentor register request not found!");
+        }
+        expertRegisterRequest.setUrl(request.getUrl());
+        expertRegisterRequest.setStatus(4);
+        expertRegisterRequest.setNote(request.getNote());
+        expertRegisterRequestRepository.save(expertRegisterRequest);
+
+        emailService.sendEmailRejectExpertRequest(expertRegisterRequest.getEmail(), request.getNote(), request.getUrl() );
     }
 
     @Override
@@ -307,7 +315,7 @@ public class UserServiceImpl implements UserService {
 
     private void sendEmailRejectExpert(String email, String fullName) {
         String subject = "Rejection Notification for Expertship Application on Gotchajob";
-        String body = "Dear " + fullName + ",\n" +
+        String body = "Dear "+fullName + ",\n" +
                 "\n" +
                 "I hope this message finds you well.\n" +
                 "\n" +

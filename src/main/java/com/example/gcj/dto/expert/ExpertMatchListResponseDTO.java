@@ -23,5 +23,5 @@ public class ExpertMatchListResponseDTO implements Serializable {
     List<ExpertSkillOptionResponseDTO> Skills;
     List<ExpertNationSupportResponseDTO> nationSupport;
 
-    private double point;
+    private int point;
 }

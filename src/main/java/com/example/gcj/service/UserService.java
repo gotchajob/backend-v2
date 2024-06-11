@@ -13,12 +13,10 @@ public interface UserService {
     void createExpertAccount(CreateExpertAccountRequestDTO request);
     PageResponseDTO<ExpertAccountResponse> getExpertAccountNotVerify(int page, int limit);
     void updateExpertStatus(Long id, int status);
-
+    void rejectExpert(long expertId, RejectExpertDTO request);
     void banUser(long id);
     void unbanUser(long id);
 
     User currentUser();
     String currentUserEmail();
-    ExpertAccountResponse getExpert(long id);
-    boolean isExistEmail(String email);
 }

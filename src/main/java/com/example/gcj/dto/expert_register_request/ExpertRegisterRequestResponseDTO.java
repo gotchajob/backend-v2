@@ -1,19 +1,22 @@
 package com.example.gcj.dto.expert_register_request;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.example.gcj.model.ExpertRegisterRequest;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
-@Getter
-@Builder
+@Data
 public class ExpertRegisterRequestResponseDTO implements Serializable {
     private long id;
-    private int status;
     private String email;
-    private String url;
-    private String note;
-    private Long expertId;
     private Date createdAt;
+
+    public ExpertRegisterRequestResponseDTO(ExpertRegisterRequest expertRegisterRequest) {
+        if (expertRegisterRequest != null) {
+            this.id = expertRegisterRequest.getId();
+            this.email = expertRegisterRequest.getEmail();
+            this.createdAt = expertRegisterRequest.getCreatedAt();
+        }
+    }
 }

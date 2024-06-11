@@ -27,7 +27,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,36 +51,45 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
 
     @Override
-    public List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience) {
-        final int nationPoint = policyService.getByKey(PolicyKey.EXPERT_NATION_SUPPORT_POINT, Integer.class);
-        final int yearExperiencePoint = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_POINT, Integer.class);
-        final double expertYearExpertPointMaxFactor = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_MAX_FACTOR, Double.class);
-        final int numberExpertMatch = policyService.getByKey(PolicyKey.NUMBER_EXPERT_MATCH, Integer.class);
+    public List<ExpertMatchListResponseDTO> expertMatch(Long categoryId, List<Long> skillOptionIds, List<String> nations, int yearExperience) {
+        int nationPoint = 2;
+        int yearExperiencePoint = 3;
+        int skillOptionPoint = 5;
+        HashMap<Long, Integer> listExpert = new HashMap<>();
+        List<ExpertMatchListResponseDTO> response = new ArrayList<>();
 
-        HashMap<Long, Double> expertPoints = new HashMap<>();
+        //expert nation support
+        if (!nations.isEmpty()) {
+            List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
+            if (!expertNationSupports.isEmpty()) {
+                for (ExpertNationSupport expertNationSupport : expertNationSupports) {
+                    addPoint(listExpert, expertNationSupport.getExpertId(), nationPoint);
+                }
+            }
+        }
 
-        addNationSupportPoints(expertPoints, nations, nationPoint);
 
-        // Add points for expert skill options
-        addSkillOptionPoints(expertPoints, skillOptionIds);
+        //expert skill option
+        //todo: point by default point and rating
+        if (!skillOptionIds.isEmpty()) {
+            List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findAllBySkillOptionIdInAndStatus(skillOptionIds, 1);
+            if (!expertSkillOptions.isEmpty()) {
+                for (ExpertSkillOption expertSkillOption : expertSkillOptions) {
+                    addPoint(listExpert, expertSkillOption.getExpertId(), expertSkillOption.getDefaultPoint());
+                }
+            }
+        }
 
-        // Add points for expert year experience
-        addYearExperiencePoints(expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
 
-        return getResultList(expertPoints, numberExpertMatch);
-    }
-
-    @Override
-    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String... search) {
-        Page<Expert> expertPage = searchRepository.getEntitiesPage(Expert.class, pageNumber, pageSize, sortBy, search);
-        return new PageResponseDTO<>(expertPage.stream().map(ExpertMapper::toDto).toList(), expertPage.getTotalPages());
-    }
-
-    @Override
-    public ExpertAccountResponse getExpert(long id) {
-        Expert expert = expertRepository.getById(id);
-        if (expert == null) {
-            throw new CustomException("Expert not found. id=" + id);
+        //expert year experience
+        // todo: more year more point?
+        if (yearExperience > 0) {
+            List<Expert> experts = expertRepository.findAllByYearExperienceAfter(yearExperience);
+            if (!experts.isEmpty()) {
+                for (Expert expert : experts) {
+                    addPoint(listExpert, expert.getId(), yearExperiencePoint);
+                }
+            }
         }
 
         return ExpertMapper.toDto(expert);
@@ -162,17 +174,17 @@ public class ExpertServiceImpl implements ExpertService {
         expertPoints.merge(expertId, point, Double::sum);
     }
 
-    private List<ExpertMatchListResponseDTO> getResultList(HashMap<Long, Double> expertList, int numberExpertMatch) {
-        List<Map.Entry<Long, Double>> topExperts = expertList.entrySet()
+        // Get top 5 experts with largest points
+        List<Map.Entry<Long, Integer>> top5Experts = listExpert.entrySet()
                 .stream()
                 .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())) // Sorting in descending order
+                .limit(5)
                 .collect(Collectors.toList());
 
-        List<ExpertMatchListResponseDTO> response = new ArrayList<>();
-        for (Map.Entry<Long, Double> entry : topExperts) {
+        // Print the top 5 experts
+        for (Map.Entry<Long, Integer> entry : top5Experts) {
             Expert expert = expertRepository.getById(entry.getKey());
-            boolean isInvalidExpert = expert == null || expert.getStatus() != 1 || expert.getUser() == null || expert.getUser().getStatus() != 1;
-            if (isInvalidExpert) {
+            if (expert == null) {
                 continue;
             }
 
@@ -187,59 +199,31 @@ public class ExpertServiceImpl implements ExpertService {
             _response.setNationSupport(_expertNationSupport);
 
             response.add(_response);
-
-            if (response.size() >= numberExpertMatch) {
-                break;
-            }
         }
 
         return response;
     }
-    private void addYearExperiencePoints(HashMap<Long, Double> expertPoints, int yearExperience, int yearExperiencePoint, double expertYearExpertPointMaxFactor) {
-        //expert year experience. expertYear/yearExperience * point (max is 2x point)
-        if (yearExperience > 0) {
-            List<Expert> experts = expertRepository.findByYearExperienceGreaterThanEqualAndStatus(yearExperience, Status.ACTIVE);
-            if (experts != null && !experts.isEmpty()) {
-                for (Expert expert : experts) {
-                    double expertPoint = ((double) expert.getYearExperience() / yearExperience) * yearExperiencePoint;
-                    expertPoint = Math.min(yearExperiencePoint * expertYearExpertPointMaxFactor, expertPoint);
-                    addPoint(expertPoints, expert.getId(), expertPoint);
-                }
-            }
-        }
+
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String filter) {
+        List<Sort.Order> sorts = Util.sortConvert(sortBy);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sorts));
+
+        Page<Expert> experts = expertRepository.findAll(pageable);
+        return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
     }
 
-    private void addSkillOptionPoints(HashMap<Long, Double> expertPoints, List<Long> skillOptionIds) {
-        //expert skill option
-        //todo: point by default point and rating
-        if (skillOptionIds != null && !skillOptionIds.isEmpty()) {
-            for (long skillOptionId : skillOptionIds) {
-                List<Object[]> results = expertSkillOptionRepository.findExpertSkillOptionsWithRatingStatsBySkillOptionId(skillOptionId);
-                if (results == null || results.isEmpty()) {
-                    continue;
-                }
-
-                for (Object[] result : results) {
-                    ExpertSkillOption expertSkillOption = (ExpertSkillOption) result[0];
-                    Long sumPoints = Objects.requireNonNullElse((Long) result[1], 0L);
-                    Long ratingCount = Objects.requireNonNullElse( (Long) result[2], 0L);
-                    double expertPoint = (double) (sumPoints + expertSkillOption.getDefaultPoint()) / (ratingCount + 1);
-                    addPoint(expertPoints, expertSkillOption.getExpertId(), expertPoint);
-                }
-            }
-        }
-
+    @Override
+    public PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String... search) {
+        Page<Expert> expertPage = searchRepository.getEntitiesPage(Expert.class, pageNumber, pageSize, sortBy, search);
+        return new PageResponseDTO<>(expertPage.stream().map(ExpertMapper::toDto).toList(), expertPage.getTotalPages());
     }
 
-    private void addNationSupportPoints(HashMap<Long, Double> expertPoints, List<String> nations, int nationPoint) {
-        //expert nation support
-        if (nations != null && !nations.isEmpty()) {
-            List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
-            if (expertNationSupports!= null && !expertNationSupports.isEmpty()) {
-                for (ExpertNationSupport expertNationSupport : expertNationSupports) {
-                    addPoint(expertPoints, expertNationSupport.getExpertId(), nationPoint);
-                }
-            }
+    private void addPoint(HashMap<Long, Integer> expertList, long id, int point) {
+        if (expertList.containsKey(id)) {
+            expertList.put(id, expertList.get(id) + point);
+        } else {
+            expertList.put(id, point);
         }
     }
 

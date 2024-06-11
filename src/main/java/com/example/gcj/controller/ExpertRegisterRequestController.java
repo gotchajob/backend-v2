@@ -22,7 +22,7 @@ public class ExpertRegisterRequestController {
 
     @PostMapping("")
     @Operation(summary = "admin, user")
-    public Response<String> expertRegisterRequest(
+    public Response<String> mentorRegisterRequest(
             @RequestBody CreateExpertRegisterRequestDTO request
     ) {
         expertRegisterRequestService.create(request.getEmail());
@@ -30,34 +30,12 @@ public class ExpertRegisterRequestController {
     }
 
     @GetMapping("")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete")
-    public Response<PageResponseDTO<ExpertRegisterRequestResponseDTO>> get(
-            @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
-            @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String... search
+    public Response<GetExpertRegisterRequestResponseDTO> get(
+            @RequestParam(required = false, defaultValue = "1") @Min(1) int page,
+            @RequestParam(required = false, defaultValue = "6") @Min(1) int limit
     ) {
-        PageResponseDTO<ExpertRegisterRequestResponseDTO> responseDTO = expertRegisterRequestService.get(pageNumber, pageSize, sortBy, search);
+        GetExpertRegisterRequestResponseDTO responseDTO = expertRegisterRequestService.get(page, limit);
         return Response.ok(responseDTO);
-    }
-
-    @GetMapping("/{id}")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete")
-    public Response<ExpertRegisterRequestResponseDTO> get(
-            @PathVariable long id
-    ) {
-        ExpertRegisterRequestResponseDTO responseDTO = expertRegisterRequestService.get(id);
-        return Response.ok(responseDTO);
-    }
-
-    @GetMapping("/{id}/check-url")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete <br>" +
-            "status = 2 || 4 return 200 (valid to use form url)")
-    public Response<String> checkRequest(
-            @PathVariable long id
-    ) {
-        expertRegisterRequestService.checkRequest(id);
-        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/approve")

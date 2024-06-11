@@ -19,7 +19,6 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
     ExpertSkillOption findByExpertIdAndSkillOptionId(long expertId, long skillOptionId);
 
     List<ExpertSkillOption> findAllBySkillOptionIdInAndStatus(List<Long> skillOptionIds, int status);
-
     @Query("SELECT eso, SUM(esr.point) as sumPoints, COUNT(esr) as ratingCount " +
             "FROM ExpertSkillOption eso " +
             "LEFT JOIN eso.expertSkillRatings esr " +
