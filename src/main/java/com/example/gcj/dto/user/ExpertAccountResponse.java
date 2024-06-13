@@ -22,6 +22,7 @@ public class ExpertAccountResponse {
 
     private Date birthDate;
     private String bio;
+    private String emailContact;
     private String portfolioUrl;
     private String facebookUrl;
     private String twitterUrl;

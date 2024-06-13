@@ -4,10 +4,7 @@ import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Expert;
-import com.example.gcj.model.ExpertRegisterRequest;
-import com.example.gcj.model.ExpertSkillOption;
 import com.example.gcj.model.User;
-import com.example.gcj.repository.ExpertRegisterRequestRepository;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.repository.UserRepository;
@@ -19,26 +16,20 @@ import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
-import com.example.gcj.util.status.ExpertRegisterRequestStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
-
     final static int EXPERT_ROLE = 3;
     final static int USER_ROLE = 4;
     final static int DEFAULT_EXPERT_STATUS = 2;
@@ -48,7 +39,6 @@ public class UserServiceImpl implements UserService {
     final static int UNBAN_STATUS = 1;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwt;
 
     private final ExpertSkillOptionService expertSkillOptionService;
@@ -58,7 +48,6 @@ public class UserServiceImpl implements UserService {
     private final ExpertRepository expertRepository;
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
-    private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
 
 
     @Override
@@ -71,7 +60,8 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("invalid data request");
         }
 
-        User user = userRepository.getUserByEmail(userLogin.getEmail());
+        UserLoginDataResponseDTO user = userRepository.findByEmailDto(userLogin.getEmail());
+
         if (user == null || !bCryptPasswordEncoder.matches(userLogin.getPassword(), user.getPassword())) {
             throw new CustomException("invalid user name or password");
         }
@@ -83,10 +73,9 @@ public class UserServiceImpl implements UserService {
         if (user.getStatus() == 2) {
             throw new CustomException("user is not verify");
         }
-
-
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userLogin.getEmail(), userLogin.getPassword()));
+        if (user.getStatus() != 1) {
+            throw new CustomException("user status invalid");
+        }
 
         String token = jwt.generateToken(user.getEmail());
         return LoginResponseDTO.builder()
@@ -94,6 +83,7 @@ public class UserServiceImpl implements UserService {
                 .roleId(user.getRoleId())
                 .build();
     }
+
 
     @Override
     public PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize, String sortBy, String... search) {
@@ -119,28 +109,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createExpertAccount(CreateExpertAccountRequestDTO request) {
+    public long createExpertAccount(String email, CreateExpertAccountRequestDTO request) {
         if (request == null) {
             throw new CustomException("bad request");
         }
-
-
-
-        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getExpertRegisterRequestId());
-        if (expertRegisterRequest == null) {
-            throw new CustomException("expert register request not found with id " + request.getExpertRegisterRequestId());
-        }
-        if (expertRegisterRequest.getStatus() != 2) {
-            throw new CustomException("expert register request status invalid");
+        if (!StringUtils.hasText(email)) {
+            throw new CustomException("email don't has text");
         }
 
-        boolean isExistEmail = userRepository.existsByEmail(expertRegisterRequest.getEmail());
+        boolean isExistEmail = userRepository.existsByEmail(email);
         if (isExistEmail) {
             throw new CustomException("email is existed!");
         }
 
         User user = User.builder()
-                .email(expertRegisterRequest.getEmail())
+                .email(email)
                 .avatar(request.getAvatar())
                 .address(request.getAddress())
                 .phone(request.getPhone())
@@ -171,9 +154,7 @@ public class UserServiceImpl implements UserService {
         expertSkillOptionService.createExpertSkillOption(_expert.getId(), request.getExpertSKillOptionList());
         expertNationSupportService.create(_expert.getId(), request.getNationSupport());
 
-        expertRegisterRequest.setExpertId(_expert.getId());
-        expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.WAIT_TO_APPROVE_FORM);
-        expertRegisterRequestRepository.save(expertRegisterRequest);
+        return _expert.getId();
     }
 
     @Override
@@ -247,7 +228,7 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        return userRepository.getUserByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -279,6 +260,21 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public long getCurrentExpertId() {
+        User user = currentUser();
+        if (user == null) {
+            throw new CustomException("user not found!");
+        }
+
+        Expert expert = user.getExpert();
+        if (expert == null) {
+            throw new CustomException("user is not expert!");
+        }
+
+        return expert.getId();
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {

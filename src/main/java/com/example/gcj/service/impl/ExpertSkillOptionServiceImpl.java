@@ -10,6 +10,7 @@ import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.ExpertSkillOptionRepository;
 import com.example.gcj.repository.SkillOptionRepository;
 import com.example.gcj.service.ExpertSkillOptionService;
+import com.example.gcj.service.UserService;
 import com.example.gcj.util.Status;
 import com.example.gcj.util.mapper.ExpertSkillOptionMapper;
 import lombok.RequiredArgsConstructor;

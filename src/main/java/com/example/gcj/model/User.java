@@ -1,9 +1,6 @@
 package com.example.gcj.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -14,6 +11,19 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@NamedEntityGraph(name = "User.noAssociations",
+        attributeNodes = {
+                @NamedAttributeNode("email"),
+                @NamedAttributeNode("password"),
+                @NamedAttributeNode("firstName"),
+                @NamedAttributeNode("lastName"),
+                @NamedAttributeNode("phone"),
+                @NamedAttributeNode("address"),
+                @NamedAttributeNode("avatar"),
+                @NamedAttributeNode("status"),
+                @NamedAttributeNode("roleId")
+        }
+)
 public class User extends AbstractEntity{
     private String email;
     private String password;
@@ -27,6 +37,9 @@ public class User extends AbstractEntity{
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Expert expert;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Account account;
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Blog> blogs;

@@ -1,6 +1,7 @@
 package com.example.gcj.config.security;
 
 
+import com.example.gcj.dto.user.UserLoginDataResponseDTO;
 import com.example.gcj.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,9 +11,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class CustomUserDetails implements UserDetails {
-    private final User user;
+    private final UserLoginDataResponseDTO user;
 
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(UserLoginDataResponseDTO user) {
         super();
         this.user = user;
     }
@@ -20,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         HashSet<SimpleGrantedAuthority> set = new HashSet<>();
-        set.add(new SimpleGrantedAuthority("ROLE_" + String.valueOf(user.getRoleId())));
+        set.add(new SimpleGrantedAuthority("ROLE_" + user.getRoleId()));
         return set;
     }
 

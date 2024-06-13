@@ -1,5 +1,6 @@
 package com.example.gcj.config.security;
 
+import com.example.gcj.dto.user.UserLoginDataResponseDTO;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.getUserByEmail(username);
+        UserLoginDataResponseDTO user = userRepository.findByEmailDto(username);
         if (user == null) {
             throw new UsernameNotFoundException("Not Found User");
         } else {

@@ -33,6 +33,10 @@ public class UserMapper {
                 .id(user.getId())
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .avatar(user.getAvatar())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .roleId(user.getRoleId())
                 .build();
     }
 }

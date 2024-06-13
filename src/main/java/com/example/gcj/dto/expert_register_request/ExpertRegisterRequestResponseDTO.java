@@ -16,4 +16,5 @@ public class ExpertRegisterRequestResponseDTO implements Serializable {
     private String note;
     private Long expertId;
     private Date createdAt;
+    private Date updatedAt;
 }

@@ -11,6 +11,7 @@ public interface ExpertService {
     List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience);
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String ...search);
     ExpertAccountResponse getExpert(long id);
+    ExpertAccountResponse getByCurrent();
 
     boolean updateExpert(long id, UpdateExpertRequestDTO request);
     boolean verifyExpert(long expertId);

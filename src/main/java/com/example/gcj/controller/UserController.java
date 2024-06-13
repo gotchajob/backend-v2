@@ -68,41 +68,6 @@ public class UserController {
         return Response.ok(userList);
     }
 
-    @PostMapping("/create-expert-account")
-    public Response<String> createExpertAccount(
-            @RequestBody CreateExpertAccountRequestDTO requestDTO
-    ) {
-        userService.createExpertAccount(requestDTO);
-        return Response.ok(null);
-    }
-
-
-    @GetMapping("/verify-expert")
-    public Response<PageResponseDTO<ExpertAccountResponse>> getVerifyExpertList(
-            @RequestParam(required = false, defaultValue = "1") int page,
-            @RequestParam(required = false, defaultValue = "6") int limit
-    ) {
-        PageResponseDTO<ExpertAccountResponse> response = userService.getExpertAccountNotVerify(page, limit);
-        return Response.ok(response);
-    }
-
-
-    @PatchMapping("/{id}/approve-expert")
-    public Response<String> approveExpert(
-            @PathVariable long id
-    ) {
-        userService.updateExpertStatus(id, 1);
-        return Response.ok(null);
-    }
-
-    @PatchMapping("/{id}/reject-expert")
-    public Response<String> rejectExpert(
-            @PathVariable long id
-    ) {
-        userService.updateExpertStatus(id, 0);
-        return Response.ok(null);
-    }
-
     @PatchMapping("/{id}/ban")
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin")
@@ -134,7 +99,6 @@ public class UserController {
         return Response.ok(userProfile);
     }
 
-
     @GetMapping("/expert/{userId}")
     @Operation(description = "role: n/a")
     public Response<ExpertAccountResponse> getExpert(
@@ -157,6 +121,5 @@ public class UserController {
 
         return Response.ok(null);
     }
-
 
 }

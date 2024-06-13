@@ -10,8 +10,6 @@ import java.util.List;
 @Getter
 @Builder
 public class UpdateExpertRequestDTO {
-    private Long expertRegisterRequestId;
-
     private String email;
     private String firstName;
     private String lastName;

@@ -28,6 +28,7 @@ public class ExpertMapper {
                 .address(user.getAddress())
 
                 .expertId(expert.getId())
+                .emailContact(expert.getEmailContact())
                 .birthDate(expert.getBirthDate())
                 .bio(expert.getBio())
                 .portfolioUrl(expert.getPortfolioUrl())
@@ -78,6 +79,7 @@ public class ExpertMapper {
                 .expertId(expert.getId())
                 .birthDate(expert.getBirthDate())
                 .bio(expert.getBio())
+                .emailContact(expert.getEmailContact())
                 .portfolioUrl(expert.getPortfolioUrl())
                 .facebookUrl(expert.getFacebookUrl())
                 .twitterUrl(expert.getTwitterUrl())
@@ -99,6 +101,7 @@ public class ExpertMapper {
                 .status(expert.getStatus())
                 .birthDate(expert.getBirthDate())
                 .bio(expert.getBio())
+                .emailContact(expert.getEmailContact())
                 .portfolioUrl(expert.getPortfolioUrl())
                 .facebookUrl(expert.getFacebookUrl())
                 .twitterUrl(expert.getTwitterUrl())

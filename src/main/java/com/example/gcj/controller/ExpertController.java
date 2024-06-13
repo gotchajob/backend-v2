@@ -6,9 +6,11 @@ import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.util.Response;
+import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,12 +53,13 @@ public class ExpertController {
         return Response.ok(response);
     }
 
-    @PatchMapping("/{id}")
-    public Response<String> updateExpert(
-            @PathVariable long id,
-            @RequestBody UpdateExpertRequestDTO request
+    @GetMapping("/current")
+    @Secured(Role.EXPERT)
+    public Response<ExpertAccountResponse> getCurrent(
+
     ) {
-        expertService.updateExpert(id, request);
-        return null;
+        ExpertAccountResponse response = expertService.getByCurrent();
+        return Response.ok(response);
     }
+
 }

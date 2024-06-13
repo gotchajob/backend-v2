@@ -1,5 +1,6 @@
 package com.example.gcj.controller;
 
+import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.dto.expert_register_request.*;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.CreateExpertAccountRequestDTO;
@@ -30,7 +31,7 @@ public class ExpertRegisterRequestController {
     }
 
     @GetMapping("")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete")
+    @Operation(description = "status: 0-deleted, 1-wait to process, 2-send form, 3-wait to approve form, 4-updating, 5-complete")
     public Response<PageResponseDTO<ExpertRegisterRequestResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
             @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
@@ -42,7 +43,7 @@ public class ExpertRegisterRequestController {
     }
 
     @GetMapping("/{id}")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete")
+    @Operation(description = "status: 0-deleted, 1-wait to process, 2-send form, 3-wait to approve form, 4-updating, 5-complete")
     public Response<ExpertRegisterRequestResponseDTO> get(
             @PathVariable long id
     ) {
@@ -51,7 +52,7 @@ public class ExpertRegisterRequestController {
     }
 
     @GetMapping("/{id}/check-url")
-    @Operation(description = "status: 0-deleted, 1-create, 2-approved, 3-rejected, 4-updating, 5-complete <br>" +
+    @Operation(description = "status: 0-deleted, 1-wait to process, 2-send form, 3-wait to approve form, 4-updating, 5-complete <br>" +
             "status = 2 || 4 return 200 (valid to use form url)")
     public Response<String> checkRequest(
             @PathVariable long id
@@ -69,11 +70,12 @@ public class ExpertRegisterRequestController {
         return Response.ok(null);
     }
 
-    @PostMapping("/create_form")
+    @PostMapping("/{id}/create_form")
     public Response<String> createForm(
+            @PathVariable long id,
             @RequestBody CreateExpertAccountRequestDTO request
     ) {
-        userService.createExpertAccount(request);
+        expertRegisterRequestService.createForm(id, request);
         return Response.ok(null);
     }
 
@@ -96,17 +98,19 @@ public class ExpertRegisterRequestController {
 
     @PatchMapping("/{id}/update-form")
     public Response<String> updateFormRegister(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody UpdateExpertRequestDTO request
     ) {
-        //todo: code here
+        expertRegisterRequestService.updateForm(id, request);
         return Response.ok(null);
     }
 
-    @PostMapping("/{id}/ban")
+    @PatchMapping("/{id}/ban")
     public Response<String> banRequest(
             @PathVariable long id
     ) {
         expertRegisterRequestService.banRequest(id);
+        //todo: delete account expert
         return Response.ok(null);
     }
 

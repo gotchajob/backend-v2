@@ -6,7 +6,7 @@ import com.example.gcj.model.ExpertRegisterRequest;
 public class ExpertRegisterRequestMapper {
     public static ExpertRegisterRequestResponseDTO toDto(ExpertRegisterRequest expertRegisterRequest) {
         if (expertRegisterRequest == null) {
-            return ExpertRegisterRequestResponseDTO.builder().build();
+            return null;
         }
 
         return ExpertRegisterRequestResponseDTO
@@ -18,6 +18,7 @@ public class ExpertRegisterRequestMapper {
                 .note(expertRegisterRequest.getNote())
                 .expertId(expertRegisterRequest.getExpertId())
                 .createdAt(expertRegisterRequest.getCreatedAt())
+                .updatedAt(expertRegisterRequest.getUpdatedAt())
                 .build();
     }
 }

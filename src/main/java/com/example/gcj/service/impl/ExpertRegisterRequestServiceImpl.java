@@ -1,34 +1,31 @@
 package com.example.gcj.service.impl;
 
+import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.dto.expert_register_request.ExpertRegisterRequestResponseDTO;
 import com.example.gcj.dto.expert_register_request.RejectFromRegisterRequestDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
+import com.example.gcj.dto.user.CreateExpertAccountRequestDTO;
 import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.Expert;
 import com.example.gcj.model.ExpertRegisterRequest;
+import com.example.gcj.model.User;
 import com.example.gcj.repository.ExpertRegisterRequestRepository;
 import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.EmailService;
-import com.example.gcj.util.Status;
 import com.example.gcj.util.mapper.ExpertRegisterRequestMapper;
 import com.example.gcj.util.status.ExpertRegisterRequestStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestService {
-    private final static int REJECT_STATUS = 3;
-
     private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
     private final SearchRepository searchRepository;
     private final EmailService emailService;
@@ -94,20 +91,6 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     }
 
     @Override
-    public void rejectRegister(long id, String note) {
-        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
-        if (expertRegisterRequest == null) {
-            throw new CustomException("Mentor register request not found!");
-        }
-
-        expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.UPDATING_FORM);
-        expertRegisterRequest.setNote(note);
-        expertRegisterRequestRepository.save(expertRegisterRequest);
-
-        //todo: send mail to update
-    }
-
-    @Override
     public boolean checkRequest(long id) {
         ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
         if (expertRegisterRequest == null) {
@@ -154,6 +137,7 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
 
         expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.COMPLETE);
         expertRegisterRequestRepository.save(expertRegisterRequest);
+
         return true;
     }
 
@@ -173,6 +157,53 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
         return true;
     }
 
+    @Override
+    public boolean updateForm(long id, UpdateExpertRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("invalid request");
+        }
+
+        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
+        if (expertRegisterRequest == null) {
+            throw new CustomException("not found expert register request with id " + id);
+        }
+        if (expertRegisterRequest.getStatus() != 4) {
+            throw new CustomException("expert register request is invalid status. current status is " + expertRegisterRequest.getStatus());
+        }
+        if (expertRegisterRequest.getExpertId() == null) {
+            throw new CustomException("expert id is null!");
+        }
+
+        expertService.updateExpert(expertRegisterRequest.getExpertId(), request);
+
+        expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.WAIT_TO_APPROVE_FORM);
+        expertRegisterRequestRepository.save(expertRegisterRequest);
+
+        return true;
+    }
+
+    @Override
+    public boolean createForm(long id, CreateExpertAccountRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("invalid request");
+        }
+
+        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(id);
+        if (expertRegisterRequest == null) {
+            throw new CustomException("not found expert register request with id " + id);
+        }
+        if (expertRegisterRequest.getStatus() != ExpertRegisterRequestStatus.SEND_FORM_REGISTER) {
+            throw new CustomException("expert register request is invalid status. current status is " + expertRegisterRequest.getStatus());
+        }
+
+        long expertId = userService.createExpertAccount(expertRegisterRequest.getEmail(), request);
+
+        expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.WAIT_TO_APPROVE_FORM);
+        expertRegisterRequest.setExpertId(expertId);
+        expertRegisterRequestRepository.save(expertRegisterRequest);
+        return true;
+    }
+
     private void sendEmailRejectExpert(String email, String reason, String url) {
         String subject = "Rejection Notification for Expertship Application on Gotchajob";
         String body = "Dear +\n" +
@@ -180,6 +211,7 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
                 "I hope this message finds you well.\n" +
                 "\n" +
                 "reason: " + reason +
+                "\n" +
                 "this new url to update form: " + url +
                 "\n" +
                 "Best regards,\n" +

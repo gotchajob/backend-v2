@@ -11,10 +11,7 @@ import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.*;
 import com.example.gcj.repository.*;
-import com.example.gcj.service.ExpertNationSupportService;
-import com.example.gcj.service.ExpertService;
-import com.example.gcj.service.ExpertSkillOptionService;
-import com.example.gcj.service.PolicyService;
+import com.example.gcj.service.*;
 import com.example.gcj.util.EmailService;
 import com.example.gcj.util.Status;
 import com.example.gcj.util.Util;
@@ -39,13 +36,13 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertNationSupportService expertNationSupportService;
     private final ExpertSkillOptionService expertSkillOptionService;
     private final EmailService emailService;
+    private final UserService userService;
 
     private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final ExpertNationSupportRepository expertNationSupportRepository;
     private final ExpertRepository expertRepository;
     private final SearchRepository searchRepository;
     private final UserRepository userRepository;
-    private final ExpertRegisterRequestRepository expertRegisterRequestRepository;
 
     @Override
     public List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience) {
@@ -84,6 +81,16 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
+    public ExpertAccountResponse getByCurrent() {
+        User user = userService.currentUser();
+        if (user == null) {
+            throw new CustomException("user not found!");
+        }
+
+        return ExpertMapper.toDto(user);
+    }
+
+    @Override
     public boolean updateExpert(long id, UpdateExpertRequestDTO request) {
         Expert expert = expertRepository.getById(id);
         if (expert == null) {
@@ -91,22 +98,10 @@ public class ExpertServiceImpl implements ExpertService {
         }
 
         User user = expert.getUser();
-        if (user == null || user.getStatus() != 3) {
-            //todo: check user status
+        if (user == null) {
+            throw new CustomException("not found user!");
         }
 
-        boolean isExistEmail = userRepository.existsByEmail(request.getEmail());
-        if (isExistEmail) {
-            throw new CustomException("email is existed! email: " + request.getEmail());
-        }
-
-        ExpertRegisterRequest expertRegisterRequest = expertRegisterRequestRepository.getById(request.getExpertRegisterRequestId());
-        if (expertRegisterRequest == null) {
-            throw new CustomException("not found expert register request with id " + request.getExpertRegisterRequestId());
-        }
-        if (expertRegisterRequest.getStatus() != 4) {
-            throw new CustomException("expert register request is invalid status. current status is " + expertRegisterRequest.getStatus());
-        }
 
         expert.setBio(request.getBio());
         expert.setEmailContact(request.getEmail());
@@ -124,8 +119,6 @@ public class ExpertServiceImpl implements ExpertService {
         user.setPhone(request.getPhone());
         user.setAddress(request.getAddress());
         user.setAvatar(request.getAvatar());
-        user.setEmail(request.getEmail());
-        user.setStatus(2);
         userRepository.save(user);
 
         expertNationSupportService.deleteAllByExpertId(id);
@@ -155,7 +148,7 @@ public class ExpertServiceImpl implements ExpertService {
 
         String fullName = user.getFirstName() + " " + user.getLastName();
         sendEmailApproveExpert(user.getEmail(), password, fullName);
-        return false;
+        return true;
     }
 
     private void addPoint(HashMap<Long, Double> expertPoints, long expertId, double point) {
