@@ -1,9 +1,13 @@
 package com.example.gcj.controller;
 
 import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
+import com.example.gcj.dto.expert_form_criteria.CreateExpertFormCriteriaRequestDTO;
+import com.example.gcj.dto.expert_form_criteria.ExpertFormCriteriaResponseDTO;
 import com.example.gcj.dto.expert_register_request.*;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.CreateExpertAccountRequestDTO;
+import com.example.gcj.model.ExpertFormCriteria;
+import com.example.gcj.service.ExpertFormCriteriaService;
 import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
@@ -13,13 +17,15 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/expert-register-request")
 @RequiredArgsConstructor
 @Tag(name = "Expert Register Request Controller")
 public class ExpertRegisterRequestController {
     private final ExpertRegisterRequestService expertRegisterRequestService;
-    private final UserService userService;
+    private final ExpertFormCriteriaService expertFormCriteriaService;
 
     @PostMapping("")
     @Operation(summary = "admin, user")
@@ -112,6 +118,14 @@ public class ExpertRegisterRequestController {
         expertRegisterRequestService.banRequest(id);
         //todo: delete account expert
         return Response.ok(null);
+    }
+
+    @GetMapping("{id}/criteria")
+    public Response<List<ExpertFormCriteriaResponseDTO>> getCriteria(
+            @PathVariable @Min(1) Long id
+    ) {
+        List<ExpertFormCriteriaResponseDTO> response = expertFormCriteriaService.getList(id);
+        return Response.ok(response);
     }
 
 }

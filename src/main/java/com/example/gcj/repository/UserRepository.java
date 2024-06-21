@@ -6,13 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User getUserById(long id);
 
     @EntityGraph(value = "User.noAssociations", type = EntityGraph.EntityGraphType.FETCH)
@@ -24,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> getUserByStatusAndRoleId(int status, int roleId, Pageable pageable);
     boolean existsByEmail(String email);
+
+    @Query("SELECT u.id FROM User u WHERE u.email = :email")
+    Long getUserIdByEmail(@Param("email") String email);
 }

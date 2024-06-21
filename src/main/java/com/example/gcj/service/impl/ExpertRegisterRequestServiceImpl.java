@@ -11,6 +11,7 @@ import com.example.gcj.model.ExpertRegisterRequest;
 import com.example.gcj.model.User;
 import com.example.gcj.repository.ExpertRegisterRequestRepository;
 import com.example.gcj.repository.SearchRepository;
+import com.example.gcj.service.ExpertFormCriteriaService;
 import com.example.gcj.service.ExpertRegisterRequestService;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.service.UserService;
@@ -31,6 +32,8 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     private final EmailService emailService;
     private final ExpertService expertService;
     private final UserService userService;
+    private final ExpertFormCriteriaService expertFormCriteriaService;
+
 
     @Override
     public void create(String email) {
@@ -148,10 +151,16 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
             throw new CustomException("not found expert register request with id " + id);
         }
 
+        if (expertRegisterRequest.getStatus() != ExpertRegisterRequestStatus.WAIT_TO_APPROVE_FORM) {
+            throw new CustomException("invalid expert register request status");
+        }
+
         expertRegisterRequest.setStatus(ExpertRegisterRequestStatus.UPDATING_FORM);
         expertRegisterRequest.setUrl(request.getUrl());
         expertRegisterRequest.setNote(request.getReasonReject());
         expertRegisterRequestRepository.save(expertRegisterRequest);
+
+        expertFormCriteriaService.create(id, request.getCriteriaList());
 
         sendEmailRejectExpert(expertRegisterRequest.getEmail(), request.getReasonReject(), request.getUrl());
         return true;

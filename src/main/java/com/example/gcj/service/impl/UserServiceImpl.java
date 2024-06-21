@@ -8,11 +8,14 @@ import com.example.gcj.model.User;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.repository.UserRepository;
+import com.example.gcj.repository.specification.ObjectSpecification;
+import com.example.gcj.repository.specification.ObjectSpecificationBuilder;
 import com.example.gcj.service.ExpertNationSupportService;
 import com.example.gcj.service.ExpertSkillOptionService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.EmailService;
 import com.example.gcj.util.JwtUtil;
+import com.example.gcj.util.Regex;
 import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
@@ -21,10 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -275,6 +282,36 @@ public class UserServiceImpl implements UserService {
         }
 
         return expert.getId();
+    }
+
+    @Override
+    public long getCurrentUserId() {
+        String email = currentUserEmail();
+        Long userId = userRepository.getUserIdByEmail(email);
+        if (userId == null) {
+            throw new CustomException("not found user with email " + email);
+        }
+
+        return userId;
+    }
+
+    @Override
+    public PageResponseDTO<UserListResponseDTO> getByUserAndExpert(Pageable pageable, String[] user, String[] expert) {
+        Specification<User> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("email"), "%user%"));
+
+        ObjectSpecificationBuilder builder = new ObjectSpecificationBuilder();
+        if (user != null) {
+            for (String s: user) {
+                Pattern pattern = Pattern.compile(Regex.SEARCH_SPEC_OPERATOR);
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.find()) {
+                    builder.with(matcher.group(1), matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5));
+                }
+            }
+        }
+
+        Page<User> users = userRepository.findAll(builder.build(), pageable);
+        return new PageResponseDTO<>(users.map(UserMapper::toDto).toList(), users.getTotalPages());
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {

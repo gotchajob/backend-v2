@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,6 +66,16 @@ public class UserController {
             @RequestParam(required = false) String... search
     ) {
         PageResponseDTO<UserListResponseDTO> userList = userService.getAll(pageNumber, pageSize, sortBy, search);
+        return Response.ok(userList);
+    }
+
+    @GetMapping("/advance-search")
+    public Response<PageResponseDTO<UserListResponseDTO>> getByAdvanceSearch(
+            Pageable pageable,
+            @RequestParam(required = false) String[] user,
+            @RequestParam(required = false) String[] expert
+    ) {
+        PageResponseDTO<UserListResponseDTO> userList = userService.getByUserAndExpert(pageable, user, expert);
         return Response.ok(userList);
     }
 

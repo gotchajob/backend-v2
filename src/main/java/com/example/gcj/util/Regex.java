@@ -6,5 +6,6 @@ public interface Regex {
     String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$\n";
     String SORT_BY = "(\\w+?)(:)(asc|desc)";
     String SEARCH_OPERATION = "(\\w+?)(:|<|>)(.*)";
+    String SEARCH_SPEC_OPERATOR = "(\\w+?)([<:>~!])(.*)(\\p{Punct}?)(\\p{Punct}?)";
 
 }

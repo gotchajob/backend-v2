@@ -3,6 +3,7 @@ package com.example.gcj.service;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.model.User;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     void signup(SignupRequestDTO request);
@@ -18,4 +19,7 @@ public interface UserService {
     ExpertAccountResponse getExpert(long id);
     boolean isExistEmail(String email);
     long getCurrentExpertId();
+    long getCurrentUserId();
+
+    PageResponseDTO<UserListResponseDTO> getByUserAndExpert(Pageable pageable, String[] user, String[] expert);
 }
