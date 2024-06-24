@@ -1,9 +1,6 @@
 package com.example.gcj.controller;
 
-import com.example.gcj.dto.cv.CVListResponseDTO;
-import com.example.gcj.dto.cv.CreateCvRequestDTO;
-import com.example.gcj.dto.cv.CvResponseDTO;
-import com.example.gcj.dto.cv.UpdateCvRequestDTO;
+import com.example.gcj.dto.cv.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.service.CvService;
 import com.example.gcj.service.UserService;
@@ -36,62 +33,48 @@ public class CvController {
         return Response.ok(response);
     }
 
-    @GetMapping("/template")
-    @Operation(description = "role: n/a")
-    public Response<List<CVListResponseDTO>> getTemplate(
-        @RequestParam(required = false) @Min(1) Long categoryId
-    ) {
-        List<CVListResponseDTO> response = cvService.getTemplateByCategoryId(categoryId);
-        return Response.ok(response);
-    }
-
     @GetMapping("/{id}")
+    @Secured(Role.USER)
+    @Operation(description = "role: user")
     public Response<CvResponseDTO> getById(
             @PathVariable long id
     ) {
-        //neu la cv template thi khong can token, con lai thi can token
-        CvResponseDTO response = cvService.getById(id);
+        long userId = userService.getCurrentUserId();
+        CvResponseDTO response = cvService.getById(userId, id);
         return Response.ok(response);
     }
 
     @PostMapping("")
     @Secured(Role.USER)
-    public Response<String> create(
+    @Operation(description = "role: user")
+    public Response<CreateCvResponseDTO> create(
             @RequestBody CreateCvRequestDTO request
     ) {
         long userId = userService.getCurrentUserId();
-        cvService.create(userId, request);
-        return Response.ok(null);
-    }
-
-    @PostMapping("/template")
-    @Secured({Role.ADMIN})
-    @Operation(description = "role: admin")
-    public Response<String> createTemplate(
-            @RequestBody CreateCvRequestDTO request
-    ) {
-        cvService.create(null, request);
-        return Response.ok(null);
+        CreateCvResponseDTO response =  cvService.create(userId, request);
+        return Response.ok(response);
     }
 
     @PatchMapping("/{id}")
-    @Secured({Role.USER, Role.ADMIN})
-    @Operation(description = "role: user|admin")
+    @Secured({Role.USER})
+    @Operation(description = "role: user")
     public Response<String> updateCv(
             @PathVariable long id,
             @RequestBody UpdateCvRequestDTO request
     ) {
-        cvService.update(id, request);
+        long userId = userService.getCurrentUserId();
+        cvService.update(userId, id, request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
-    @Secured({Role.USER, Role.ADMIN})
-    @Operation(description = "role: user|admin")
+    @Secured({Role.USER})
+    @Operation(description = "role: user")
     public Response<String> deleteCv(
             @PathVariable long id
     ) {
-        cvService.delete(id);
+        long userId = userService.getCurrentUserId();
+        cvService.delete(userId, id);
         return Response.ok(null);
     }
 

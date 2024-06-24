@@ -1,4 +1,4 @@
-package com.example.gcj.util;
+package com.example.gcj.util.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -3,7 +3,6 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.dto.expert_nation_support.ExpertNationSupportResponseDTO;
-import com.example.gcj.dto.expert_skill_option.CreateExpertSkillOptionDTO;
 import com.example.gcj.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
@@ -12,7 +11,7 @@ import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.*;
 import com.example.gcj.repository.*;
 import com.example.gcj.service.*;
-import com.example.gcj.util.EmailService;
+import com.example.gcj.util.service.EmailService;
 import com.example.gcj.util.Status;
 import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
@@ -45,21 +44,31 @@ public class ExpertServiceImpl implements ExpertService {
     private final UserRepository userRepository;
 
     @Override
-    public List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience) {
+    public List<ExpertMatchListResponseDTO> expertMatch(Integer main, List<Long> skillOptionIds, List<String> nations, int yearExperience) {
         final int nationPoint = policyService.getByKey(PolicyKey.EXPERT_NATION_SUPPORT_POINT, Integer.class);
         final int yearExperiencePoint = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_POINT, Integer.class);
         final double expertYearExpertPointMaxFactor = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_MAX_FACTOR, Double.class);
         final int numberExpertMatch = policyService.getByKey(PolicyKey.NUMBER_EXPERT_MATCH, Integer.class);
 
         HashMap<Long, Double> expertPoints = new HashMap<>();
+        if (main == null) {
+            addNationSupportPoints(main, expertPoints, nations, nationPoint);
+            addSkillOptionPoints(main, expertPoints, skillOptionIds);
+            addYearExperiencePoints(main, expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
+        } else if (main == 1) {
+            addNationSupportPoints(main, expertPoints, nations, nationPoint);
+            addSkillOptionPoints(main, expertPoints, skillOptionIds);
+            addYearExperiencePoints(main, expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
+        } else if (main == 2) {
+            addSkillOptionPoints(main, expertPoints, skillOptionIds);
+            addNationSupportPoints(main, expertPoints, nations, nationPoint);
+            addYearExperiencePoints(main, expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
+        } else if (main == 3) {
+            addYearExperiencePoints(main, expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
+            addNationSupportPoints(main, expertPoints, nations, nationPoint);
+            addSkillOptionPoints(main, expertPoints, skillOptionIds);
+        }
 
-        addNationSupportPoints(expertPoints, nations, nationPoint);
-
-        // Add points for expert skill options
-        addSkillOptionPoints(expertPoints, skillOptionIds);
-
-        // Add points for expert year experience
-        addYearExperiencePoints(expertPoints, yearExperience, yearExperiencePoint, expertYearExpertPointMaxFactor);
 
         return getResultList(expertPoints, numberExpertMatch);
     }
@@ -188,10 +197,20 @@ public class ExpertServiceImpl implements ExpertService {
 
         return response;
     }
-    private void addYearExperiencePoints(HashMap<Long, Double> expertPoints, int yearExperience, int yearExperiencePoint, double expertYearExpertPointMaxFactor) {
+
+    private void addYearExperiencePoints(Integer main, HashMap<Long, Double> expertPoints, int yearExperience, int yearExperiencePoint, double expertYearExpertPointMaxFactor) {
         //expert year experience. expertYear/yearExperience * point (max is 2x point)
         if (yearExperience > 0) {
-            List<Expert> experts = expertRepository.findByYearExperienceGreaterThanEqualAndStatus(yearExperience, Status.ACTIVE);
+            List<Expert> experts = null;
+            if (main == null || main == 3) {
+                experts = expertRepository.findByYearExperienceGreaterThanEqualAndStatus(yearExperience, Status.ACTIVE);
+            } else {
+                List<Long> expertIds = new ArrayList<>(expertPoints.keySet());
+                if (!expertIds.isEmpty()) {
+                    experts = expertRepository.findByYearExperienceGreaterThanEqualAndStatusAndIdIn(yearExperience, Status.ACTIVE, expertIds);
+                }
+             }
+
             if (experts != null && !experts.isEmpty()) {
                 for (Expert expert : experts) {
                     double expertPoint = ((double) expert.getYearExperience() / yearExperience) * yearExperiencePoint;
@@ -202,12 +221,19 @@ public class ExpertServiceImpl implements ExpertService {
         }
     }
 
-    private void addSkillOptionPoints(HashMap<Long, Double> expertPoints, List<Long> skillOptionIds) {
+    private void addSkillOptionPoints(Integer main, HashMap<Long, Double> expertPoints, List<Long> skillOptionIds) {
         //expert skill option
         //todo: point by default point and rating
         if (skillOptionIds != null && !skillOptionIds.isEmpty()) {
+            List<Long> expertIds = new ArrayList<>(expertPoints.keySet());
             for (long skillOptionId : skillOptionIds) {
-                List<Object[]> results = expertSkillOptionRepository.findExpertSkillOptionsWithRatingStatsBySkillOptionId(skillOptionId);
+                List<Object[]> results = null;
+                if (main == null || main == 2) {
+                     results = expertSkillOptionRepository.findExpertSkillOptionsWithRatingStatsBySkillOptionId(skillOptionId);
+                } else if (!expertIds.isEmpty()) {
+                    results = expertSkillOptionRepository.findExpertSkillOptionsWithRatingStatsBySkillOptionIdAndExpertIdIn(skillOptionId, expertIds);
+                }
+
                 if (results == null || results.isEmpty()) {
                     continue;
                 }
@@ -215,7 +241,7 @@ public class ExpertServiceImpl implements ExpertService {
                 for (Object[] result : results) {
                     ExpertSkillOption expertSkillOption = (ExpertSkillOption) result[0];
                     Long sumPoints = Objects.requireNonNullElse((Long) result[1], 0L);
-                    Long ratingCount = Objects.requireNonNullElse( (Long) result[2], 0L);
+                    Long ratingCount = Objects.requireNonNullElse((Long) result[2], 0L);
                     double expertPoint = (double) (sumPoints + expertSkillOption.getDefaultPoint()) / (ratingCount + 1);
                     addPoint(expertPoints, expertSkillOption.getExpertId(), expertPoint);
                 }
@@ -224,11 +250,20 @@ public class ExpertServiceImpl implements ExpertService {
 
     }
 
-    private void addNationSupportPoints(HashMap<Long, Double> expertPoints, List<String> nations, int nationPoint) {
+    private void addNationSupportPoints(Integer main, HashMap<Long, Double> expertPoints, List<String> nations, int nationPoint) {
         //expert nation support
         if (nations != null && !nations.isEmpty()) {
-            List<ExpertNationSupport> expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
-            if (expertNationSupports!= null && !expertNationSupports.isEmpty()) {
+            List<ExpertNationSupport> expertNationSupports = null;
+            if (main == null || main == 1) {
+                expertNationSupports = expertNationSupportRepository.findAllByNationIn(nations);
+            } else {
+                List<Long> expertIds = new ArrayList<>(expertPoints.keySet());
+                if (expertIds != null && !expertIds.isEmpty()) {
+                    expertNationSupports = expertNationSupportRepository.findAllByNationInAndExpertIdIn(nations, expertIds);
+                }
+            }
+
+            if (expertNationSupports != null && !expertNationSupports.isEmpty()) {
                 for (ExpertNationSupport expertNationSupport : expertNationSupports) {
                     addPoint(expertPoints, expertNationSupport.getExpertId(), nationPoint);
                 }

@@ -12,5 +12,6 @@ import java.util.List;
 @Repository
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
     List<Expert> findByYearExperienceGreaterThanEqualAndStatus(int yearExperience, int status);
+    List<Expert> findByYearExperienceGreaterThanEqualAndStatusAndIdIn(int yearExperience, int status, List<Long> expertIds);
     Expert getById(long id);
 }

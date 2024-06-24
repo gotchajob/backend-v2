@@ -7,6 +7,6 @@ import java.io.Serializable;
 
 @Getter
 @Builder
-public class CreateCvRequestDTO implements Serializable {
-    private long cvTemplateId;
+public class CreateCvResponseDTO implements Serializable {
+    private long id;
 }

@@ -5,11 +5,13 @@ import com.example.gcj.dto.account.DebitRequestDTO;
 import com.example.gcj.dto.account.GetBalanceAccountResponseDTO;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.transaction.TransactionResponseDTO;
+import com.example.gcj.exception.CustomException;
 import com.example.gcj.service.AccountService;
 import com.example.gcj.service.TransactionService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
 import com.example.gcj.util.Role;
+import com.example.gcj.util.service.VnPayService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class AccountController {
     private final AccountService accountService;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final VnPayService vnPayService;
 
     @GetMapping("/current/balance")
     @Secured({Role.EXPERT, Role.USER})
@@ -56,6 +59,29 @@ public class AccountController {
         long userId = userService.getCurrentUserId();
         accountService.credit(userId, request);
         return Response.ok(null);
+    }
+
+    @PatchMapping("/current/deposit-with-vn-pay")
+    @Secured(Role.USER)
+    @Operation(summary = "nap tien bang VnPay", description = "role: user")
+    public Response<String> depositWithVnPay(
+            @RequestBody CreditRequestDTO request
+    ) {
+        long userId = userService.getCurrentUserId();
+
+        if (request == null || request.getAmount() <= 0) {
+            throw new CustomException("invalid request");
+        }
+
+        // Generate payment URL
+        String paymentUrl = vnPayService.createPaymentUrl(request);
+
+        if (paymentUrl != null) {
+            return Response.ok(paymentUrl);
+        } else {
+            throw new CustomException("Failed to generate payment URL");
+        }
+
     }
 
     @PatchMapping("/current/debit")

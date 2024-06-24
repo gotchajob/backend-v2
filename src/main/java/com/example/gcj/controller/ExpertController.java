@@ -22,13 +22,15 @@ public class ExpertController {
     private final ExpertService expertService;
 
     @GetMapping("/match")
-    @Operation(description = "each nation = 2 point, each experience = 3 -> 6 point, each skills = (sum rating + default point) / (number rating + 1)")
+    @Operation(description = "each nation = 2 point, each experience = 3 -> 6 point, each skills = (sum rating + default point) / (number rating + 1) <br>" +
+            "by: 1(nation), 2 (skill option), 3 (year experience)")
     public Response<List<ExpertMatchListResponseDTO>> matchExpert(
             @RequestParam(required = false) List<Long> skillOptionId,
             @RequestParam(required = false) List<String> nation,
+            @RequestParam(required = false) Integer by,
             @RequestParam(required = false, defaultValue = "0") @Min(0) int minYearExperience
     ) {
-        List<ExpertMatchListResponseDTO> response = expertService.expertMatch(skillOptionId, nation, minYearExperience);
+        List<ExpertMatchListResponseDTO> response = expertService.expertMatch(by, skillOptionId, nation, minYearExperience);
         return Response.ok(response);
     }
 

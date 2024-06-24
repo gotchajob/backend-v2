@@ -8,7 +8,7 @@ import com.example.gcj.dto.user.ExpertAccountResponse;
 import java.util.List;
 
 public interface ExpertService {
-    List<ExpertMatchListResponseDTO> expertMatch(List<Long> skillOptionIds, List<String> nations, int yearExperience);
+    List<ExpertMatchListResponseDTO> expertMatch(Integer main, List<Long> skillOptionIds, List<String> nations, int yearExperience);
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String ...search);
     ExpertAccountResponse getExpert(long id);
     ExpertAccountResponse getByCurrent();

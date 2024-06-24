@@ -3,10 +3,8 @@ package com.example.gcj.util.mapper;
 import com.example.gcj.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.dto.expert.ExpertResponseDTO;
 import com.example.gcj.dto.user.ExpertAccountResponse;
-import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Expert;
 import com.example.gcj.model.User;
-import org.springframework.util.StringUtils;
 
 public class ExpertMapper {
     public static ExpertAccountResponse toDto(User user) {
@@ -35,10 +33,10 @@ public class ExpertMapper {
                 .facebookUrl(expert.getFacebookUrl())
                 .twitterUrl(expert.getTwitterUrl())
                 .linkedinUrl(expert.getLinkedinUrl())
+                .yearExperience(expert.getYearExperience())
                 .education(expert.getEducation())
 
                 .build();
-
     }
 
     public static ExpertMatchListResponseDTO toDto(Expert expert, double point) {

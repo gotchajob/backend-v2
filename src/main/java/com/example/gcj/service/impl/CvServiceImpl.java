@@ -1,14 +1,11 @@
 package com.example.gcj.service.impl;
 
-import com.example.gcj.dto.cv.CVListResponseDTO;
-import com.example.gcj.dto.cv.CreateCvRequestDTO;
-import com.example.gcj.dto.cv.CvResponseDTO;
-import com.example.gcj.dto.cv.UpdateCvRequestDTO;
+import com.example.gcj.dto.cv.*;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Cv;
-import com.example.gcj.model.CvCategory;
-import com.example.gcj.repository.CvCategoryRepository;
+import com.example.gcj.model.CvTemplate;
 import com.example.gcj.repository.CvRepository;
+import com.example.gcj.repository.CvTemplateRepository;
 import com.example.gcj.service.CvService;
 import com.example.gcj.util.Status;
 import com.example.gcj.util.mapper.CvMapper;
@@ -21,14 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CvServiceImpl implements CvService {
     private final CvRepository cvRepository;
-    private final CvCategoryRepository cvCategoryRepository;
+    private final CvTemplateRepository cvTemplateRepository;
 
-
-    @Override
-    public List<CVListResponseDTO> getByCategoryId(long categoryId) {
-        List<Cv> cvs = cvRepository.findByCategoryId(categoryId);
-        return cvs.stream().map(CvMapper::toDto).toList();
-    }
 
     @Override
     public List<CVListResponseDTO> getByUserId(Long userId) {
@@ -37,24 +28,20 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public CvResponseDTO getById(long id) {
+    public CvResponseDTO getById(Long userId, long id) {
         Cv cv = cvRepository.findById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
         }
 
-        //todo: if user id == null don't need token, other need user token, and check it
-        CvCategory cvCategory = cvCategoryRepository.findById(cv.getCategoryId());
-        if (cvCategory == null) {
-            throw new CustomException("not found cv category with id " + cv.getCategoryId());
+        if (userId != null && cv.getUserId() != userId) {
+            throw new CustomException("cv is not yours");
         }
 
         return CvResponseDTO
                 .builder()
                 .id(cv.getId())
-                .categoryId(cv.getCategoryId())
-                .categoryName(cvCategory.getName())
-                .categoryDescription(cvCategory.getDescription())
+                .cvTemplateId(cv.getCvTemplateId())
                 .name(cv.getName())
                 .cv(cv.getCv())
                 .status(cv.getStatus())
@@ -64,36 +51,43 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public boolean create(Long userId, CreateCvRequestDTO request) {
+    public CreateCvResponseDTO create(Long userId, CreateCvRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
-        if (!cvCategoryRepository.existsById(request.getCvCategoryId())) {
-            throw new CustomException("not found cv category with id " + request.getCvCategoryId());
+        //todo: check number of cv
+        CvTemplate cvTemplate = cvTemplateRepository.findById(request.getCvTemplateId());
+        if (cvTemplate == null) {
+            throw new CustomException("not found cv template with id " + request.getCvTemplateId());
         }
 
         Cv build = Cv
                 .builder()
                 .userId(userId)
-                .categoryId(request.getCvCategoryId())
-                .name(request.getName())
-                .image(request.getImage())
-                .cv(request.getCv())
+                .cvTemplateId(request.getCvTemplateId())
+                .name(cvTemplate.getName())
+                .image(cvTemplate.getImage())
+                .cv(cvTemplate.getTemplateJson())
                 .status(Status.ACTIVE)
                 .build();
-        cvRepository.save(build);
-        return true;
+        Cv save = cvRepository.save(build);
+
+        return CreateCvResponseDTO.builder().id(save.getId()).build();
     }
 
     @Override
-    public boolean update(long id, UpdateCvRequestDTO request) {
+    public boolean update(Long userId, long id, UpdateCvRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
-        //todo: check role to update
+
         Cv cv = cvRepository.findById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
+        }
+
+        if (userId != null && cv.getUserId() != userId) {
+            throw new CustomException("cv is not yours");
         }
 
         cv.setCv(request.getCv());
@@ -105,21 +99,19 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(Long userId, long id) {
         Cv cv = cvRepository.findById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
         }
-        //todo: check role
+
+        if (userId != null && cv.getUserId() != userId) {
+            throw new CustomException("cv is not yours");
+        }
+
         cv.setStatus(Status.INACTIVE);
         cvRepository.save(cv);
 
         return true;
-    }
-
-    @Override
-    public List<CVListResponseDTO> getTemplateByCategoryId(Long categoryId) {
-        List<Cv> cvs = categoryId == null ?cvRepository.getTemplate() : cvRepository.getTemplate(categoryId);
-        return cvs.stream().map(CvMapper::toDto).toList();
     }
 }

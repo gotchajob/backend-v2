@@ -10,9 +10,7 @@ import java.util.Date;
 @Builder
 public class CvResponseDTO implements Serializable {
     private long id;
-    private long categoryId;
-    private String categoryName;
-    private String categoryDescription;
+    private long cvTemplateId;
     private String name;
     private String cv;
     private int status;

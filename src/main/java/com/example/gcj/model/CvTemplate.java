@@ -9,11 +9,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Cv extends AbstractEntity {
-    private long cvTemplateId;
-    private Long userId;
+public class CvTemplate extends AbstractEntity {
+    private long categoryId;
     private String name;
-    private String cv;
+    private String templateJson;
     private String image;
     private int status;
+    private long createdBy;
 }

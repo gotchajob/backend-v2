@@ -27,6 +27,13 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
             "GROUP BY eso")
     List<Object[]> findExpertSkillOptionsWithRatingStatsBySkillOptionId(@Param("skillOptionId") Long skillOptionId);
 
+    @Query("SELECT eso, SUM(esr.point) as sumPoints, COUNT(esr) as ratingCount " +
+            "FROM ExpertSkillOption eso " +
+            "LEFT JOIN eso.expertSkillRatings esr " +
+            "WHERE eso.skillOption.id = :skillOptionId AND (eso.expertId in :expertIds)" +
+            "GROUP BY eso")
+    List<Object[]> findExpertSkillOptionsWithRatingStatsBySkillOptionIdAndExpertIdIn(@Param("skillOptionId") Long skillOptionId, @Param("expertIds") List<Long> expertIds);
+
     @Modifying
     @Transactional
     @Query("UPDATE ExpertSkillOption e SET e.status = 0 WHERE e.expertId = :expertId")

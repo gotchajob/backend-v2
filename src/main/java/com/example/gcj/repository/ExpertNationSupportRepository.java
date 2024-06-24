@@ -15,6 +15,7 @@ public interface ExpertNationSupportRepository extends JpaRepository<ExpertNatio
     ExpertNationSupport findByNationAndExpertId(String nation, long expertId);
     List<ExpertNationSupport> findByExpertId(long expertId);
     List<ExpertNationSupport> findAllByNationIn(List<String> nations);
+    List<ExpertNationSupport> findAllByNationInAndExpertIdIn(List<String> nations, List<Long> expertId);
 
     @Modifying
     @Transactional
