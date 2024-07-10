@@ -313,6 +313,27 @@ public class UserServiceImpl implements UserService {
         return new PageResponseDTO<>(users.map(UserMapper::toDto).toList(), users.getTotalPages());
     }
 
+    @Override
+    public boolean changePassword(ChangePasswordRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("invalid request");
+        }
+
+        User user = currentUser();
+        if (user == null) {
+            throw new CustomException("not found current user");
+        }
+
+        if (!bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new CustomException("old password not match");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return true;
+    }
+
     private void sendEmailApproveExpert(String email, String password, String fullName) {
         String subject = "Approval Request to Become a Expert on Gotchajob";
         String body = "Dear " + fullName + ",\n" +

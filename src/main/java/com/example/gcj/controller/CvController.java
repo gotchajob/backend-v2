@@ -21,7 +21,6 @@ public class CvController {
     private final CvService cvService;
     private final UserService userService;
 
-
     @GetMapping("/current")
     @Secured({Role.USER})
     @Operation(description = "role: user")

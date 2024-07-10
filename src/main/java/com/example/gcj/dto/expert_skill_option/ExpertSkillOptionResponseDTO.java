@@ -13,4 +13,6 @@ public class ExpertSkillOptionResponseDTO implements Serializable {
     private String skillOptionName;
     private long defaultPoint;
     private String certificate;
+    private long sumPoint;
+    private long totalRating;
 }

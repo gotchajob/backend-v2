@@ -39,7 +39,7 @@ public class CvTemplateServiceImpl implements CvTemplateService {
     public CvTemplateResponseDTO getById(long id) {
         CvTemplate cvTemplate = cvTemplateRepository.findById(id);
         if (cvTemplate == null || cvTemplate.getStatus() == 0) {
-            throw new CustomException("not found cv template with id" + id);
+            throw new CustomException("not found cv template with id " + id);
         }
 
         CvCategory cvCategory = cvCategoryRepository.findById(cvTemplate.getCategoryId());
@@ -91,7 +91,7 @@ public class CvTemplateServiceImpl implements CvTemplateService {
 
         CvTemplate cvTemplate = cvTemplateRepository.findById(id);
         if (cvTemplate == null) {
-            throw new CustomException("not found cv template with id" + id);
+            throw new CustomException("not found cv template with id " + id);
         }
 
         cvTemplate.setTemplateJson(request.getTemplateJson());
@@ -106,7 +106,7 @@ public class CvTemplateServiceImpl implements CvTemplateService {
     public boolean delete(long id) {
         CvTemplate cvTemplate = cvTemplateRepository.findById(id);
         if (cvTemplate == null) {
-            throw new CustomException("not found cv template with id" + id);
+            throw new CustomException("not found cv template with id " + id);
         }
 
         cvTemplate.setStatus(Status.INACTIVE);

@@ -22,4 +22,6 @@ public interface UserService {
     long getCurrentUserId();
 
     PageResponseDTO<UserListResponseDTO> getByUserAndExpert(Pageable pageable, String[] user, String[] expert);
+
+    boolean changePassword(ChangePasswordRequestDTO request);
 }

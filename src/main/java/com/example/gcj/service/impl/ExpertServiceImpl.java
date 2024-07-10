@@ -160,6 +160,17 @@ public class ExpertServiceImpl implements ExpertService {
         return true;
     }
 
+    @Override
+    public long getCurrentExpertId() {
+        long userId = userService.getCurrentUserId();
+        Long expertId = expertRepository.getIdByUserId(userId);
+        if (expertId == null) {
+            throw new CustomException("not found current expert");
+        }
+
+        return expertId;
+    }
+
     private void addPoint(HashMap<Long, Double> expertPoints, long expertId, double point) {
         expertPoints.merge(expertId, point, Double::sum);
     }
@@ -242,7 +253,7 @@ public class ExpertServiceImpl implements ExpertService {
                     ExpertSkillOption expertSkillOption = (ExpertSkillOption) result[0];
                     Long sumPoints = Objects.requireNonNullElse((Long) result[1], 0L);
                     Long ratingCount = Objects.requireNonNullElse((Long) result[2], 0L);
-                    double expertPoint = (double) (sumPoints + expertSkillOption.getDefaultPoint()) / (ratingCount + 1);
+                    double expertPoint = (double) (sumPoints) / (ratingCount);
                     addPoint(expertPoints, expertSkillOption.getExpertId(), expertPoint);
                 }
             }

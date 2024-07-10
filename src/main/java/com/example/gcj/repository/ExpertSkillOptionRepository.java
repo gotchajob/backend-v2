@@ -20,14 +20,21 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
 
     List<ExpertSkillOption> findAllBySkillOptionIdInAndStatus(List<Long> skillOptionIds, int status);
 
-    @Query("SELECT eso, SUM(esr.point) as sumPoints, COUNT(esr) as ratingCount " +
+    @Query("SELECT eso, SUM(esr.rating) as sumPoints, COUNT(esr) as ratingCount " +
             "FROM ExpertSkillOption eso " +
             "LEFT JOIN eso.expertSkillRatings esr " +
             "WHERE eso.skillOption.id = :skillOptionId " +
             "GROUP BY eso")
     List<Object[]> findExpertSkillOptionsWithRatingStatsBySkillOptionId(@Param("skillOptionId") Long skillOptionId);
 
-    @Query("SELECT eso, SUM(esr.point) as sumPoints, COUNT(esr) as ratingCount " +
+    @Query("SELECT eso, SUM(esr.rating) as sumPoints, COUNT(esr) as ratingCount " +
+            "FROM ExpertSkillOption eso " +
+            "LEFT JOIN eso.expertSkillRatings esr " +
+            "WHERE eso.expertId = :expertId and eso.status = 1" +
+            "GROUP BY eso")
+    List<Object[]> findWithRating(@Param("expertId") Long expertId);
+
+    @Query("SELECT eso, SUM(esr.rating) as sumPoints, COUNT(esr) as ratingCount " +
             "FROM ExpertSkillOption eso " +
             "LEFT JOIN eso.expertSkillRatings esr " +
             "WHERE eso.skillOption.id = :skillOptionId AND (eso.expertId in :expertIds)" +

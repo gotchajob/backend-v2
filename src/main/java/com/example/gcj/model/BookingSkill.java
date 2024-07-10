@@ -9,14 +9,12 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ExpertSkillRating {
+public class BookingSkill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private Long customerId;
-    private int rating;
+    private long expertSkillOptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expert_skill_option_id", referencedColumnName = "id")
-    private ExpertSkillOption expertSkillOption;
+    private Booking booking;
 }

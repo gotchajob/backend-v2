@@ -10,6 +10,7 @@ import com.example.gcj.util.Role;
 import com.example.gcj.util.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -40,11 +41,12 @@ public class UserController {
         return Response.ok(null);
     }
 
-    @PostMapping("/change-password")
+    @PatchMapping("/change-password")
     public Response<String> changePassword(
-
+        @RequestBody @Valid ChangePasswordRequestDTO request
     ) {
-        throw new RuntimeException("test");
+        userService.changePassword(request);
+        return Response.ok(null);
     }
 
     @PostMapping("/forget-password")
