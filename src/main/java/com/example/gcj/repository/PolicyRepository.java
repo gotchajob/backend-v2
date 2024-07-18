@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
     Policy getByKey(String key);
+    Policy findById(long id);
+
 }

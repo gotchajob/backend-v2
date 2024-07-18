@@ -2,6 +2,7 @@ package com.example.gcj.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 
@@ -18,10 +19,7 @@ import java.util.List;
 public class Booking extends AbstractEntity {
     private long expertId;
     private long customerId;
-    private long availabilityId;
-    private LocalTime startInterviewTime;
-    private LocalTime endInterviewTime;
-    private LocalDate interviewDate;
+    private Long customerCvId;
     private String note;
     private String rejectReason;
     private Long oldBooking;
@@ -29,6 +27,9 @@ public class Booking extends AbstractEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "booking")
     private List<BookingSkill> bookingSkills;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Availability availability;
 
     public Booking(long id) {
         this.setId(id);

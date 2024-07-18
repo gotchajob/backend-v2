@@ -233,8 +233,6 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     private void addSkillOptionPoints(Integer main, HashMap<Long, Double> expertPoints, List<Long> skillOptionIds) {
-        //expert skill option
-        //todo: point by default point and rating
         if (skillOptionIds != null && !skillOptionIds.isEmpty()) {
             List<Long> expertIds = new ArrayList<>(expertPoints.keySet());
             for (long skillOptionId : skillOptionIds) {

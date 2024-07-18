@@ -15,10 +15,12 @@ public class BookingListResponseDTO {
     private long availabilityId;
     private LocalDateTime startInterviewDate;
     private LocalDateTime endInterviewDate;
+    private Long customerCvId;
     private String note;
     private String rejectReason;
     private int status;
     private java.util.Date createdAt;
+    private boolean canCancel;
 
     private List<Long> expertSkillOptionId;
 }

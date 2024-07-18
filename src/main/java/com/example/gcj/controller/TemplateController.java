@@ -1,23 +1,20 @@
 package com.example.gcj.controller;
 
-import com.example.gcj.dto.account.GetBalanceAccountResponseDTO;
 import com.example.gcj.util.Response;
-import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 public class TemplateController {
-    @GetMapping("")//todo: finish this
-    @Operation(description = "")
+    @GetMapping("")
+    @Operation(description = "coming soon")
     public Response<String> get(
     ) {
 
         return Response.ok(null);
     }
 
-    @GetMapping("/{id}")//todo: finish this
-    @Operation(description = "")
+    @GetMapping("/{id}")
+    @Operation(description = "coming soon")
     public Response<String> getById(
             @PathVariable long id
     ) {
@@ -25,8 +22,8 @@ public class TemplateController {
         return Response.ok(null);
     }
 
-    @PostMapping("")//todo: finish this
-    @Operation(description = "")
+    @PostMapping("")
+    @Operation(description = "coming soon")
     public Response<String> create(
 
     ) {
@@ -35,8 +32,7 @@ public class TemplateController {
     }
 
     @PatchMapping("/{id}")
-    @Secured("role")//todo: finish this
-    @Operation(description = "")
+    @Operation(description = "coming soon")
     public Response<String> update(
             @PathVariable long id
     ) {
@@ -45,8 +41,7 @@ public class TemplateController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured("role")//todo: finish this
-    @Operation(description = "")
+    @Operation(description = "coming soon")
     public Response<String> delete(
             @PathVariable long id
     ) {

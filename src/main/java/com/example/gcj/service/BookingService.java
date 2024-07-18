@@ -14,6 +14,7 @@ public interface BookingService {
     List<BookingListResponseDTO> getAll();
 
     List<BookingListResponseDTO> getByCurrent(long customerId);
+    List<BookingListResponseDTO> getByCurrentAndStatus(long customerId, Integer status);
 
     BookingResponseDTO getById(long id);
     boolean updateStatus(long id, int status);
@@ -22,4 +23,7 @@ public interface BookingService {
 
 
     boolean reject(long currentExpertId, long id, RejectBookingRequestDTO request);
+
+    List<BookingListResponseDTO> getByExpertId(long expertId);
+    List<BookingListResponseDTO> getByExpertIdAndStatus(long expertId, Integer status);
 }

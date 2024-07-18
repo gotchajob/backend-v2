@@ -15,4 +15,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.status != 0 and b.customerId =:customerId")
     List<Booking> getByCustomerId(long customerId);
+    List<Booking> getByCustomerIdAndStatus(long customerId, int status);
+
+    @Query("SELECT b FROM Booking b WHERE b.status != 0 and b.expertId =:expertId")
+    List<Booking> getByExpertId(long expertId);
+    List<Booking> getByExpertIdAndStatus(long expertId, int status);
+
+
 }

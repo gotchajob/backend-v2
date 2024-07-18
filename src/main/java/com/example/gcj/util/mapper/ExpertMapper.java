@@ -47,6 +47,7 @@ public class ExpertMapper {
         return ExpertMatchListResponseDTO
                 .builder()
                 .userId(user.getId())
+                .expertId(expert.getId())
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .yearExperience(expert.getYearExperience())
                 .email(user.getEmail())

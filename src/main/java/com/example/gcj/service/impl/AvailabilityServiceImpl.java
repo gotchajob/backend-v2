@@ -7,11 +7,12 @@ import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Availability;
 import com.example.gcj.repository.AvailabilityRepository;
 import com.example.gcj.service.AvailabilityService;
-import com.example.gcj.util.Status;
 import com.example.gcj.util.mapper.AvailabilityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +57,12 @@ public class AvailabilityServiceImpl implements AvailabilityService {
             throw new CustomException("not found availability with id " + id);
         }
 
-        //todo: finish this
-        return AvailabilityResponseDTO.builder().build();
+        return AvailabilityResponseDTO
+                .builder()
+                .id(availability.getId())
+                .startTime(availability.getAvailableDate().atTime(availability.getStartTime()))
+                .endTime(availability.getAvailableDate().atTime(availability.getEndTime()))
+                .build();
     }
 
     @Override
@@ -66,6 +71,16 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                 ? availabilityRepository.findAll()
                 : availabilityRepository.getByExpertIdAndStatus(expertId, 1);
         return availabilityList.stream().map(AvailabilityMapper::toDto).toList();
+    }
+
+    @Override
+    public List<AvailabilityListResponseDTO> getValidDateToBooking(long expertId) {
+        int dayToValidBooking = 4;
+        LocalDate validDate = LocalDate.now().plusDays(dayToValidBooking);
+        LocalTime currentTime = LocalTime.now();
+
+        List<Availability> availabilities = availabilityRepository.getValidDate(expertId, validDate, currentTime);
+        return availabilities.stream().map(AvailabilityMapper::toDto).toList();
     }
 
     @Override

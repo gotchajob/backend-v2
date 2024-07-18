@@ -12,6 +12,7 @@ public interface AvailabilityService {
     AvailabilityResponseDTO getById(long id);
 
     List<AvailabilityListResponseDTO> get(Long expertId);
+    List<AvailabilityListResponseDTO> getValidDateToBooking(long expertId);
 
     boolean delete(long id, long expertId);
 }

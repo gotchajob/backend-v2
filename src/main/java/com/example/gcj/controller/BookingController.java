@@ -1,14 +1,16 @@
 package com.example.gcj.controller;
 
 import com.example.gcj.dto.booking.*;
+import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.service.BookingService;
 import com.example.gcj.service.CustomerService;
 import com.example.gcj.service.ExpertService;
-import com.example.gcj.service.UserService;
+import com.example.gcj.service.PolicyService;
 import com.example.gcj.util.Response;
 import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ public class BookingController {
     private final BookingService bookingService;
     private final CustomerService customerService;
     private final ExpertService expertService;
+    private final PolicyService policyService;
 
     @GetMapping("")
     @Operation(description = "")
@@ -31,14 +34,43 @@ public class BookingController {
         return Response.ok(response);
     }
 
-    @GetMapping("/current")
+    @GetMapping("/customer/current")
     @Secured(Role.USER)
     @Operation(description = "booking status: 0-delete, 1-wait to expert accept, 2-wait to interview, 3-interviewing,4-wait to feedback, 5-complete, 6-cancel by customer, 7-cancel by expert, 8 reject")
     public Response<List<BookingListResponseDTO>> getByCurrent(
+            @RequestParam(required = false) @Min(1) Integer status
     ) {
         long customerId = customerService.getCurrentCustomerId();
-        List<BookingListResponseDTO> response = bookingService.getByCurrent(customerId);
+        List<BookingListResponseDTO> response = bookingService.getByCurrentAndStatus(customerId, status);
         return Response.ok(response);
+    }
+
+    @GetMapping("/expert/current")
+    @Secured(Role.EXPERT)
+    public Response<List<BookingListResponseDTO>> getByCurrentExpert(
+            @RequestParam(required = false) @Min(1) Integer status
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        List<BookingListResponseDTO> response = bookingService.getByExpertIdAndStatus(expertId, status);
+        return Response.ok(response);
+    }
+
+    @GetMapping("/price")
+    public Response<BookingPriceResponseDTO> getBookingPrice(
+    ) {
+        long price = policyService.getByKey(PolicyKey.BOOKING_PRICE, Long.class);
+        return Response.ok(BookingPriceResponseDTO.builder().price(price).build());
+    }
+
+    @PatchMapping("/price")
+    @Secured(Role.ADMIN)
+    @Operation(description = "role: admin")
+    public Response<String> updateBookingPrice(
+        @RequestBody @Valid UpdateBookingPriceRequestDTO requestDTO
+    ) {
+
+        policyService.update(PolicyKey.BOOKING_PRICE, String.valueOf(requestDTO.getPrice()));
+        return Response.ok(null);
     }
 
     @GetMapping("/{id}")
