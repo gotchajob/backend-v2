@@ -1,9 +1,12 @@
 package com.example.gcj.service.impl;
 
+import com.example.gcj.dto.booking_customer_feedback_answer.BookingCustomerFeedbackAnswerListResponseDTO;
 import com.example.gcj.dto.booking_customer_feedback_answer.CreateBookingCustomerFeedbackAnswerRequestDTO;
 import com.example.gcj.model.BookingCustomerFeedbackAnswer;
+import com.example.gcj.model.BookingCustomerFeedbackQuestion;
 import com.example.gcj.repository.BookingCustomerFeedbackAnswerRepository;
 import com.example.gcj.service.BookingCustomerFeedbackAnswerService;
+import com.example.gcj.util.mapper.BookingCustomerFeedbackAnswerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +27,18 @@ public class BookingCustomerFeedbackAnswerServiceImpl implements BookingCustomer
                     .builder()
                     .bookingCustomerFeedbackId(bookingCustomerFeedback)
                     .answer(requestDTO.getAnswer())
-                    .questionId(requestDTO.getQuestionId())
+                    .question(BookingCustomerFeedbackQuestion.builder().id(requestDTO.getQuestionId()).build())
                     .build();
             list.add(build);
         }
 
         bookingCustomerFeedbackAnswerRepository.saveAll(list);
         return true;
+    }
+
+    @Override
+    public List<BookingCustomerFeedbackAnswerListResponseDTO> get(long feedbackId) {
+        List<BookingCustomerFeedbackAnswer> list = bookingCustomerFeedbackAnswerRepository.findByBookingCustomerFeedbackId(feedbackId);
+        return list.stream().map(BookingCustomerFeedbackAnswerMapper::toDto).toList();
     }
 }

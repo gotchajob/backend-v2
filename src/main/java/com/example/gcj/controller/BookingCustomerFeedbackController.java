@@ -30,7 +30,7 @@ public class BookingCustomerFeedbackController {
     }
 
     @GetMapping("/{id}")
-    @Operation(description = "miss answer list")
+    @Operation(description = "finish")
     public Response<BookingCustomerFeedbackResponseDTO> getById(
             @PathVariable long id
     ) {
@@ -59,11 +59,11 @@ public class BookingCustomerFeedbackController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(description = "not finish")
+    @Operation(description = "finish")
     public Response<String> delete(
             @PathVariable long id
     ) {
-
+        bookingCustomerFeedbackService.delete(id);
         return Response.ok(null);
     }
 }

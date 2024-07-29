@@ -3,6 +3,7 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.booking_customer_feedback.BookingCustomerFeedbackListResponseDTO;
 import com.example.gcj.dto.booking_customer_feedback.BookingCustomerFeedbackResponseDTO;
 import com.example.gcj.dto.booking_customer_feedback.CreateBookingCustomerFeedbackRequestDTO;
+import com.example.gcj.dto.booking_customer_feedback_answer.BookingCustomerFeedbackAnswerListResponseDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Booking;
 import com.example.gcj.model.BookingCustomerFeedback;
@@ -37,6 +38,7 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
                 .builder()
                 .bookingId(request.getBookingId())
                 .comment(request.getComment())
+                .status(1)
                 .rating(request.getRating())
                 .build();
 
@@ -49,14 +51,18 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
     @Override
     public BookingCustomerFeedbackResponseDTO getById(long id) {
         BookingCustomerFeedback byId = bookingCustomerFeedbackRepository.findById(id);
+        if (byId == null) {
+            throw new CustomException("not found with id " + id);
+        }
 
+        List<BookingCustomerFeedbackAnswerListResponseDTO> answerList = bookingCustomerFeedbackAnswerService.get(byId.getId());
         return BookingCustomerFeedbackResponseDTO
                 .builder()
                 .id(byId.getId())
                 .bookingId(byId.getBookingId())
                 .rating(byId.getRating())
                 .comment(byId.getComment())
-                .answerList(List.of("coming soon"))
+                .answerList(answerList)
                 .build();
     }
 
@@ -64,5 +70,18 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
     public List<BookingCustomerFeedbackListResponseDTO> get() {
         List<BookingCustomerFeedback> all = bookingCustomerFeedbackRepository.findAll();
         return all.stream().map(BookingCustomerFeedbackMapper::toDto).toList();
+    }
+
+    @Override
+    public boolean delete(long id) {
+        BookingCustomerFeedback feedback = bookingCustomerFeedbackRepository.findById(id);
+        if (feedback == null) {
+            throw new CustomException("not found booking customer feedback with id " + id);
+        }
+
+        feedback.setStatus(0);
+        bookingCustomerFeedbackRepository.save(feedback);
+
+        return true;
     }
 }

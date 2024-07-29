@@ -1,5 +1,6 @@
 package com.example.gcj.dto.booking_customer_feedback;
 
+import com.example.gcj.dto.booking_customer_feedback_answer.BookingCustomerFeedbackAnswerListResponseDTO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,5 +14,5 @@ public class BookingCustomerFeedbackResponseDTO {
     private long rating;
     private String comment;
 
-    private List<String> answerList;
+    private List<BookingCustomerFeedbackAnswerListResponseDTO> answerList;
 }

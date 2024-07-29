@@ -1,13 +1,11 @@
 package com.example.gcj.controller;
 
 import com.example.gcj.dto.cv.*;
-import com.example.gcj.exception.CustomException;
+import com.example.gcj.service.CustomerService;
 import com.example.gcj.service.CvService;
-import com.example.gcj.service.UserService;
 import com.example.gcj.util.Response;
 import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CvController {
     private final CvService cvService;
-    private final UserService userService;
+    private final CustomerService customerService;
 
     @GetMapping("/current")
     @Secured({Role.USER})
@@ -27,8 +25,8 @@ public class CvController {
     public Response<List<CVListResponseDTO>> getListByCurrentUser(
 
     ) {
-        long userId = userService.getCurrentUserId();
-        List<CVListResponseDTO> response = cvService.getByUserId(userId);
+        long customerId = customerService.getCurrentCustomerId();
+        List<CVListResponseDTO> response = cvService.getByCustomerId(customerId);
         return Response.ok(response);
     }
 
@@ -38,8 +36,8 @@ public class CvController {
     public Response<CvResponseDTO> getById(
             @PathVariable long id
     ) {
-        long userId = userService.getCurrentUserId();
-        CvResponseDTO response = cvService.getById(userId, id);
+        long customerId = customerService.getCurrentCustomerId();
+        CvResponseDTO response = cvService.getById(customerId, id);
         return Response.ok(response);
     }
 
@@ -49,8 +47,8 @@ public class CvController {
     public Response<CreateCvResponseDTO> create(
             @RequestBody CreateCvRequestDTO request
     ) {
-        long userId = userService.getCurrentUserId();
-        CreateCvResponseDTO response =  cvService.create(userId, request);
+        long customerId = customerService.getCurrentCustomerId();
+        CreateCvResponseDTO response =  cvService.create(customerId, request);
         return Response.ok(response);
     }
 
@@ -61,8 +59,8 @@ public class CvController {
             @PathVariable long id,
             @RequestBody UpdateCvRequestDTO request
     ) {
-        long userId = userService.getCurrentUserId();
-        cvService.update(userId, id, request);
+        long customerId = customerService.getCurrentCustomerId();
+        cvService.update(customerId, id, request);
         return Response.ok(null);
     }
 
@@ -72,8 +70,8 @@ public class CvController {
     public Response<String> deleteCv(
             @PathVariable long id
     ) {
-        long userId = userService.getCurrentUserId();
-        cvService.delete(userId, id);
+        long customerId = customerService.getCurrentCustomerId();
+        cvService.delete(customerId, id);
         return Response.ok(null);
     }
 

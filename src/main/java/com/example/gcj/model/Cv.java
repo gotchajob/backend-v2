@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 public class Cv extends AbstractEntity {
     private long cvTemplateId;
-    private Long userId;
+    private Long customerId;
     private String name;
     private String cv;
     private String image;

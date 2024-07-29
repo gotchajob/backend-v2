@@ -32,4 +32,10 @@ public class TransactionServiceImpl implements TransactionService {
         Page<Transaction> transactionPage = transactionRepository.findByAccountId(accountId, pageable);
         return new PageResponseDTO<>(transactionPage.map(TransactionMapper::toDto).toList(), transactionPage.getTotalPages());
     }
+
+    @Override
+    public boolean create(long amount, String description, int type, Integer relationId) {
+
+        return false;
+    }
 }

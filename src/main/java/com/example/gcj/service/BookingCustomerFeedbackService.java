@@ -12,4 +12,5 @@ public interface BookingCustomerFeedbackService {
     BookingCustomerFeedbackResponseDTO getById(long id);
 
     List<BookingCustomerFeedbackListResponseDTO> get();
+    boolean delete(long id);
 }

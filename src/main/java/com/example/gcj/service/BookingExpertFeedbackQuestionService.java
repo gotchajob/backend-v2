@@ -12,7 +12,7 @@ public interface BookingExpertFeedbackQuestionService {
 
     boolean update(long id, UpdateBookingExpertFeedbackQuestionRequestDTO request);
 
-    boolean create(CreateBookingExpertFeedbackQuestionRequestDTO request);
+    boolean create(CreateBookingExpertFeedbackQuestionRequestDTO request, long expertId);
 
     BookingExpertFeedbackQuestionResponseDTO getById(long id);
 

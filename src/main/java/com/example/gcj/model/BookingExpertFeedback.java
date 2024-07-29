@@ -12,4 +12,5 @@ import lombok.*;
 public class BookingExpertFeedback extends AbstractEntity{
     private long bookingId;
     private String comment;
+    private int status;
 }

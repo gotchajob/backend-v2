@@ -5,11 +5,11 @@ import com.example.gcj.dto.cv.*;
 import java.util.List;
 
 public interface CvService {
-    List<CVListResponseDTO> getByUserId(Long userId);
-    CvResponseDTO getById(Long userId, long id);
-    CreateCvResponseDTO create(Long userId, CreateCvRequestDTO request);
+    List<CVListResponseDTO> getByCustomerId(long customerId);
+    CvResponseDTO getById(Long customerId, long id);
+    CreateCvResponseDTO create(long customerId, CreateCvRequestDTO request);
 
-    boolean update(Long userId,long id, UpdateCvRequestDTO request);
+    boolean update(Long customerId, long id, UpdateCvRequestDTO request);
 
-    boolean delete(Long userId, long id);
+    boolean delete(Long customerId, long id);
 }

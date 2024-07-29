@@ -13,7 +13,7 @@ public class TransactionMapper {
                 .builder()
                 .id(transaction.getId())
                 .amount(transaction.getAmount())
-                .type(transaction.getType())
+                .typeId(transaction.getTransactionTypeId())
                 .description(transaction.getDescription())
                 .createdAt(transaction.getCreatedAt())
                 .build();

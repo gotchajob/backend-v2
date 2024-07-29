@@ -10,4 +10,6 @@ public class BookingExpertFeedbackQuestionListResponseDTO {
     private long id;
     private String question;
     private String type;
+    private long categoryId;
+    private String category;
 }

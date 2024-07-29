@@ -1,8 +1,15 @@
 package com.example.gcj.service.impl;
 
+import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.Account;
+import com.example.gcj.model.Customer;
+import com.example.gcj.model.Transaction;
+import com.example.gcj.repository.AccountRepository;
 import com.example.gcj.repository.CustomerRepository;
+import com.example.gcj.repository.TransactionRepository;
 import com.example.gcj.service.CustomerService;
+import com.example.gcj.service.PolicyService;
 import com.example.gcj.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,16 +18,82 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final UserService userService;
+    private final PolicyService policyService;
     private final CustomerRepository customerRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     @Override
     public long getCurrentCustomerId() {
-        long userId = userService.getCurrentUserId();
-        Long customerId = customerRepository.getIdByUserId(userId);
-        if (customerId == null) {
-            throw new CustomException("not found customer");
+        Customer customer = getCurrentCustomer();
+
+        return customer.getId();
+    }
+
+    @Override
+    public boolean buyBookingService() {
+        Customer customer = getCurrentCustomer();
+
+        if (customer.getNumberBooking() > 0) {
+            throw new CustomException("You have already purchased the service");
         }
 
-        return customerId;
+        Account account = accountRepository.findByUserId(customer.getUserId());
+        if (account == null) {
+            throw new CustomException("not found account with userId " + customer.getUserId());
+        }
+
+        long priceBooking = policyService.getByKey(PolicyKey.BOOKING_PRICE, Long.class);
+        if (account.getBalance() < priceBooking) {
+            throw new CustomException("not enough balance to buy service");
+        }
+
+        account.setBalance(account.getBalance() - priceBooking);
+        accountRepository.save(account);
+
+        customer.setNumberBooking(customer.getNumberBooking() + 1);
+        customerRepository.save(customer);
+
+        Transaction transaction = Transaction
+                .builder()
+                .accountId(account.getId())
+                .amount(priceBooking)
+                .description("buy booking service")
+                .referId(null)
+                .build();
+        transactionRepository.save(transaction);
+
+        return true;
+    }
+
+    @Override
+    public boolean checkBuyService() {
+        Customer customer = getCurrentCustomer();
+        if (customer.getNumberBooking() == 0) {
+            throw new CustomException("not already purchased the service");
+        }
+
+        return true;
+    }
+
+    private Customer getCurrentCustomer() {
+        long userId = userService.getCurrentUserId();
+        Customer customer = customerRepository.findByUserId(userId);
+        if (customer == null) {
+            customer = createDefaultCustomer(userId);
+        }
+
+        return customer;
+    }
+
+    private Customer createDefaultCustomer(long userId) {
+        Customer build = Customer
+                .builder()
+                .userId(userId)
+                .maxAllowCv(5)
+                .numberBooking(0)
+                .build();
+
+        return customerRepository.save(build);
     }
 }

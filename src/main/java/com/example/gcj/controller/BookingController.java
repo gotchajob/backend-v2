@@ -88,6 +88,7 @@ public class BookingController {
     public Response<String> create(
             @RequestBody CreateBookingRequestDTO request
     ) {
+        //todo: update availability status
         long customerId = customerService.getCurrentCustomerId();
         bookingService.create(customerId, request);
         return Response.ok(null);
@@ -108,11 +109,22 @@ public class BookingController {
     @PatchMapping("/{id}/cancel")
     @Secured({Role.USER})
     @Operation(description = "cancel by customer")
-    public Response<String> cancelBooking(
+    public Response<String> cancelByCustomer(
             @PathVariable long id
     ) {
         long customerId = customerService.getCurrentCustomerId();
         bookingService.cancel(customerId, id);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/{id}/cancel-by-expert")
+    @Secured({Role.EXPERT})
+    @Operation(description = "cancel by expert, will delete availability, only cancel when status is 2 and on valid time")
+    public Response<String> cancelByExpert(
+            @PathVariable long id
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        bookingService.cancelByExpert(expertId, id);
         return Response.ok(null);
     }
 

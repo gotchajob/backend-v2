@@ -9,6 +9,7 @@ import com.example.gcj.model.User;
 import com.example.gcj.repository.AccountRepository;
 import com.example.gcj.repository.TransactionRepository;
 import com.example.gcj.service.AccountService;
+import com.example.gcj.util.status.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean credit(long userId, CreditRequestDTO request) {
+    public boolean deposit(long userId, CreditRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
@@ -44,8 +45,9 @@ public class AccountServiceImpl implements AccountService {
                 .builder()
                 .accountId(account.getId())
                 .amount(request.getAmount())
-                .description(request.getDescription()) //todo: refactor this
-                .type("credit")
+                .description(request.getDescription())
+                .transactionTypeId(TransactionType.DEPOSIT)
+                .referId(null)
                 .build();
         transactionRepository.save(transaction);
 
@@ -53,7 +55,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean debit(long userId, DebitRequestDTO request) {
+    public boolean withdrawn(long userId, DebitRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
@@ -66,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = getAccountByUserId(userId);
 
         if (account.getBalance() < amount) {
-            throw new CustomException("amount to debit is larger balance");
+            throw new CustomException("amount to withdrawn is larger balance");
         }
 
         double newBalance = account.getBalance() - amount;
@@ -77,8 +79,9 @@ public class AccountServiceImpl implements AccountService {
                 .builder()
                 .accountId(account.getId())
                 .amount(amount)
-                .description(request.getDescription()) //todo: refactor this
-                .type("debit")
+                .description(request.getDescription())
+                .transactionTypeId(TransactionType.WITHDRAW)
+                .referId(null)
                 .build();
         transactionRepository.save(transaction);
 

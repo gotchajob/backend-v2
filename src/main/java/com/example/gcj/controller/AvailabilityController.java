@@ -52,7 +52,7 @@ public class AvailabilityController {
     }
 
     @GetMapping("/{id}")
-    @Operation(description = "")//todo: finish this
+    @Operation(description = "")
     public Response<AvailabilityResponseDTO> getById(
             @PathVariable long id
     ) {
@@ -62,7 +62,7 @@ public class AvailabilityController {
 
     @PostMapping("")
     @Secured(Role.EXPERT)
-    @Operation(description = "")
+    @Operation(description = "Must be created 5 days before the interview begins, not be overlapping, start time < endTime")
     public Response<String> create(
         @RequestBody CreateAvailabilityListRequestDTO request
     ) {

@@ -18,4 +18,6 @@ public class BookingExpertFeedbackQuestion {
     private long id;
     private String question;
     private String type;
+    private long categoryId;
+    private long createdBy;
 }

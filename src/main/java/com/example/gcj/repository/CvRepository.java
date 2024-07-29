@@ -10,11 +10,9 @@ import java.util.List;
 
 @Repository
 public interface CvRepository extends JpaRepository<Cv, Long> {
-    Cv findById(long id);
+    Cv getById(long id);
 
-    @Query("SELECT c FROM Cv c WHERE c.userId = :userId and c.status != 0")
-    List<Cv> findByUserId(@Param("userId") Long userId);
+    @Query("SELECT c FROM Cv c WHERE c.customerId = :customerId and c.status != 0")
+    List<Cv> findByCustomerId(@Param("customerId") long customerId);
 
-    @Query("SELECT c FROM Cv c WHERE c.status != 0 and c.userId is null")
-    List<Cv> getTemplate();
 }

@@ -22,19 +22,19 @@ public class CvServiceImpl implements CvService {
 
 
     @Override
-    public List<CVListResponseDTO> getByUserId(Long userId) {
-        List<Cv> cvs = cvRepository.findByUserId(userId);
+    public List<CVListResponseDTO> getByCustomerId(long customerId) {
+        List<Cv> cvs = cvRepository.findByCustomerId(customerId);
         return cvs.stream().map(CvMapper::toDto).toList();
     }
 
     @Override
-    public CvResponseDTO getById(Long userId, long id) {
-        Cv cv = cvRepository.findById(id);
+    public CvResponseDTO getById(Long customerId, long id) {
+        Cv cv = cvRepository.getById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
         }
 
-        if (userId != null && cv.getUserId() != userId) {
+        if (customerId != null && !cv.getCustomerId().equals(customerId)) {
             throw new CustomException("cv is not yours");
         }
 
@@ -51,7 +51,7 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public CreateCvResponseDTO create(Long userId, CreateCvRequestDTO request) {
+    public CreateCvResponseDTO create(long customerId, CreateCvRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
@@ -63,7 +63,7 @@ public class CvServiceImpl implements CvService {
 
         Cv build = Cv
                 .builder()
-                .userId(userId)
+                .customerId(customerId)
                 .cvTemplateId(request.getCvTemplateId())
                 .name(cvTemplate.getName())
                 .image(cvTemplate.getImage())
@@ -76,17 +76,17 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public boolean update(Long userId, long id, UpdateCvRequestDTO request) {
+    public boolean update(Long customerId, long id, UpdateCvRequestDTO request) {
         if (request == null) {
             throw new CustomException("invalid request");
         }
 
-        Cv cv = cvRepository.findById(id);
+        Cv cv = cvRepository.getById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
         }
 
-        if (userId != null && cv.getUserId() != userId) {
+        if (customerId != null && !cv.getCustomerId().equals(customerId)) {
             throw new CustomException("cv is not yours");
         }
 
@@ -99,13 +99,13 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public boolean delete(Long userId, long id) {
-        Cv cv = cvRepository.findById(id);
+    public boolean delete(Long customerId, long id) {
+        Cv cv = cvRepository.getById(id);
         if (cv == null) {
             throw new CustomException("not found cv with id " + id);
         }
 
-        if (userId != null && cv.getUserId() != userId) {
+        if (customerId != null && !cv.getCustomerId().equals(customerId)) {
             throw new CustomException("cv is not yours");
         }
 

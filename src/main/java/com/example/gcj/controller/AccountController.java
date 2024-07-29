@@ -50,14 +50,14 @@ public class AccountController {
         return Response.ok(response);
     }
 
-    @PatchMapping("/current/credit")
+    @PatchMapping("/current/deposit")
     @Secured(Role.USER)
     @Operation(summary = "nap tien", description = "role: user")
-    public Response<String> credit(
+    public Response<String> deposit(
             @RequestBody CreditRequestDTO request
     ) {
         long userId = userService.getCurrentUserId();
-        accountService.credit(userId, request);
+        accountService.deposit(userId, request);
         return Response.ok(null);
     }
 
@@ -84,14 +84,14 @@ public class AccountController {
 
     }
 
-    @PatchMapping("/current/debit")
+    @PatchMapping("/current/withdrawn")
     @Secured(Role.EXPERT)
     @Operation(summary = "rut tien", description = "role: expert")
-    public Response<String> debit(
+    public Response<String> withdrawn(
             @RequestBody DebitRequestDTO request
     ) {
         long userId = userService.getCurrentUserId();
-        accountService.debit(userId, request);
+        accountService.withdrawn(userId, request);
         return Response.ok(null);
     }
 }

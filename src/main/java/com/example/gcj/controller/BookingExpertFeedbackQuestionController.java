@@ -5,9 +5,12 @@ import com.example.gcj.dto.booking_expert_feedback_question.BookingExpertFeedbac
 import com.example.gcj.dto.booking_expert_feedback_question.CreateBookingExpertFeedbackQuestionRequestDTO;
 import com.example.gcj.dto.booking_expert_feedback_question.UpdateBookingExpertFeedbackQuestionRequestDTO;
 import com.example.gcj.service.BookingExpertFeedbackQuestionService;
+import com.example.gcj.service.ExpertService;
 import com.example.gcj.util.Response;
+import com.example.gcj.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingExpertFeedbackQuestionController {
     private final BookingExpertFeedbackQuestionService bookingExpertFeedbackQuestionService;
+    private final ExpertService expertService;
 
     @GetMapping("")
     @Operation(description = "finish")
@@ -37,10 +41,12 @@ public class BookingExpertFeedbackQuestionController {
 
     @PostMapping("")
     @Operation(description = "finish")
+    @Secured(Role.EXPERT)
     public Response<String> create(
             @RequestBody CreateBookingExpertFeedbackQuestionRequestDTO request
     ) {
-        bookingExpertFeedbackQuestionService.create(request);
+        long expertId = expertService.getCurrentExpertId();
+        bookingExpertFeedbackQuestionService.create(request, expertId);
         return Response.ok(null);
     }
 

@@ -14,6 +14,8 @@ public class BookingExpertFeedbackQuestionMapper {
                 .id(bookingExpertFeedbackQuestion.getId())
                 .question(bookingExpertFeedbackQuestion.getQuestion())
                 .type(bookingExpertFeedbackQuestion.getType())
+                .categoryId(bookingExpertFeedbackQuestion.getCategoryId())
+                .category("coming soon!")
                 .build();
     }
 }

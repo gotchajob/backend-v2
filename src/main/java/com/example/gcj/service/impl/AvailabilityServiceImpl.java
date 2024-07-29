@@ -5,30 +5,50 @@ import com.example.gcj.dto.availability.AvailabilityResponseDTO;
 import com.example.gcj.dto.availability.CreateAvailabilityRequestDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Availability;
+import com.example.gcj.model.Expert;
 import com.example.gcj.repository.AvailabilityRepository;
+import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.service.AvailabilityService;
+import com.example.gcj.service.PolicyService;
 import com.example.gcj.util.mapper.AvailabilityMapper;
+import com.example.gcj.util.status.AvailabilityStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AvailabilityServiceImpl implements AvailabilityService {
     private final AvailabilityRepository availabilityRepository;
+    private final ExpertRepository expertRepository;
+    private final PolicyService policyService;
 
     @Override
     public boolean create(long expertId, List<CreateAvailabilityRequestDTO> request) {
-        //todo check expert id
-
-        List<Availability> availabilities = new ArrayList<>();
+        Expert expert = expertRepository.getById(expertId);
+        if (expert == null) {
+            throw new CustomException("not found expert with id " + expertId);
+        }
+        int dayToCreateAvailability = 5;
 
         for (CreateAvailabilityRequestDTO r : request) {
-            //todo: check time is valid
+            if (r.getStartTime().isAfter(r.getEndTime())) {
+                throw new CustomException("end time must larger startTime. value: " + r.toString());
+            }
+            //todo: check duration time
+
+            LocalDateTime interviewDay = r.getDate().atTime(r.getStartTime());
+            if (LocalDateTime.now().plusDays(dayToCreateAvailability).isAfter(interviewDay)) {
+                throw new CustomException("must be created " + dayToCreateAvailability + " days before the interview begins");
+            }
+
+            if (availabilityRepository.isOverlappingAvailabilities(expertId, r.getDate(), r.getStartTime(), r.getEndTime())) {
+                throw new CustomException("overlapping availability. value: " + r.toString());
+            }
 
             Availability build = Availability
                     .builder()
@@ -36,16 +56,10 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                     .availableDate(r.getDate())
                     .startTime(r.getStartTime())
                     .endTime(r.getEndTime())
-                    .status(1)
+                    .status(AvailabilityStatus.VALID)
                     .build();
-            availabilities.add(build);
+            availabilityRepository.save(build);
         }
-
-        if (availabilities.isEmpty()) {
-            return false;
-        }
-
-        availabilityRepository.saveAll(availabilities);
 
         return true;
     }
@@ -69,13 +83,13 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     public List<AvailabilityListResponseDTO> get(Long expertId) {
         List<Availability> availabilityList = expertId == null
                 ? availabilityRepository.findAll()
-                : availabilityRepository.getByExpertIdAndStatus(expertId, 1);
+                : availabilityRepository.getByExpertId(expertId);
         return availabilityList.stream().map(AvailabilityMapper::toDto).toList();
     }
 
     @Override
     public List<AvailabilityListResponseDTO> getValidDateToBooking(long expertId) {
-        int dayToValidBooking = 4;
+        int dayToValidBooking = 4;//todo: load from policy
         LocalDate validDate = LocalDate.now().plusDays(dayToValidBooking);
         LocalTime currentTime = LocalTime.now();
 
@@ -94,7 +108,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
             throw new CustomException("expert availability not same with current expert");
         }
 
-        availability.setStatus(0);
+        availability.setStatus(AvailabilityStatus.DELETE);
         availabilityRepository.save(availability);
         return true;
     }

@@ -18,4 +18,5 @@ public class Customer {
     private long id;
     private long userId;
     private Integer maxAllowCv;
+    private int numberBooking;
 }

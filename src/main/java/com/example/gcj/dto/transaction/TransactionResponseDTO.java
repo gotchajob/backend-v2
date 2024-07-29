@@ -11,7 +11,7 @@ import java.util.Date;
 public class TransactionResponseDTO implements Serializable {
     private long id;
     private double amount;
-    private String type;
+    private long typeId;
     private String description;
     private Date createdAt;
 }

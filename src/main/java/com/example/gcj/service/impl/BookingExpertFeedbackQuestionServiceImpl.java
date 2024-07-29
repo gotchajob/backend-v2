@@ -44,7 +44,7 @@ public class BookingExpertFeedbackQuestionServiceImpl implements BookingExpertFe
     }
 
     @Override
-    public boolean create(CreateBookingExpertFeedbackQuestionRequestDTO request) {
+    public boolean create(CreateBookingExpertFeedbackQuestionRequestDTO request, long expertId) {
         if (request == null) {
             throw new CustomException("bad request");
         }
@@ -52,9 +52,12 @@ public class BookingExpertFeedbackQuestionServiceImpl implements BookingExpertFe
         BookingExpertFeedbackQuestion build = BookingExpertFeedbackQuestion
                 .builder()
                 .question(request.getQuestion())
-                .question(request.getType())
+                .type(request.getType())
+                .categoryId(request.getCategoryId())
+                .createdBy(expertId)
                 .build();
-        bookingExpertFeedbackQuestionRepository.save(build);
+        BookingExpertFeedbackQuestion save = bookingExpertFeedbackQuestionRepository.save(build);
+
 
         return true;
     }

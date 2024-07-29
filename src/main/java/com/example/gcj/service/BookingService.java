@@ -20,6 +20,7 @@ public interface BookingService {
     boolean updateStatus(long id, int status);
     boolean approve(long expertId, long id);
     boolean cancel(long customerId, long id);
+    boolean cancelByExpert(long expertId, long id);
 
 
     boolean reject(long currentExpertId, long id, RejectBookingRequestDTO request);
