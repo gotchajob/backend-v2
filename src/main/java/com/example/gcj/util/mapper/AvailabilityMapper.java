@@ -11,6 +11,7 @@ public class AvailabilityMapper {
                 .builder()
                 .id(availability.getId())
                 .expertId(availability.getExpertId())
+                .status(availability.getStatus())
                 .startTime(availability.getAvailableDate().atTime(availability.getStartTime()))
                 .endTime(availability.getAvailableDate().atTime(availability.getEndTime()))
                 .build();

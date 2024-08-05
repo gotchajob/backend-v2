@@ -14,4 +14,8 @@ public interface BookingCustomerFeedbackRepository extends JpaRepository<Booking
 
     @Query("SELECT b FROM BookingCustomerFeedback b WHERE b.status != 0")
     List<BookingCustomerFeedback> findAll();
+    @Query("SELECT b FROM BookingCustomerFeedback b WHERE b.bookingId =:bookingId AND b.status != 0")
+    List<BookingCustomerFeedback> findByBookingId(long bookingId);
+
+
 }

@@ -1,8 +1,8 @@
 package com.example.gcj.config.security;
 
 import com.example.gcj.dto.user.UserLoginDataResponseDTO;
-import com.example.gcj.model.User;
 import com.example.gcj.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,12 +10,11 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    final UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleService roleService;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -23,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Not Found User");
         } else {
-            return new CustomUserDetails(user);
+            return new CustomUserDetails(user, roleService.getRole(user.getId()));
         }
     }
 }

@@ -10,6 +10,7 @@ public interface BookingCustomerFeedbackService {
     boolean create(long customerId, CreateBookingCustomerFeedbackRequestDTO request);
 
     BookingCustomerFeedbackResponseDTO getById(long id);
+    BookingCustomerFeedbackResponseDTO getByBookingId(long bookingId);
 
     List<BookingCustomerFeedbackListResponseDTO> get();
     boolean delete(long id);

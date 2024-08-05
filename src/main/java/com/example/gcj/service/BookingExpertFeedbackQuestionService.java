@@ -10,11 +10,13 @@ import java.util.List;
 public interface BookingExpertFeedbackQuestionService {
     boolean delete(long id);
 
-    boolean update(long id, UpdateBookingExpertFeedbackQuestionRequestDTO request);
+    boolean update(long id, UpdateBookingExpertFeedbackQuestionRequestDTO request, long expertId);
 
     boolean create(CreateBookingExpertFeedbackQuestionRequestDTO request, long expertId);
 
     BookingExpertFeedbackQuestionResponseDTO getById(long id);
 
     List<BookingExpertFeedbackQuestionListResponseDTO> get();
+
+    List<BookingExpertFeedbackQuestionListResponseDTO> getByExpertId(long expertId);
 }

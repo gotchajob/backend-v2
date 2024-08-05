@@ -63,13 +63,31 @@ public class BookingController {
     }
 
     @PatchMapping("/price")
-    @Secured(Role.ADMIN)
+    @Secured(Role.STAFF)
     @Operation(description = "role: admin")
     public Response<String> updateBookingPrice(
-        @RequestBody @Valid UpdateBookingPriceRequestDTO requestDTO
+            @RequestBody @Valid UpdateBookingPriceRequestDTO requestDTO
     ) {
 
         policyService.update(PolicyKey.BOOKING_PRICE, String.valueOf(requestDTO.getPrice()));
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/{id}/complete")
+    @Operation(description = "update to status 5")
+    public Response<String> completeBooking(
+            @PathVariable long id
+    ) {
+        bookingService.completeBooking(id);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/{id}/wait-to-feedback")
+    @Operation(description = "update to status 4")
+    public Response<String> endBooking(
+            @PathVariable long id
+    ) {
+        bookingService.endBooking(id);
         return Response.ok(null);
     }
 

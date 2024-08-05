@@ -11,8 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User getUserById(long id);
@@ -20,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @EntityGraph(value = "User.noAssociations", type = EntityGraph.EntityGraphType.FETCH)
     User getUserByEmail(String email);
 
-    @Query("SELECT NEW com.example.gcj.dto.user.UserLoginDataResponseDTO(u.email, u.password, u.status, u.roleId) FROM User u WHERE u.email = :email")
+    @Query("SELECT NEW com.example.gcj.dto.user.UserLoginDataResponseDTO(u.id, u.email, u.password, u.status, u.roleId) FROM User u WHERE u.email = :email")
     UserLoginDataResponseDTO findByEmailDto(String email);
     User findByEmail(String email);
 

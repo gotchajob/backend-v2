@@ -1,9 +1,6 @@
 package com.example.gcj.repository;
 
 import com.example.gcj.model.Expert;
-import com.example.gcj.model.ExpertSkillOption;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +16,12 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Query("SELECT e.id FROM Expert e WHERE e.user.id =:userId")
     Long getIdByUserId(@Param("userId") long userId);
+
+    @Query("SELECT u.email FROM Expert e INNER JOIN User u ON e.user.id = u.id  WHERE e.id =:expertId")
+    String getEmailById(long expertId);
+
+    @Query("SELECT e.user.id FROM Expert e WHERE e.id =:id")
+    Long getUserIdById(long id);
+    @Query("SELECT count(e) > 0 FROM Expert e WHERE e.user.id =:userId AND e.status != 0")
+    boolean existsByUserIdAndStatusNotZero(long userId);
 }

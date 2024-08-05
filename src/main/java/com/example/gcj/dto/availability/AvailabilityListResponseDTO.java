@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class AvailabilityListResponseDTO {
     private long id;
     private long expertId;
+    private int status;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

@@ -13,7 +13,7 @@ public class ExpertSkillRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private Long customerId;
+    private long bookingCustomerFeedbackId;
     private int rating;
 
     @ManyToOne(fetch = FetchType.LAZY)

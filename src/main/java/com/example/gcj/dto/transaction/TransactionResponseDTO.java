@@ -10,8 +10,12 @@ import java.util.Date;
 @Builder
 public class TransactionResponseDTO implements Serializable {
     private long id;
+    private long accountId;
     private double amount;
+    private double balanceAfterTransaction;
     private long typeId;
+    private int status;
     private String description;
     private Date createdAt;
+    private Long referId;
 }

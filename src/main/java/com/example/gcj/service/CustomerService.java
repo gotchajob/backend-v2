@@ -5,4 +5,6 @@ public interface CustomerService {
 
     boolean buyBookingService();
     boolean checkBuyService();
+
+    String getEmailById(long customerId);
 }

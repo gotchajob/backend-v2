@@ -1,5 +1,6 @@
 package com.example.gcj.repository;
 
+import com.example.gcj.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,4 +12,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Customer findById(long id);
     Customer findByUserId(long userId);
+
+    @Query("SELECT new com.example.gcj.dto.user.UserBookingInfoResponseDTO(u.firstName, u.lastName, u.email, u.avatar)" +
+            "FROM Customer c INNER JOIN User u ON c.userId = u.id " +
+            "WHERE c.id =:customerId")
+    UserBookingInfoResponseDTO customerInfo(long customerId);
+
+    boolean existsByUserId(long userId);
 }

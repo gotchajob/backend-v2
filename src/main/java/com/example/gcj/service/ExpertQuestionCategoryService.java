@@ -3,6 +3,7 @@ package com.example.gcj.service;
 import com.example.gcj.dto.expert_question_category.CreateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryListResponseDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryResponseDTO;
+import com.example.gcj.dto.expert_question_category.UpdateExpertQuestionCategoryRequestDTO;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface ExpertQuestionCategoryService {
     List<ExpertQuestionCategoryListResponseDTO> getByExpertId(long expertId);
 
     List<ExpertQuestionCategoryListResponseDTO> get();
+
+    boolean update(long id, UpdateExpertQuestionCategoryRequestDTO request, long expertId);
 }

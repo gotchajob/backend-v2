@@ -25,6 +25,7 @@ public class Expert extends AbstractEntity {
     private String linkedinUrl;
     private String education;
     private int yearExperience;
+    private int personalPoint;
 
     @OneToOne(fetch = FetchType.LAZY)
     private User user;

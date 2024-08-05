@@ -91,4 +91,9 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
         int rowAffected = expertSkillOptionRepository.updateStatusByExpertId(expertId);
         return rowAffected > 0;
     }
+
+    @Override
+    public void get(List<Long> skillOptionId) {
+
+    }
 }

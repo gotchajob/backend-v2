@@ -23,4 +23,8 @@ public class ExpertSkillOption extends AbstractEntity {
 
     @OneToMany(mappedBy = "expertSkillOption", fetch = FetchType.LAZY)
     private List<ExpertSkillRating> expertSkillRatings;
+
+    public ExpertSkillOption(long id) {
+        this.setId(id);
+    }
 }

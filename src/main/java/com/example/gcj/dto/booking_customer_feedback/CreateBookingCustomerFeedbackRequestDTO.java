@@ -1,6 +1,7 @@
 package com.example.gcj.dto.booking_customer_feedback;
 
 import com.example.gcj.dto.booking_customer_feedback_answer.CreateBookingCustomerFeedbackAnswerRequestDTO;
+import com.example.gcj.dto.expert_skill_rating.CreateExpertSkillRatingRequestDTO;
 import lombok.*;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public class CreateBookingCustomerFeedbackRequestDTO {
     private String comment;
 
     List<CreateBookingCustomerFeedbackAnswerRequestDTO> answers;
+    List<CreateExpertSkillRatingRequestDTO> skillRatings;
 }

@@ -1,9 +1,6 @@
 package com.example.gcj.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -18,6 +15,7 @@ public class BookingExpertFeedbackQuestion {
     private long id;
     private String question;
     private String type;
-    private long categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ExpertQuestionCategory category;
     private long createdBy;
 }

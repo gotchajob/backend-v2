@@ -37,6 +37,14 @@ public class BookingCustomerFeedbackController {
         BookingCustomerFeedbackResponseDTO responseDTO = bookingCustomerFeedbackService.getById(id);
         return Response.ok(responseDTO);
     }
+    @GetMapping("/by-booking/{bookingId}")
+    @Operation(description = "finish")
+    public Response<BookingCustomerFeedbackResponseDTO> getByBookingId(
+            @PathVariable long bookingId
+    ) {
+        BookingCustomerFeedbackResponseDTO responseDTO = bookingCustomerFeedbackService.getByBookingId(bookingId);
+        return Response.ok(responseDTO);
+    }
 
     @PostMapping("")
     @Secured(Role.USER)

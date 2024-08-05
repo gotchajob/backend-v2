@@ -3,8 +3,10 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
 import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.Customer;
 import com.example.gcj.model.Expert;
 import com.example.gcj.model.User;
+import com.example.gcj.repository.CustomerRepository;
 import com.example.gcj.repository.ExpertRepository;
 import com.example.gcj.repository.SearchRepository;
 import com.example.gcj.repository.UserRepository;
@@ -12,12 +14,12 @@ import com.example.gcj.repository.specification.ObjectSpecificationBuilder;
 import com.example.gcj.service.ExpertNationSupportService;
 import com.example.gcj.service.ExpertSkillOptionService;
 import com.example.gcj.service.UserService;
-import com.example.gcj.util.service.EmailService;
 import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Regex;
 import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
+import com.example.gcj.util.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService {
     private final ExpertRepository expertRepository;
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
+    private final CustomerRepository customerRepository;
 
 
     @Override
@@ -111,7 +114,15 @@ public class UserServiceImpl implements UserService {
 
         String encodePassword = bCryptPasswordEncoder.encode(request.getPassword());
         User user = new User(request.getEmail(), encodePassword, request.getFirstName(), request.getLastName());
-        userRepository.save(user);
+        User save = userRepository.save(user);
+
+        Customer customer = Customer
+                .builder()
+                .userId(save.getId())
+                .numberBooking(0)
+                .maxAllowCv(5)
+                .build();
+        customerRepository.save(customer);
     }
 
     @Override

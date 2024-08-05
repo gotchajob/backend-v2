@@ -23,7 +23,8 @@ public class Transaction {
     private Date createdAt;
     private long accountId;
     private double amount;
+    private int status = 1;
     private int transactionTypeId;
     private String description;
-    private Integer referId;
+    private Long referId;
 }

@@ -14,7 +14,9 @@ public class BookingExpertFeedbackAnswerMapper {
                 .id(b.getId())
                 .questionId(b.getQuestion().getId())
                 .question(b.getQuestion().getQuestion())
-                .categoryId(b.getQuestion().getCategoryId())
+                .questionType(b.getQuestion().getType())
+                .categoryId(b.getQuestion().getCategory().getId())
+                .category(b.getQuestion().getCategory().getCategory())
                 .answer(b.getAnswer())
                 .build();
     }

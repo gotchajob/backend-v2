@@ -3,6 +3,7 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.availability.AvailabilityListResponseDTO;
 import com.example.gcj.dto.availability.AvailabilityResponseDTO;
 import com.example.gcj.dto.availability.CreateAvailabilityRequestDTO;
+import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Availability;
 import com.example.gcj.model.Expert;
@@ -15,9 +16,8 @@ import com.example.gcj.util.status.AvailabilityStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -33,17 +33,26 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         if (expert == null) {
             throw new CustomException("not found expert with id " + expertId);
         }
-        int dayToCreateAvailability = 5;
+        long minusToCreateAvailability = policyService.getByKey(PolicyKey.MINUS_TO_CREATE_AVAILABILITY, Long.class);
 
         for (CreateAvailabilityRequestDTO r : request) {
             if (r.getStartTime().isAfter(r.getEndTime())) {
                 throw new CustomException("end time must larger startTime. value: " + r.toString());
             }
-            //todo: check duration time
 
-            LocalDateTime interviewDay = r.getDate().atTime(r.getStartTime());
-            if (LocalDateTime.now().plusDays(dayToCreateAvailability).isAfter(interviewDay)) {
-                throw new CustomException("must be created " + dayToCreateAvailability + " days before the interview begins");
+            LocalDateTime start = r.getDate().atTime(r.getStartTime());
+            LocalDateTime end = r.getDate().atTime(r.getEndTime());
+
+            if (LocalDateTime.now().plusMinutes(minusToCreateAvailability).isAfter(start)) {
+                throw new CustomException("must be created " + minusToCreateAvailability + " minus before the interview begins");
+            }
+
+            long durationMin = policyService.getByKey(PolicyKey.DURATION_BOOKING_MIN, Long.class);
+            long durationMax = policyService.getByKey(PolicyKey.DURATION_BOOKING_MAX, Long.class);
+            Duration duration = Duration.between(start, end);
+            long durationMinus = duration.toMinutes();
+            if (durationMinus < durationMin || durationMinus > durationMax) {
+                throw new CustomException("duration must in " + durationMin + " to " + durationMax + " minus!");
             }
 
             if (availabilityRepository.isOverlappingAvailabilities(expertId, r.getDate(), r.getStartTime(), r.getEndTime())) {
@@ -89,11 +98,10 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Override
     public List<AvailabilityListResponseDTO> getValidDateToBooking(long expertId) {
-        int dayToValidBooking = 4;//todo: load from policy
-        LocalDate validDate = LocalDate.now().plusDays(dayToValidBooking);
-        LocalTime currentTime = LocalTime.now();
+        long minusToValidBooking = policyService.getByKey(PolicyKey.MINUS_TO_VALID_AVAILABILITY, Long.class);
+        LocalDateTime now = LocalDateTime.now().plusMinutes(minusToValidBooking);
 
-        List<Availability> availabilities = availabilityRepository.getValidDate(expertId, validDate, currentTime);
+        List<Availability> availabilities = availabilityRepository.getValidDate(expertId, now.toLocalDate(), now.toLocalTime());
         return availabilities.stream().map(AvailabilityMapper::toDto).toList();
     }
 
@@ -106,6 +114,9 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
         if (availability.getExpertId() != expertId) {
             throw new CustomException("expert availability not same with current expert");
+        }
+        if (availability.getStatus() == AvailabilityStatus.BOOKED) {
+            throw new CustomException("cannot delete when availability is booked");
         }
 
         availability.setStatus(AvailabilityStatus.DELETE);

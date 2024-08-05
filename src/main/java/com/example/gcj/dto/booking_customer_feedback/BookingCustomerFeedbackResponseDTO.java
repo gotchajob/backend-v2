@@ -4,6 +4,7 @@ import com.example.gcj.dto.booking_customer_feedback_answer.BookingCustomerFeedb
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -13,6 +14,7 @@ public class BookingCustomerFeedbackResponseDTO {
     private long bookingId;
     private long rating;
     private String comment;
+    private Date createdAt;
 
     private List<BookingCustomerFeedbackAnswerListResponseDTO> answerList;
 }

@@ -11,6 +11,7 @@ import com.example.gcj.repository.BookingCustomerFeedbackRepository;
 import com.example.gcj.repository.BookingRepository;
 import com.example.gcj.service.BookingCustomerFeedbackAnswerService;
 import com.example.gcj.service.BookingCustomerFeedbackService;
+import com.example.gcj.service.ExpertSkillRatingService;
 import com.example.gcj.util.mapper.BookingCustomerFeedbackMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
     private final BookingCustomerFeedbackRepository bookingCustomerFeedbackRepository;
     private final BookingRepository bookingRepository;
     private final BookingCustomerFeedbackAnswerService bookingCustomerFeedbackAnswerService;
+    private final ExpertSkillRatingService expertSkillRatingService;
 
     @Override
     public boolean create(long customerId, CreateBookingCustomerFeedbackRequestDTO request) {
@@ -43,8 +45,14 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
                 .build();
 
         BookingCustomerFeedback save = bookingCustomerFeedbackRepository.save(build);
+        if (request.getAnswers() != null) {
+            bookingCustomerFeedbackAnswerService.create(save.getBookingId(), request.getAnswers());
+        }
 
-        bookingCustomerFeedbackAnswerService.create(save.getBookingId(), request.getAnswers());
+        if (request.getSkillRatings() != null) {
+            expertSkillRatingService.create(request.getSkillRatings(), build.getId());
+        }
+
         return true;
     }
 
@@ -63,6 +71,25 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
                 .rating(byId.getRating())
                 .comment(byId.getComment())
                 .answerList(answerList)
+                .build();
+    }
+
+    @Override
+    public BookingCustomerFeedbackResponseDTO getByBookingId(long bookingId) {
+        List<BookingCustomerFeedback> list = bookingCustomerFeedbackRepository.findByBookingId(bookingId);
+        if (list == null || list.isEmpty()) {
+            throw new CustomException("not found booking customer feedback");
+        }
+        BookingCustomerFeedback bookingCustomerFeedback = list.get(0);
+        List<BookingCustomerFeedbackAnswerListResponseDTO> answerList = bookingCustomerFeedbackAnswerService.get(bookingCustomerFeedback.getId());
+        return BookingCustomerFeedbackResponseDTO
+                .builder()
+                .id(bookingCustomerFeedback.getId())
+                .bookingId(bookingCustomerFeedback.getBookingId())
+                .rating(bookingCustomerFeedback.getRating())
+                .comment(bookingCustomerFeedback.getComment())
+                .answerList(answerList)
+                .createdAt(bookingCustomerFeedback.getCreatedAt())
                 .build();
     }
 

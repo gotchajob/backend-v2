@@ -8,7 +8,9 @@ import lombok.Getter;
 public class BookingExpertFeedbackAnswerListResponseDTO {
     private long id;
     private String question;
+    private String questionType;
     private long questionId;
     private String answer;
     private long categoryId;
+    private String category;
 }

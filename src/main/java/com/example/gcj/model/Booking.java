@@ -6,8 +6,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -22,13 +21,14 @@ public class Booking extends AbstractEntity {
     private Long customerCvId;
     private String note;
     private String rejectReason;
+    private LocalDateTime expireCompleteDate;
     private Long oldBooking;
     private int status;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "booking")
     private List<BookingSkill> bookingSkills;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Availability availability;
 
     public Booking(long id) {

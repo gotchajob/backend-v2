@@ -3,6 +3,7 @@ package com.example.gcj.service.impl;
 import com.example.gcj.dto.expert_question_category.CreateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryListResponseDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryResponseDTO;
+import com.example.gcj.dto.expert_question_category.UpdateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.ExpertQuestionCategory;
 import com.example.gcj.repository.ExpertQuestionCategoryRepository;
@@ -44,7 +45,13 @@ public class ExpertQuestionCategoryServiceImpl implements ExpertQuestionCategory
 
     @Override
     public boolean create(long expertId, CreateExpertQuestionCategoryRequestDTO request) {
-        //todo: check request data
+        if (request == null) {
+            throw new CustomException("bad request");
+        }
+
+        if (request.getCategory() == null || request.getDescription() == null) {
+            throw new CustomException("field can not be null");
+        }
 
         ExpertQuestionCategory build = ExpertQuestionCategory
                 .builder()
@@ -81,5 +88,23 @@ public class ExpertQuestionCategoryServiceImpl implements ExpertQuestionCategory
     public List<ExpertQuestionCategoryListResponseDTO> get() {
         List<ExpertQuestionCategory> list = expertQuestionCategoryRepository.findAll();
         return list.stream().map(ExpertQuestionCategoryMapper::toDto).toList();
+    }
+
+    @Override
+    public boolean update(long id, UpdateExpertQuestionCategoryRequestDTO request, long expertId) {
+        ExpertQuestionCategory category = expertQuestionCategoryRepository.findById(id);
+        if (category == null) {
+            throw new CustomException("not found expert question category with id " + id);
+        }
+
+        if (category.getCreatedBy() != expertId) {
+            throw new CustomException("expert question category is not yours");
+        }
+
+        category.setCategory(request.getCategory());
+        category.setDescription(request.getDescription());
+        expertQuestionCategoryRepository.save(category);
+
+        return true;
     }
 }

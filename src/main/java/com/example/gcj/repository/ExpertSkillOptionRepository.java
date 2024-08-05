@@ -1,5 +1,6 @@
 package com.example.gcj.repository;
 
+import com.example.gcj.dto.skill_option.SkillOptionBookingResponseDTO;
 import com.example.gcj.model.ExpertSkillOption;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -45,4 +46,13 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
     @Transactional
     @Query("UPDATE ExpertSkillOption e SET e.status = 0 WHERE e.expertId = :expertId")
     int updateStatusByExpertId(@Param("expertId") long expertId);
+
+
+    @Query("SELECT new com.example.gcj.dto.skill_option.SkillOptionBookingResponseDTO(s.id, s.name, so.id, so.name) " +
+            "FROM ExpertSkillOption eso " +
+            "JOIN SkillOption so ON eso.skillOption.id = so.id " +
+            "JOIN Skill s ON so.skillId = s.id " +
+            "WHERE eso.id IN (:expertSkillOptionIds)" +
+            "GROUP BY s.id, so.id")
+    List<SkillOptionBookingResponseDTO> getByExpertSkillOptionId(List<Long> expertSkillOptionIds);
 }

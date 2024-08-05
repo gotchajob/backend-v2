@@ -16,4 +16,5 @@ public interface ExpertService {
     boolean updateExpert(long id, UpdateExpertRequestDTO request);
     boolean verifyExpert(long expertId);
     long getCurrentExpertId();
+    String getEmailByExpertId(long expertId);
 }

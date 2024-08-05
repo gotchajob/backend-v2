@@ -44,6 +44,7 @@ public class CvServiceImpl implements CvService {
                 .cvTemplateId(cv.getCvTemplateId())
                 .name(cv.getName())
                 .cv(cv.getCv())
+                .image(cv.getImage())
                 .status(cv.getStatus())
                 .createdAt(cv.getCreatedAt())
                 .updatedAt(cv.getUpdatedAt())

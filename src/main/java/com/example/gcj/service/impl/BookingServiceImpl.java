@@ -1,18 +1,24 @@
 package com.example.gcj.service.impl;
 
 import com.example.gcj.dto.booking.*;
+import com.example.gcj.dto.cv.CvBookingResponseDTO;
+import com.example.gcj.dto.skill_option.SkillOptionBookingResponseDTO;
+import com.example.gcj.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.*;
 import com.example.gcj.repository.*;
+import com.example.gcj.service.AccountService;
 import com.example.gcj.service.BookingService;
 import com.example.gcj.service.BookingSkillService;
 import com.example.gcj.service.PolicyService;
 import com.example.gcj.util.mapper.BookingMapper;
+import com.example.gcj.util.service.EmailService;
 import com.example.gcj.util.status.AvailabilityStatus;
 import com.example.gcj.util.status.BookingStatus;
 import com.example.gcj.util.status.ExpertStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,7 +35,10 @@ public class BookingServiceImpl implements BookingService {
     private final BookingSkillService bookingSkillService;
     private final AvailabilityRepository availabilityRepository;
     private final CustomerRepository customerRepository;
+    private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final PolicyService policyService;
+    private final EmailService emailService;
+    private final AccountService accountService;
 
     @Override
     public void delete(long id) {
@@ -56,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
 
-        int dayToBooking = policyService.getByKey(PolicyKey.DAY_TO_BOOKING, Integer.class);
+        long minusToBooking = policyService.getByKey(PolicyKey.MINUS_TO_BOOKING, Long.class);
         Availability availability = availabilityRepository.findById(request.getAvailabilityId());
         if (availability == null) {
             throw new CustomException("not found availability with id " + request.getAvailabilityId());
@@ -70,8 +79,8 @@ public class BookingServiceImpl implements BookingService {
         }
         
         LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
-        if (LocalDateTime.now().plusDays(dayToBooking).isAfter(interviewTime)) {
-            throw new CustomException("booking need at least " + dayToBooking + " days before interview start");
+        if (LocalDateTime.now().plusMinutes(minusToBooking).isAfter(interviewTime)) {
+            throw new CustomException("booking need at least " + minusToBooking + " days before interview start");
         }
         
         availability.setStatus(AvailabilityStatus.BOOKED);
@@ -120,16 +129,16 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingListResponseDTO> getAll() {
         List<Booking> bookings = bookingRepository.findAll();
 
-        int dayToCancelBooking = getDayToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, dayToCancelBooking)).toList();
+        long minusToCancelBooking = getMinusToCancel();
+        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
     }
 
     @Override
     public List<BookingListResponseDTO> getByCurrent(long customerId) {
         List<Booking> bookings = bookingRepository.getByCustomerId(customerId);
 
-        int dayToCancelBooking = getDayToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, dayToCancelBooking)).toList();
+        long minusToCancelBooking = getMinusToCancel();
+        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
     }
 
     @Override
@@ -137,14 +146,38 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = status == null ? bookingRepository.getByCustomerId(customerId)
                 : bookingRepository.getByCustomerIdAndStatus(customerId, status);
 
-        int dayToCancelBooking = getDayToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, dayToCancelBooking)).toList();
+        long minusToCancelBooking = getMinusToCancel();
+        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
     }
 
     @Override
     public BookingResponseDTO getById(long id) {
         Booking booking = get(id);
+        UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(booking.getCustomerId());
+        if (customerInfo == null) {
+            throw new CustomException("not found customer info");
+        }
+
+        Cv customerCv = cvRepository.getById(booking.getCustomerCvId());
+        if (customerCv == null) {
+            throw new CustomException("not found customer cv with id " + booking.getCustomerCvId());
+        }
+
+        CvBookingResponseDTO customerCvResponse = CvBookingResponseDTO
+                .builder()
+                .id(customerCv.getId())
+                .image(customerCv.getImage())
+                .name(customerCv.getName())
+                .build();
+
         Availability availability = booking.getAvailability();
+        List<Long> expertSkillOptionIds = booking.getBookingSkills().stream().map(BookingSkill::getExpertSkillOptionId).toList();
+        List<SkillOptionBookingResponseDTO> skillOptionBooking = expertSkillOptionRepository.getByExpertSkillOptionId(expertSkillOptionIds);
+
+        long minusToCancel = policyService.getByKey(PolicyKey.MINUS_TO_CANCEL_BOOKING, Long.class);
+        boolean canCancel = (booking.getStatus() == 1 || booking.getStatus() == 2)
+                && (LocalDateTime.now().plusMinutes(minusToCancel).isBefore(availability.getAvailableDate().atTime(availability.getStartTime())));
+
         return BookingResponseDTO
                 .builder()
                 .id(booking.getId())
@@ -154,9 +187,12 @@ public class BookingServiceImpl implements BookingService {
                 .endInterviewDate(availability.getAvailableDate().atTime(availability.getEndTime()))
                 .note(booking.getNote())
                 .rejectReason(booking.getRejectReason())
+                .customerInfo(customerInfo)
+                .customerCv(customerCvResponse)
                 .status(booking.getStatus())
                 .createdAt(booking.getCreatedAt())
-                .expertSkillOptionIds(booking.getBookingSkills().stream().map(BookingSkill::getExpertSkillOptionId).toList())
+                .canCancel(canCancel)
+                .skillOptionBooking(skillOptionBooking)
                 .build();
     }
 
@@ -188,10 +224,10 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("not found availability");
         }
 
-        long dayBeforeToApprove = 1;
+        long minusBeforeToApprove = policyService.getByKey(PolicyKey.MINUS_BEFORE_APPROVE_BOOKING, Long.class);
         LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
-        if (LocalDateTime.now().plusDays(dayBeforeToApprove).isAfter(interviewTime)) {
-            throw new CustomException("need to approve before " + dayBeforeToApprove + (dayBeforeToApprove > 1 ? " day" : " days") +  " of interview day");
+        if (LocalDateTime.now().plusMinutes(minusBeforeToApprove).isAfter(interviewTime)) {
+            throw new CustomException("need to approve before " + minusBeforeToApprove + " minus" +  " of interview day");
         }
 
         booking.setStatus(BookingStatus.WAIT_TO_INTERVIEW);
@@ -219,7 +255,7 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("availability is null");
         }
 
-        availability.setStatus(AvailabilityStatus.VALID);
+        availability.setStatus(AvailabilityStatus.DELETE);
         availabilityRepository.save(availability);
 
         return true;
@@ -228,8 +264,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingListResponseDTO> getByExpertId(long expertId) {
         List<Booking> bookings = bookingRepository.getByExpertId(expertId);
-        int dayToCancelBooking = getDayToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, dayToCancelBooking)).toList();
+        long minusToCancelBooking = getMinusToCancel();
+        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
     }
 
     @Override
@@ -237,8 +273,107 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = status == null
                 ? bookingRepository.getByExpertId(expertId)
                 : bookingRepository.getByExpertIdAndStatus(expertId, status);
-        int dayToCancelBooking = getDayToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, dayToCancelBooking)).toList();
+        long minusToCancelBooking = getMinusToCancel();
+        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+    }
+
+    @Override
+    public boolean endBooking(long id) {
+        Booking booking = bookingRepository.findById(id);
+        if (booking == null) {
+            throw new CustomException("not found booking with id " + id);
+        }
+
+        booking.setStatus(BookingStatus.WAIT_TO_FEEDBACK);
+        bookingRepository.save(booking);
+
+        return true;
+    }
+
+    @Override
+    public boolean completeBooking(long id) {
+        Booking booking = bookingRepository.findById(id);
+        if (booking == null) {
+            throw new CustomException("not found booking with id " + id);
+        }
+
+        booking.setStatus(BookingStatus.COMPLETE);
+        bookingRepository.save(booking);
+
+        return true;
+    }
+
+    @Override
+    @Scheduled(fixedRate = 60000)
+    public void autoCompleteBooking() {
+        List<Booking> bookingList = bookingRepository.findByStatusAndExpireCompleteDateBefore(BookingStatus.WAIT_TO_FEEDBACK, LocalDateTime.now());
+        for (Booking booking : bookingList) {
+            booking.setStatus(BookingStatus.COMPLETE);
+            Long userId = expertRepository.getUserIdById(booking.getExpertId());
+            if (userId == null) {
+                continue;
+            }
+            accountService.sendMoneyToExpert(userId, booking.getId());
+        }
+        bookingRepository.saveAll(bookingList);
+    }
+
+    @Override
+    @Scheduled(fixedRate = 60000) // 60,000 ms = 1 minute
+    public void updateToBookingInterviewing() {
+        long minusToSendNotifyInterview = policyService.getByKey(PolicyKey.MINUS_TO_SEND_NOTIFY_INTERVIEWING, Long.class);
+        LocalDateTime now = LocalDateTime.now().plusMinutes(minusToSendNotifyInterview);
+
+        List<Booking> bookingList = bookingRepository.findByStatus(BookingStatus.WAIT_TO_INTERVIEW);
+        for (Booking booking : bookingList) {
+            Availability availability = booking.getAvailability();
+            LocalDateTime startInterviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
+            LocalDateTime endInterviewTime = availability.getAvailableDate().atTime(availability.getEndTime());
+
+            if (now.isAfter(startInterviewTime)) {
+                booking.setStatus(BookingStatus.INTERVIEWING);
+                bookingRepository.save(booking);
+            }
+            sendEmailToNotifyBooking(booking);
+        }
+    }
+
+    @Override
+    @Scheduled(fixedRate = 60000) // 60,000 ms = 1 minute
+    public void updateToEndBooking() {
+        long minusToAutoEndBooking = policyService.getByKey(PolicyKey.MINUS_TO_AUTO_END_BOOKING, Long.class);
+
+        LocalDateTime now = LocalDateTime.now().minusMinutes(minusToAutoEndBooking);
+
+        List<Booking> bookingList = bookingRepository.findByStatus(BookingStatus.INTERVIEWING);
+        for (Booking booking : bookingList) {
+            Availability availability = booking.getAvailability();
+            LocalDateTime startInterviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
+            LocalDateTime endInterviewTime = availability.getAvailableDate().atTime(availability.getEndTime());
+
+            if (now.isAfter(endInterviewTime)) {
+                long minusToAutoCompleteBooking = policyService.getByKey(PolicyKey.MINUS_TO_AUTO_COMPLETE_BOOKING, Long.class);
+                booking.setStatus(BookingStatus.WAIT_TO_FEEDBACK);
+                booking.setExpireCompleteDate(LocalDateTime.now().plusMinutes(minusToAutoCompleteBooking));
+                bookingRepository.save(booking);
+
+                sendEmailToCustomerWhenEndBooking(booking.getCustomerId());
+            }
+        }
+    }
+
+    private void sendEmailToCustomerWhenEndBooking(long customerId) {
+        UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(customerId);
+        if (customerInfo == null || customerInfo.getEmail() == null) {
+            return;
+        }
+        String linkFeedback = "https://example.com/feedback";
+
+        String subject = "[Gotcha Job] feedback expert";
+        String body = "you just fish a booking at our website. " +
+                "here is link to feedback expert: " + linkFeedback;
+
+        emailService.sendEmail(customerInfo.getEmail(), subject, body);
     }
 
     @Override
@@ -315,12 +450,38 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
-    private int getDayToCancel() {
-        return policyService.getByKey(PolicyKey.DAY_TO_CANCEL_BOOKING, Integer.class);
+    private long getMinusToCancel() {
+        return policyService.getByKey(PolicyKey.MINUS_TO_CANCEL_BOOKING, Long.class);
     }
 
     private boolean canCancelBooking(LocalDateTime startDateTime) {
-        int dayCancelBooking = getDayToCancel();
-        return LocalDateTime.now().plusDays(dayCancelBooking).isBefore(startDateTime);
+        long minusCancelBooking = getMinusToCancel();
+        return LocalDateTime.now().plusMinutes(minusCancelBooking).isBefore(startDateTime);
+    }
+
+    private void sendEmailToNotifyBooking(Booking booking) {
+        if (booking == null || booking.getStatus() != BookingStatus.INTERVIEWING) {
+            return;
+        }
+
+        UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(booking.getCustomerId());
+        if (customerInfo == null || customerInfo.getEmail() == null) {
+            return;
+        }
+        String expertEmail = expertRepository.getEmailById(booking.getExpertId());
+        if (expertEmail == null) {
+            return;
+        }
+
+        String linkGgmeet = "meet.google.com/gotchajob";
+
+        String subject = "[Gotcha Job] Notify interview";
+        String body = "thong bao ve buoi interview sap dien ra \n" +
+                "link gg meet: " + linkGgmeet + "\n" +
+                "booking id: " + booking.getId() + "\n";
+
+
+        emailService.sendEmail(expertEmail, subject, body);
+        emailService.sendEmail(customerInfo.getEmail(), subject, body);
     }
 }

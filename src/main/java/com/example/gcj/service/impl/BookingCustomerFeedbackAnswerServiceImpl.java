@@ -21,6 +21,10 @@ public class BookingCustomerFeedbackAnswerServiceImpl implements BookingCustomer
 
     @Override
     public boolean create(long bookingCustomerFeedback, List<CreateBookingCustomerFeedbackAnswerRequestDTO> requestDTOS) {
+        if (requestDTOS == null) {
+            return false;
+        }
+
         List<BookingCustomerFeedbackAnswer> list = new ArrayList<>();
         for (CreateBookingCustomerFeedbackAnswerRequestDTO requestDTO : requestDTOS) {
             BookingCustomerFeedbackAnswer build = BookingCustomerFeedbackAnswer

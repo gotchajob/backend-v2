@@ -9,5 +9,6 @@ public class BookingCustomerFeedbackAnswerListResponseDTO {
     private long id;
     private long questionId;
     private String question;
+    private String questionType;
     private String answer;
 }

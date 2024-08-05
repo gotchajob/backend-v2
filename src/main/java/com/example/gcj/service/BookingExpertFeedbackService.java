@@ -9,6 +9,9 @@ import java.util.List;
 public interface BookingExpertFeedbackService {
 
     List<BookingExpertFeedbackListResponseDTO> get(Long bookingId);
+
+    BookingExpertFeedbackResponseDTO getByBookingId(Long bookingId);
+
     BookingExpertFeedbackResponseDTO getById(long id);
 
     boolean create(CreateBookingExpertFeedbackRequestDTO requestDTO, long expertId);

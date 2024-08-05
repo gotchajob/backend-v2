@@ -14,6 +14,7 @@ public class BookingCustomerFeedbackAnswerMapper {
                 .id(bookingCustomerFeedbackAnswer.getId())
                 .questionId(bookingCustomerFeedbackAnswer.getQuestion().getId())
                 .question(bookingCustomerFeedbackAnswer.getQuestion().getQuestion())
+                .questionType(bookingCustomerFeedbackAnswer.getQuestion().getType())
                 .answer(bookingCustomerFeedbackAnswer.getAnswer())
                 .build();
     }

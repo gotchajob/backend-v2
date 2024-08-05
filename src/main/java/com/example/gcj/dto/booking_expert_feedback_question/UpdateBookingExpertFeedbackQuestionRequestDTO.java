@@ -10,4 +10,5 @@ import lombok.*;
 public class UpdateBookingExpertFeedbackQuestionRequestDTO {
     private String question;
     private String type;
+    private long categoryId;
 }

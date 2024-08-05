@@ -1,5 +1,6 @@
 package com.example.gcj.service.impl;
 
+import com.example.gcj.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Account;
@@ -11,6 +12,8 @@ import com.example.gcj.repository.TransactionRepository;
 import com.example.gcj.service.CustomerService;
 import com.example.gcj.service.PolicyService;
 import com.example.gcj.service.UserService;
+import com.example.gcj.util.status.TransactionStatus;
+import com.example.gcj.util.type.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +61,9 @@ public class CustomerServiceImpl implements CustomerService {
                 .builder()
                 .accountId(account.getId())
                 .amount(priceBooking)
+                .status(TransactionStatus.COMPLETE)
                 .description("buy booking service")
+                .transactionTypeId(TransactionType.PAY_FOR_SERVICE)
                 .referId(null)
                 .build();
         transactionRepository.save(transaction);
@@ -74,6 +79,12 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         return true;
+    }
+
+    @Override
+    public String getEmailById(long customerId) {
+        UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(customerId);
+        return customerInfo.getEmail();
     }
 
     private Customer getCurrentCustomer() {

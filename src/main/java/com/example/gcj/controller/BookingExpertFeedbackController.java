@@ -40,6 +40,15 @@ public class BookingExpertFeedbackController {
         return Response.ok(response);
     }
 
+    @GetMapping("/by-booking/{bookingId}")
+    @Operation(description = "finish")
+    public Response<BookingExpertFeedbackResponseDTO> getByBookingId(
+            @PathVariable long bookingId
+    ) {
+        BookingExpertFeedbackResponseDTO response = bookingExpertFeedbackService.getByBookingId(bookingId);
+        return Response.ok(response);
+    }
+
     @PostMapping("")
     @Secured(Role.EXPERT)
     @Operation(description = "finish")

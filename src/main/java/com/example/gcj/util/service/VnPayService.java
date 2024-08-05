@@ -1,80 +1,74 @@
 package com.example.gcj.util.service;
 
-import com.example.gcj.dto.account.CreditRequestDTO;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.codec.Hex;
+import com.example.gcj.config.vnpay.VNPAYConfig;
+import com.example.gcj.dto.account.GetVnPayUrlResponseDTO;
+import com.example.gcj.exception.CustomException;
+import com.example.gcj.model.Transaction;
+import com.example.gcj.service.AccountService;
+import com.example.gcj.service.TransactionService;
+import com.example.gcj.service.UserService;
+import com.example.gcj.util.VNPayUtil;
+import com.example.gcj.util.status.TransactionStatus;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Map;
+
 @Service
+@RequiredArgsConstructor
 public class VnPayService {
-    @Value("${vnpay.tmnCode}")
-    private String tmnCode;
+    private final VNPAYConfig vnPayConfig;
+    private final TransactionService transactionService;
+    private final AccountService accountService;
+    private final UserService userService;
 
-    @Value("${vnpay.hashSecret}")
-    private String hashSecret;
-
-    @Value("${vnpay.payUrl}")
-    private String payUrl;
-
-    @Value("${vnpay.returnUrl}")
-    private String returnUrl;
-
-    public String createPaymentUrl(CreditRequestDTO request) {
-        Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", "2.0.0");
-        vnp_Params.put("vnp_Command", "pay");
-        vnp_Params.put("vnp_TmnCode", tmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf((long) request.getAmount() * 100)); // Amount in VND (multiply by 100 to convert to smallest unit)
-        vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_TxnRef", String.valueOf(System.currentTimeMillis())); // Unique transaction reference
-        vnp_Params.put("vnp_OrderInfo", "Payment for order: " + request.getDescription());
-        vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", returnUrl);
-        vnp_Params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
-
-        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            for (String fieldName : fieldNames) {
-                String fieldValue = vnp_Params.get(fieldName);
-                if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                    // Build the hash data and query string
-                    hashData.append(fieldName).append('=').append(fieldValue);
-                    query.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    hashData.append('&');
-                    query.append('&');
-                }
-            }
-            String queryUrl = query.substring(0, query.length() - 1);
-            String secureHash = hmacSHA512(hashData.substring(0, hashData.length() - 1), hashSecret);
-            queryUrl += "&vnp_SecureHash=" + secureHash;
-            return payUrl + "?" + queryUrl;
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
+    public GetVnPayUrlResponseDTO createVnPayPayment(HttpServletRequest request) {
+        String fontEndWeb = "http://localhost:3001/account-profile";//todo: flex this
+        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
+        String bankCode = request.getParameter("bankCode");
+        Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
+        vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
+        if (bankCode != null && !bankCode.isEmpty()) {
+            vnpParamsMap.put("vnp_BankCode", bankCode);
         }
+
+        vnpParamsMap.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
+
+        long currentUserId = userService.getCurrentUserId();
+        vnpParamsMap.put("vnp_ReturnUrl", fontEndWeb + "/" + currentUserId);
+        long transactionId = transactionService.transactionForDeposit(amount/100, "deposit by vn pay");//todo fix this
+        vnpParamsMap.put("vnp_TxnRef", String.valueOf(transactionId));
+        //build query url
+        String queryUrl = VNPayUtil.getPaymentURL(vnpParamsMap, true);
+        String hashData = VNPayUtil.getPaymentURL(vnpParamsMap, false);
+        String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), hashData);
+        queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
+        String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
+
+        return GetVnPayUrlResponseDTO.builder().paymentURL(paymentUrl).build();
     }
 
-    private String hmacSHA512(String data, String key) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
-        Mac mac = Mac.getInstance("HmacSHA512");
-        mac.init(secretKey);
-        byte[] hmacData = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return Hex.encode(hmacData).toString();
+    public void callBackVnPay(HttpServletRequest request) {
+        String status = request.getParameter("vnp_ResponseCode");
+        double amount = (Double.parseDouble(request.getParameter("vnp_Amount")) / 100);
+        long transactionId = Long.parseLong(request.getParameter("vnp_TxnRef"));
+        if (status.equals("00")) {
+            //todo: check security
+            Transaction transactionCheck = transactionService.getById(transactionId);
+            if (transactionCheck.getStatus() != TransactionStatus.PROCESSING) {
+                throw new CustomException("current transaction status is not processing");
+            }
+
+            Transaction transaction = transactionService.updateTransactionStatus(transactionId, TransactionStatus.COMPLETE);
+
+            if (amount != transaction.getAmount()) {
+                throw new CustomException("amount not same with transaction");
+            }
+            accountService.deposit(transaction.getAccountId(), transaction.getAmount());
+        } else {
+            throw new CustomException("invalid vnpay code");
+        }
+
     }
 }

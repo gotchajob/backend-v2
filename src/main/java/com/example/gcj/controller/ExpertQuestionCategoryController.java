@@ -3,6 +3,7 @@ package com.example.gcj.controller;
 import com.example.gcj.dto.expert_question_category.CreateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryListResponseDTO;
 import com.example.gcj.dto.expert_question_category.ExpertQuestionCategoryResponseDTO;
+import com.example.gcj.dto.expert_question_category.UpdateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.service.ExpertQuestionCategoryService;
 import com.example.gcj.service.ExpertService;
 import com.example.gcj.util.Response;
@@ -60,11 +61,14 @@ public class ExpertQuestionCategoryController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(description = "coming soon")
+    @Secured(Role.EXPERT)
+    @Operation(description = "finish")
     public Response<String> update(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody UpdateExpertQuestionCategoryRequestDTO request
     ) {
-
+        long expertId = expertService.getCurrentExpertId();
+        expertQuestionCategoryService.update(id, request, expertId);
         return Response.ok(null);
     }
 
@@ -74,7 +78,8 @@ public class ExpertQuestionCategoryController {
     public Response<String> delete(
             @PathVariable long id
     ) {
-        expertQuestionCategoryService.delete(id);
+        long expertId = expertService.getCurrentExpertId();
+        expertQuestionCategoryService.delete(id, expertId);
         return Response.ok(null);
     }
 

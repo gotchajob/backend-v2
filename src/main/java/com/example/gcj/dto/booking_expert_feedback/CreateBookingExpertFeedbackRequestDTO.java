@@ -16,5 +16,5 @@ public class CreateBookingExpertFeedbackRequestDTO {
     private long bookingId;
     private String comment;
 
-    List<CreateBookingExpertFeedbackAnswerRequestDTO> answerList;
+    private List<CreateBookingExpertFeedbackAnswerRequestDTO> answerList;
 }

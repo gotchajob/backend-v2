@@ -13,6 +13,7 @@ public class CvResponseDTO implements Serializable {
     private long cvTemplateId;
     private String name;
     private String cv;
+    private String image;
     private int status;
     private Date createdAt;
     private Date updatedAt;

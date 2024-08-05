@@ -171,6 +171,12 @@ public class ExpertServiceImpl implements ExpertService {
         return expertId;
     }
 
+    @Override
+    public String getEmailByExpertId(long expertId) {
+        Expert expert = expertRepository.getById(expertId);
+        return expert.getUser().getEmail();
+    }
+
     private void addPoint(HashMap<Long, Double> expertPoints, long expertId, double point) {
         expertPoints.merge(expertId, point, Double::sum);
     }

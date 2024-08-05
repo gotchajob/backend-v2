@@ -31,6 +31,26 @@ public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackSer
     }
 
     @Override
+    public BookingExpertFeedbackResponseDTO getByBookingId(Long bookingId) {
+        List<BookingExpertFeedback> list = bookingExpertFeedbackRepository.getByBookingId(bookingId);
+        if (list == null || list.isEmpty()) {
+            throw new CustomException("not found booking expert feedback");
+        }
+
+        BookingExpertFeedback feedback = list.get(0);
+        List<BookingExpertFeedbackAnswerListResponseDTO> answerList = bookingExpertFeedbackAnswerService.getByFeedbackId(feedback.getId());
+
+        return BookingExpertFeedbackResponseDTO
+                .builder()
+                .id(feedback.getId())
+                .bookingId(feedback.getBookingId())
+                .comment(feedback.getComment())
+                .answer(answerList)
+                .createdAt(feedback.getCreatedAt())
+                .build();
+    }
+
+    @Override
     public BookingExpertFeedbackResponseDTO getById(long id) {
         BookingExpertFeedback feedback = bookingExpertFeedbackRepository.findById(id);
         if (feedback == null) {
@@ -49,6 +69,9 @@ public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackSer
 
     @Override
     public boolean create(CreateBookingExpertFeedbackRequestDTO requestDTO, long expertId) {
+        if (requestDTO == null) {
+            throw new CustomException("bad request");
+        }
 
         BookingExpertFeedback build = BookingExpertFeedback
                 .builder()
@@ -57,7 +80,9 @@ public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackSer
                 .status(1)
                 .build();
         BookingExpertFeedback save = bookingExpertFeedbackRepository.save(build);
-        bookingExpertFeedbackAnswerService.create(save.getId(), requestDTO.getAnswerList());
+        if (requestDTO.getAnswerList() != null) {
+            bookingExpertFeedbackAnswerService.create(save.getId(), requestDTO.getAnswerList());
+        }
 
         return true;
     }

@@ -30,6 +30,16 @@ public class BookingExpertFeedbackQuestionController {
         return Response.ok(responseDTOS);
     }
 
+    @GetMapping("/current")
+    @Secured(Role.EXPERT)
+    @Operation(description = "finish")
+    public Response<List<BookingExpertFeedbackQuestionListResponseDTO>> getByCurrent(
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        List<BookingExpertFeedbackQuestionListResponseDTO> responseDTOS = bookingExpertFeedbackQuestionService.getByExpertId(expertId);
+        return Response.ok(responseDTOS);
+    }
+
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BookingExpertFeedbackQuestionResponseDTO> getById(
@@ -56,7 +66,8 @@ public class BookingExpertFeedbackQuestionController {
             @PathVariable long id,
             @RequestBody UpdateBookingExpertFeedbackQuestionRequestDTO request
     ) {
-        bookingExpertFeedbackQuestionService.update(id, request);
+        long expertId = expertService.getCurrentExpertId();
+        bookingExpertFeedbackQuestionService.update(id, request, expertId);
         return Response.ok(null);
     }
 
