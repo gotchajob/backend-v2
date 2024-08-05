@@ -4,11 +4,13 @@ import com.example.gcj.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Account;
+import com.example.gcj.model.BookingTicket;
 import com.example.gcj.model.Customer;
 import com.example.gcj.model.Transaction;
 import com.example.gcj.repository.AccountRepository;
 import com.example.gcj.repository.CustomerRepository;
 import com.example.gcj.repository.TransactionRepository;
+import com.example.gcj.service.BookingTicketService;
 import com.example.gcj.service.CustomerService;
 import com.example.gcj.service.PolicyService;
 import com.example.gcj.service.UserService;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final UserService userService;
+    private final BookingTicketService bookingTicketService;
     private final PolicyService policyService;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
@@ -37,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean buyBookingService() {
         Customer customer = getCurrentCustomer();
 
-        if (customer.getNumberBooking() > 0) {
+        if (bookingTicketService.hadTicket(customer.getId())) {
             throw new CustomException("You have already purchased the service");
         }
 
@@ -54,8 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
         account.setBalance(account.getBalance() - priceBooking);
         accountRepository.save(account);
 
-        customer.setNumberBooking(customer.getNumberBooking() + 1);
-        customerRepository.save(customer);
+        BookingTicket bookingTicket = bookingTicketService.create(customer.getId());
 
         Transaction transaction = Transaction
                 .builder()
@@ -64,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .status(TransactionStatus.COMPLETE)
                 .description("buy booking service")
                 .transactionTypeId(TransactionType.PAY_FOR_SERVICE)
-                .referId(null)
+                .referId(bookingTicket.getId())
                 .build();
         transactionRepository.save(transaction);
 
@@ -74,8 +76,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public boolean checkBuyService() {
         Customer customer = getCurrentCustomer();
-        if (customer.getNumberBooking() == 0) {
-            throw new CustomException("not already purchased the service");
+        if (!bookingTicketService.hadTicket(customer.getId())) {
+            throw new CustomException("not found any ticket booking");
         }
 
         return true;

@@ -155,6 +155,9 @@ public class ExpertServiceImpl implements ExpertService {
         user.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(user);
 
+        expert.setStatus(1);
+        expertRepository.save(expert);
+
         String fullName = user.getFirstName() + " " + user.getLastName();
         sendEmailApproveExpert(user.getEmail(), password, fullName);
         return true;

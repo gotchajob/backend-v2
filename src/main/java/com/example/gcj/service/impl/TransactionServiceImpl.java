@@ -79,9 +79,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction updateTransactionStatus(long id, int status) {
+    public Transaction updateTransactionStatus(long id, int status, Long referId) {
         Transaction transaction = getById(id);
         transaction.setStatus(status);
+        transaction.setReferId(referId);
         return transactionRepository.save(transaction);
     }
 

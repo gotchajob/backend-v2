@@ -2,6 +2,7 @@ package com.example.gcj.service.impl;
 
 import com.example.gcj.dto.other.PageResponseDTO;
 import com.example.gcj.dto.user.*;
+import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.Customer;
 import com.example.gcj.model.Expert;
@@ -13,6 +14,7 @@ import com.example.gcj.repository.UserRepository;
 import com.example.gcj.repository.specification.ObjectSpecificationBuilder;
 import com.example.gcj.service.ExpertNationSupportService;
 import com.example.gcj.service.ExpertSkillOptionService;
+import com.example.gcj.service.PolicyService;
 import com.example.gcj.service.UserService;
 import com.example.gcj.util.JwtUtil;
 import com.example.gcj.util.Regex;
@@ -20,6 +22,7 @@ import com.example.gcj.util.Util;
 import com.example.gcj.util.mapper.ExpertMapper;
 import com.example.gcj.util.mapper.UserMapper;
 import com.example.gcj.util.service.EmailService;
+import com.example.gcj.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -52,6 +55,7 @@ public class UserServiceImpl implements UserService {
     private final ExpertSkillOptionService expertSkillOptionService;
     private final ExpertNationSupportService expertNationSupportService;
     private final EmailService emailService;
+    private final PolicyService policyService;
 
     private final ExpertRepository expertRepository;
     private final UserRepository userRepository;
@@ -139,6 +143,8 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("email is existed!");
         }
 
+        int defaultPersonalPoint = policyService.getByKey(PolicyKey.DEFAULT_EXPERT_POINT, Integer.class);
+
         User user = User.builder()
                 .email(email)
                 .avatar(request.getAvatar())
@@ -147,7 +153,7 @@ public class UserServiceImpl implements UserService {
                 .password(DEFAULT_PASSWORD)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .status(DEFAULT_EXPERT_STATUS)
+                .status(UserStatus.NOT_VERIFY)
                 .roleId(EXPERT_ROLE)
                 .build();
         User _user = userRepository.save(user);
@@ -162,8 +168,9 @@ public class UserServiceImpl implements UserService {
                 .twitterUrl(request.getTwitterUrl())
                 .linkedinUrl(request.getLinkedInUrl())
                 .education(request.getEducation())
+                .personalPoint(defaultPersonalPoint)
                 .yearExperience(request.getYearExperience())
-                .status(1)
+                .status(2)
                 .build();
         expert.setUser(_user);
         Expert _expert = expertRepository.save(expert);

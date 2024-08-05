@@ -14,7 +14,7 @@ public interface TransactionService {
     long transactionForDeposit(long amount, String description);
     Transaction getById(long id);
 
-    Transaction updateTransactionStatus(long id, int status);
+    Transaction updateTransactionStatus(long id, int status, Long referId);
 
     @Scheduled(fixedRate = 60000)
     void autoFailTransaction();

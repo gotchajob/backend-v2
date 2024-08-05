@@ -1,6 +1,5 @@
 package com.example.gcj.dto.user;
 
-import com.example.gcj.anotation.validation.FieldNotBlank;
 import com.example.gcj.util.Regex;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +12,7 @@ import java.io.Serializable;
 @Getter
 @Builder
 public class ChangePasswordRequestDTO implements Serializable {
-    @FieldNotBlank(fieldName = "old password")
+    @NotBlank(message = "old password {validation.NotBlank.message}")
     private String oldPassword;
 
     @NotBlank(message = "new password {validation.NotBlank.message}")

@@ -19,4 +19,5 @@ public class ExpertResponseDTO {
     private String linkedinUrl;
     private String education;
     private int yearExperience;
+    private int personalPoint;
 }

@@ -6,8 +6,11 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class VNPayUtil {
@@ -66,5 +69,35 @@ public class VNPayUtil {
                                 URLEncoder.encode(entry.getValue()
                                 , StandardCharsets.US_ASCII))
                 .collect(Collectors.joining("&"));
+    }
+
+    public static boolean verifySignature(HttpServletRequest request, String secretKey) {
+        Map<String, String> params = new TreeMap<>();
+        request.getParameterMap().forEach((key, value) -> {
+            if (value.length > 0) {
+                params.put(key, value[0]);
+            }
+        });
+
+        String receivedSignature = params.remove("vnp_SecureHash");
+        StringBuilder data = new StringBuilder();
+        params.forEach((key, value) -> {
+            if (data.length() > 0) {
+                data.append('&');
+            }
+            data.append(key).append('=').append(value);
+        });
+
+        String calculatedSignature = hmacSHA512(secretKey, data.toString());
+        return receivedSignature != null && receivedSignature.equals(calculatedSignature);
+    }
+
+    public static LocalDateTime parseVnPayDate(String vnpPayDate) {
+        if (vnpPayDate == null) {
+            return null;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return LocalDateTime.parse(vnpPayDate, formatter);
     }
 }

@@ -8,10 +8,7 @@ import com.example.gcj.enums.PolicyKey;
 import com.example.gcj.exception.CustomException;
 import com.example.gcj.model.*;
 import com.example.gcj.repository.*;
-import com.example.gcj.service.AccountService;
-import com.example.gcj.service.BookingService;
-import com.example.gcj.service.BookingSkillService;
-import com.example.gcj.service.PolicyService;
+import com.example.gcj.service.*;
 import com.example.gcj.util.mapper.BookingMapper;
 import com.example.gcj.util.service.EmailService;
 import com.example.gcj.util.status.AvailabilityStatus;
@@ -39,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final PolicyService policyService;
     private final EmailService emailService;
     private final AccountService accountService;
+    private final BookingTicketService bookingTicketService;
 
     @Override
     public void delete(long id) {
@@ -99,11 +97,9 @@ public class BookingServiceImpl implements BookingService {
         if (customer == null) {
             throw new CustomException("not found customer with customer id " + customerId);
         }
-        if (customer.getNumberBooking() < 1) {
+        if (!bookingTicketService.hadTicket(customerId)) {
             throw new CustomException("not already purchased booking service");
         }
-        customer.setNumberBooking(customer.getNumberBooking() - 1);
-        customerRepository.save(customer);
 
         Booking build = Booking
                 .builder()
@@ -116,6 +112,8 @@ public class BookingServiceImpl implements BookingService {
                 .oldBooking(null)
                 .build();
         Booking save = bookingRepository.save(build);
+
+        bookingTicketService.useTicket(customerId, save.getId());
 
         if (request.getBookingSkill() == null || request.getBookingSkill().isEmpty()) {
             return true;

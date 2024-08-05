@@ -107,6 +107,7 @@ public class ExpertMapper {
                 .linkedinUrl(expert.getLinkedinUrl())
                 .education(expert.getEducation())
                 .yearExperience(expert.getYearExperience())
+                .personalPoint(expert.getPersonalPoint())
                 .build();
     }
 }
