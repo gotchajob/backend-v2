@@ -5,17 +5,15 @@ import com.example.gcj.Repository_Layer.model.CvTemplate;
 import com.example.gcj.Repository_Layer.repository.CvCategoryRepository;
 import com.example.gcj.Repository_Layer.repository.CvTemplateRepository;
 import com.example.gcj.Repository_Layer.repository.UserRepository;
-import com.example.gcj.Service_Layer.dto.cv_template.CreateCvTemplateRequestDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateListResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.UpdateCvTemplateRequestDTO;
+import com.example.gcj.Service_Layer.dto.cv_template.*;
 import com.example.gcj.Service_Layer.service.CvTemplateService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
-import com.example.gcj.Shared.util.mapper.CvTemplateMapper;
+import com.example.gcj.Service_Layer.mapper.CvTemplateMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -113,5 +111,15 @@ public class CvTemplateServiceImpl implements CvTemplateService {
         cvTemplateRepository.save(cvTemplate);
 
         return true;
+    }
+
+    @Override
+    public List<CvTemplateListDetailResponseDTO> getListForStaff(Long categoryId, Integer status) {
+        List<CvTemplateListDetailResponseDTO> list = cvTemplateRepository.getAndCountNumberUse(categoryId, status);
+        if (list == null) {
+            return new ArrayList<>();
+        }
+
+        return list;
     }
 }

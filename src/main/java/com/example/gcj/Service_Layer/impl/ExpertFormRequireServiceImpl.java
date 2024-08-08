@@ -8,7 +8,7 @@ import com.example.gcj.Service_Layer.dto.expert_form_require.ExpertFormRequireRe
 import com.example.gcj.Service_Layer.service.ExpertFormRequireService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
-import com.example.gcj.Shared.util.mapper.ExpertFormRequireMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertFormRequireMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +44,7 @@ public class ExpertFormRequireServiceImpl implements ExpertFormRequireService {
 
     @Override
     public List<ExpertFormRequireResponseDTO> getList(List<Long> categoryIds) {
-        List<ExpertFormRequire> expertFormRequireList = expertFormRequireRepository.findByCategoryIdInAndStatus(categoryIds, Status.ACTIVE);
+        List<ExpertFormRequire> expertFormRequireList = expertFormRequireRepository.findByCategoryIdInAndStatus(categoryIds);
 
         return expertFormRequireList.stream().map(ExpertFormRequireMapper::toDto).toList();
     }

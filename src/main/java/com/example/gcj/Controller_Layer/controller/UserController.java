@@ -7,7 +7,7 @@ import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
-import com.example.gcj.Shared.util.mapper.UserMapper;
+import com.example.gcj.Service_Layer.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

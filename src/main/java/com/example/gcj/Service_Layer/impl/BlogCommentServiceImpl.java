@@ -11,7 +11,7 @@ import com.example.gcj.Service_Layer.dto.other.LikeDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.BlogCommentService;
 import com.example.gcj.Service_Layer.service.UserService;
-import com.example.gcj.Shared.util.mapper.BlogCommentMapper;
+import com.example.gcj.Service_Layer.mapper.BlogCommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

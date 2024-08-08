@@ -20,13 +20,12 @@ import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.JwtUtil;
 import com.example.gcj.Shared.util.Regex;
 import com.example.gcj.Shared.util.Util;
-import com.example.gcj.Shared.util.mapper.ExpertMapper;
-import com.example.gcj.Shared.util.mapper.UserMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertMapper;
+import com.example.gcj.Service_Layer.mapper.UserMapper;
 import com.example.gcj.Shared.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -116,7 +115,6 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("Email is exist");
         }
 
-        String encodePassword = bCryptPasswordEncoder.encode(request.getPassword());
         User user = User.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
@@ -177,6 +175,8 @@ public class UserServiceImpl implements UserService {
                 .personalPoint(defaultPersonalPoint)
                 .yearExperience(request.getYearExperience())
                 .status(2)
+                .cost(request.getCost())
+                .certification(request.getCertification())
                 .build();
         expert.setUser(_user);
         Expert _expert = expertRepository.save(expert);
@@ -185,15 +185,6 @@ public class UserServiceImpl implements UserService {
         expertNationSupportService.create(_expert.getId(), request.getNationSupport());
 
         return _expert.getId();
-    }
-
-    @Override
-    public PageResponseDTO<ExpertAccountResponse> getExpertAccountNotVerify(int page, int limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit);
-
-        Page<User> experts = userRepository.getUserByStatusAndRoleId(DEFAULT_EXPERT_STATUS, EXPERT_ROLE, pageable);
-
-        return new PageResponseDTO<>(experts.map(ExpertMapper::toDto).toList(), experts.getTotalPages());
     }
 
     @Override

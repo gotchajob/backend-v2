@@ -1,9 +1,6 @@
 package com.example.gcj.Service_Layer.service;
 
-import com.example.gcj.Service_Layer.dto.cv_template.CreateCvTemplateRequestDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateListResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.UpdateCvTemplateRequestDTO;
+import com.example.gcj.Service_Layer.dto.cv_template.*;
 
 import java.util.List;
 
@@ -17,4 +14,6 @@ public interface CvTemplateService {
     boolean update(long id, UpdateCvTemplateRequestDTO request);
 
     boolean delete(long id);
+
+    List<CvTemplateListDetailResponseDTO> getListForStaff(Long categoryId, Integer status);
 }

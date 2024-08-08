@@ -17,9 +17,9 @@ import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
 import com.example.gcj.Shared.util.Util;
-import com.example.gcj.Shared.util.mapper.ExpertMapper;
-import com.example.gcj.Shared.util.mapper.ExpertNationSupportMapper;
-import com.example.gcj.Shared.util.mapper.ExpertSkillOptionMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertNationSupportMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertSkillOptionMapper;
 import com.example.gcj.Shared.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -181,6 +181,30 @@ public class ExpertServiceImpl implements ExpertService {
     public String getEmailByExpertId(long expertId) {
         Expert expert = expertRepository.getById(expertId);
         return expert.getUser().getEmail();
+    }
+
+    @Override
+    public boolean updatePrice(long expertId, double cost) {
+        Expert expert = expertRepository.getById(expertId);
+        if (expert == null) {
+            throw new CustomException("not found expert with id " + expertId);
+        }
+        checkExpertCost(cost);
+
+        expert.setCost(cost);
+        expertRepository.save(expert);
+
+        return true;
+    }
+
+    private void checkExpertCost(double cost) {
+        Double expertCostMin = policyService.getByKey(PolicyKey.EXPERT_COST_MIN, Double.class);
+        Double expertCostMax = policyService.getByKey(PolicyKey.EXPERT_COST_MAX, Double.class);
+
+        if (cost < expertCostMin || cost > expertCostMax) {
+            throw new CustomException("expert cost must " + expertCostMin + " to " + expertCostMax);
+        }
+
     }
 
     private void addPoint(HashMap<Long, Double> expertPoints, long expertId, double point) {

@@ -47,12 +47,11 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
     @Query("UPDATE ExpertSkillOption e SET e.status = 0 WHERE e.expertId = :expertId")
     int updateStatusByExpertId(@Param("expertId") long expertId);
 
-
-    @Query("SELECT new com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO(s.id, s.name, so.id, so.name) " +
+    @Query("SELECT new com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO(eso.id, s.id, s.name, so.id, so.name) " +
             "FROM ExpertSkillOption eso " +
             "JOIN SkillOption so ON eso.skillOption.id = so.id " +
             "JOIN Skill s ON so.skillId = s.id " +
-            "WHERE eso.id IN (:expertSkillOptionIds)" +
-            "GROUP BY s.id, so.id")
+            "WHERE eso.id IN (:expertSkillOptionIds) " +
+            "GROUP BY eso.id, s.id, s.name, so.id, so.name")
     List<SkillOptionBookingResponseDTO> getByExpertSkillOptionId(List<Long> expertSkillOptionIds);
 }

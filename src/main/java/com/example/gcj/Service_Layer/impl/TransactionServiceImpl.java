@@ -11,7 +11,7 @@ import com.example.gcj.Service_Layer.service.PolicyService;
 import com.example.gcj.Service_Layer.service.TransactionService;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.TransactionMapper;
+import com.example.gcj.Service_Layer.mapper.TransactionMapper;
 import com.example.gcj.Shared.util.status.TransactionStatus;
 import com.example.gcj.Shared.util.status.TransactionType;
 import lombok.RequiredArgsConstructor;

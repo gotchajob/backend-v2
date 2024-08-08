@@ -13,6 +13,8 @@ public interface ExpertFormRequireRepository extends JpaRepository<ExpertFormReq
 
     @Query("SELECT e FROM ExpertFormRequire e WHERE e.categoryId =:categoryId AND e.status != 0")
     List<ExpertFormRequire> findByCategoryId(Long categoryId);
-    List<ExpertFormRequire> findByCategoryIdInAndStatus(List<Long> categoryIds, int status);
+
+    @Query("SELECT e FROM ExpertFormRequire e WHERE (:categoryIds IS NULL OR e.categoryId in (:categoryIds)) AND e.status = 1")
+    List<ExpertFormRequire> findByCategoryIdInAndStatus(List<Long> categoryIds);
 
 }

@@ -9,7 +9,7 @@ import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill_option.UpdateSkillOptionRequestDTO;
 import com.example.gcj.Service_Layer.service.SkillOptionService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.SkillOptionMapper;
+import com.example.gcj.Service_Layer.mapper.SkillOptionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -15,7 +15,7 @@ import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.BlogService;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.BlogMapper;
+import com.example.gcj.Service_Layer.mapper.BlogMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

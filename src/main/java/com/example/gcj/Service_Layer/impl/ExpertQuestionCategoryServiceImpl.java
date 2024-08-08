@@ -8,7 +8,7 @@ import com.example.gcj.Service_Layer.dto.expert_question_category.ExpertQuestion
 import com.example.gcj.Service_Layer.dto.expert_question_category.UpdateExpertQuestionCategoryRequestDTO;
 import com.example.gcj.Service_Layer.service.ExpertQuestionCategoryService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.ExpertQuestionCategoryMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertQuestionCategoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

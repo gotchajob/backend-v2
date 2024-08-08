@@ -9,7 +9,7 @@ import com.example.gcj.Service_Layer.dto.blog_reaction.UpdateBlogReactionDTO;
 import com.example.gcj.Service_Layer.service.BlogReactionService;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.BlogReactionMapper;
+import com.example.gcj.Service_Layer.mapper.BlogReactionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

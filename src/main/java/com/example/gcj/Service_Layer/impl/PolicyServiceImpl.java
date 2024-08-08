@@ -9,7 +9,7 @@ import com.example.gcj.Service_Layer.dto.policy.UpdatePolicyRequestDTO;
 import com.example.gcj.Service_Layer.service.PolicyService;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.PolicyMapper;
+import com.example.gcj.Service_Layer.mapper.PolicyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

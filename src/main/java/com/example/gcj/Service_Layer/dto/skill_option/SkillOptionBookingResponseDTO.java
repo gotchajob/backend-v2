@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class SkillOptionBookingResponseDTO {
+    private long expertSkillOptionId;
     private long skillId;
     private String skillName;
     private long skillOptionId;

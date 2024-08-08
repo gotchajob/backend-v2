@@ -1,9 +1,6 @@
 package com.example.gcj.Controller_Layer.controller;
 
-import com.example.gcj.Service_Layer.dto.cv_template.CreateCvTemplateRequestDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateListResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_template.UpdateCvTemplateRequestDTO;
+import com.example.gcj.Service_Layer.dto.cv_template.*;
 import com.example.gcj.Service_Layer.service.CvTemplateService;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.util.Response;
@@ -32,6 +29,17 @@ public class CvTemplateController {
         return Response.ok(response);
     }
 
+    @GetMapping("/for-staff")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
+    public Response<List<CvTemplateListDetailResponseDTO>> getListForStaff(
+            @RequestParam(required = false) @Min(1) Long categoryId,
+            @RequestParam(required = false) @Min(0) Integer status
+    ) {
+        List<CvTemplateListDetailResponseDTO> response = cvTemplateService.getListForStaff(categoryId, status);
+        return Response.ok(response);
+    }
+
     @GetMapping("/{id}")
     @Operation(description = "role: n/a")
     public Response<CvTemplateResponseDTO> getById(
@@ -42,8 +50,8 @@ public class CvTemplateController {
     }
 
     @PostMapping("")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
     public Response<String> create(
             @RequestBody CreateCvTemplateRequestDTO request
     ) {
@@ -53,8 +61,8 @@ public class CvTemplateController {
     }
 
     @PatchMapping("/{id}")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
     public Response<String> update(
             @PathVariable @Min(1) long id,
             @RequestBody UpdateCvTemplateRequestDTO request
@@ -64,8 +72,8 @@ public class CvTemplateController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
     public Response<String> delete(
             @PathVariable @Min(1) long id
     ) {

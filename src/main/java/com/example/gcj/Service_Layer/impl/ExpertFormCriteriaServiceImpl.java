@@ -7,7 +7,7 @@ import com.example.gcj.Service_Layer.dto.expert_form_criteria.CreateExpertFormCr
 import com.example.gcj.Service_Layer.dto.expert_form_criteria.ExpertFormCriteriaResponseDTO;
 import com.example.gcj.Service_Layer.service.ExpertFormCriteriaService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.ExpertFormCriteriaMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertFormCriteriaMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

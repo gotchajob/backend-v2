@@ -17,4 +17,6 @@ public interface ExpertService {
     boolean verifyExpert(long expertId);
     long getCurrentExpertId();
     String getEmailByExpertId(long expertId);
+
+    boolean updatePrice(long expertId, double cost);
 }

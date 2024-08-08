@@ -10,7 +10,6 @@ public interface UserService {
     LoginResponseDTO login(LoginRequestDTO userLogin);
     PageResponseDTO<UserListResponseDTO> getAll(int pageNumber, int pageSize, String sortBy, String... search);
     long createExpertAccount(String email, CreateExpertAccountRequestDTO request);
-    PageResponseDTO<ExpertAccountResponse> getExpertAccountNotVerify(int page, int limit);
     void updateExpertStatus(Long id, int status);
     void banUser(long id);
     void unbanUser(long id);

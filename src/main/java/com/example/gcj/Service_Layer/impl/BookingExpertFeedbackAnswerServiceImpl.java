@@ -6,7 +6,7 @@ import com.example.gcj.Repository_Layer.repository.BookingExpertFeedbackAnswerRe
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback_answer.BookingExpertFeedbackAnswerListResponseDTO;
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback_answer.CreateBookingExpertFeedbackAnswerRequestDTO;
 import com.example.gcj.Service_Layer.service.BookingExpertFeedbackAnswerService;
-import com.example.gcj.Shared.util.mapper.BookingExpertFeedbackAnswerMapper;
+import com.example.gcj.Service_Layer.mapper.BookingExpertFeedbackAnswerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

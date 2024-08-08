@@ -14,7 +14,7 @@ import com.example.gcj.Service_Layer.service.ExpertRegisterRequestService;
 import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.ExpertRegisterRequestMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertRegisterRequestMapper;
 import com.example.gcj.Shared.util.status.ExpertRegisterRequestStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

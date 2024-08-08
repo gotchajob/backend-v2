@@ -4,7 +4,7 @@ import com.example.gcj.Repository_Layer.model.TransactionType;
 import com.example.gcj.Repository_Layer.repository.TransactionTypeRepository;
 import com.example.gcj.Service_Layer.dto.transaction_type.TransactionTypeListResponseDTO;
 import com.example.gcj.Service_Layer.service.TransactionTypeService;
-import com.example.gcj.Shared.util.mapper.TransactionTypeMapper;
+import com.example.gcj.Service_Layer.mapper.TransactionTypeMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

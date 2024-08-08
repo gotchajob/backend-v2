@@ -11,7 +11,7 @@ import com.example.gcj.Service_Layer.dto.expert_skill_option.UpdateExpertSkillOp
 import com.example.gcj.Service_Layer.service.ExpertSkillOptionService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
-import com.example.gcj.Shared.util.mapper.ExpertSkillOptionMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertSkillOptionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -8,7 +8,7 @@ import com.example.gcj.Service_Layer.dto.faq.UpdateFaqRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.FaqService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.FaqMapper;
+import com.example.gcj.Service_Layer.mapper.FaqMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

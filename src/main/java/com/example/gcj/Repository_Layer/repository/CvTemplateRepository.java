@@ -1,6 +1,7 @@
 package com.example.gcj.Repository_Layer.repository;
 
 import com.example.gcj.Repository_Layer.model.CvTemplate;
+import com.example.gcj.Service_Layer.dto.cv_template.CvTemplateListDetailResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,13 @@ public interface CvTemplateRepository extends JpaRepository<CvTemplate, Long> {
 
     @Query("SELECT c FROM CvTemplate c WHERE c.status != 0")
     List<CvTemplate>  findAll();
+
+    @Query("SELECT new com.example.gcj.Service_Layer.dto.cv_template.CvTemplateListDetailResponseDTO(ct.id, ct.categoryId, cc.name, ct.name, ct.image, ct.status, COUNT(c.id), ct.createdAt) " +
+            "FROM CvTemplate ct " +
+            "LEFT JOIN Cv c ON c.cvTemplateId = ct.id " +
+            "INNER JOIN CvCategory cc ON ct.categoryId = cc.id " +
+            "WHERE (:categoryId IS NULL OR ct.categoryId = :categoryId) " +
+            "AND (:status IS NULL OR ct.status = :status) " +
+            "GROUP BY ct.id, ct.categoryId, cc.name, ct.name, ct.image, ct.status, ct.createdAt")
+    List<CvTemplateListDetailResponseDTO> getAndCountNumberUse(Long categoryId, Integer status);
 }

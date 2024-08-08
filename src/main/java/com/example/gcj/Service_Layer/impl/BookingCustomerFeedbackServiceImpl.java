@@ -12,7 +12,7 @@ import com.example.gcj.Service_Layer.service.BookingCustomerFeedbackAnswerServic
 import com.example.gcj.Service_Layer.service.BookingCustomerFeedbackService;
 import com.example.gcj.Service_Layer.service.ExpertSkillRatingService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.BookingCustomerFeedbackMapper;
+import com.example.gcj.Service_Layer.mapper.BookingCustomerFeedbackMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

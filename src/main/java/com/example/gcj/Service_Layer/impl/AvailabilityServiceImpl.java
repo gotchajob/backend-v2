@@ -11,7 +11,7 @@ import com.example.gcj.Service_Layer.service.AvailabilityService;
 import com.example.gcj.Service_Layer.service.PolicyService;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.AvailabilityMapper;
+import com.example.gcj.Service_Layer.mapper.AvailabilityMapper;
 import com.example.gcj.Shared.util.status.AvailabilityStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

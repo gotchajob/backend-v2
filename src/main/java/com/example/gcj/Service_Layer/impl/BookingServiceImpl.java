@@ -10,7 +10,7 @@ import com.example.gcj.Service_Layer.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.Service_Layer.service.*;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.BookingMapper;
+import com.example.gcj.Service_Layer.mapper.BookingMapper;
 import com.example.gcj.Shared.util.status.AvailabilityStatus;
 import com.example.gcj.Shared.util.status.BookingStatus;
 import com.example.gcj.Shared.util.status.ExpertStatus;

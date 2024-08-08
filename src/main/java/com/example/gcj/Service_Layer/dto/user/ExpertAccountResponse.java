@@ -28,4 +28,5 @@ public class ExpertAccountResponse {
     private String twitterUrl;
     private String linkedinUrl;
     private String education;
+    private double cost;
 }

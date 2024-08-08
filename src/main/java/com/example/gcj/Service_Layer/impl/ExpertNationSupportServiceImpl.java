@@ -7,7 +7,7 @@ import com.example.gcj.Service_Layer.dto.expert_nation_support.ExpertNationSuppo
 import com.example.gcj.Service_Layer.service.ExpertNationSupportService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
-import com.example.gcj.Shared.util.mapper.ExpertNationSupportMapper;
+import com.example.gcj.Service_Layer.mapper.ExpertNationSupportMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -10,7 +10,7 @@ import com.example.gcj.Service_Layer.dto.booking_expert_feedback_question.Create
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback_question.UpdateBookingExpertFeedbackQuestionRequestDTO;
 import com.example.gcj.Service_Layer.service.BookingExpertFeedbackQuestionService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Shared.util.mapper.BookingExpertFeedbackQuestionMapper;
+import com.example.gcj.Service_Layer.mapper.BookingExpertFeedbackQuestionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
