@@ -1,6 +1,7 @@
 package com.example.gcj.Controller_Layer.controller;
 
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateCostRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.ExpertAccountResponse;
 import com.example.gcj.Service_Layer.service.ExpertService;
@@ -33,6 +34,18 @@ public class ExpertController {
         return Response.ok(response);
     }
 
+    @GetMapping("/match-v2")
+    @Operation(description = "")
+    public Response<List<ExpertMatchListResponseDTO>> matchExpertV2(
+            @RequestParam(required = false) List<Long> skillOptionId,
+            @RequestParam(required = false) List<String> nation,
+            @RequestParam(required = false) Integer by,
+            @RequestParam(required = false) @Min(1) Integer minYearExperience
+    ) {
+        List<ExpertMatchListResponseDTO> response = expertService.newExpertMatch(by, skillOptionId, nation, minYearExperience);
+        return Response.ok(response);
+    }
+
     @GetMapping("")
     @Operation(description = "sortBy: (field name):asc|desc. example: id:desc <br>" +
             "search: (key)(:|>|<)(value). example: id:11, bio:123")
@@ -61,6 +74,16 @@ public class ExpertController {
     ) {
         ExpertAccountResponse response = expertService.getByCurrent();
         return Response.ok(response);
+    }
+
+    @PatchMapping("/current/update-cost")
+    @Secured(Role.EXPERT)
+    public Response<ExpertAccountResponse> updateCost(
+            @RequestBody UpdateCostRequestDTO updateCostRequestDTO
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        expertService.updatePrice(expertId, updateCostRequestDTO.getCost());
+        return Response.ok(null);
     }
 
 }

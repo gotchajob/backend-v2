@@ -31,4 +31,5 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
                                                      @Param("availableDate") LocalDate availableDate,
                                                      @Param("startTime") LocalTime startTime,
                                                      @Param("endTime") LocalTime endTime);
+
 }

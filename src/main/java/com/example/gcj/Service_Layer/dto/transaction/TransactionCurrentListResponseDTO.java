@@ -12,6 +12,7 @@ public class TransactionCurrentListResponseDTO {
     private double amount;
     private double balanceAfterTransaction;
     private long typeId;
+    private int status;
     private String description;
     private Date createdAt;
 }

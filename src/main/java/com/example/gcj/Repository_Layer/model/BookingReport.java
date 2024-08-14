@@ -10,7 +10,12 @@ import lombok.*;
 @Setter
 @Builder
 public class BookingReport extends AbstractEntity {
-    private String content;
+    private String customerContent;
+    private String customerEvidence;
+    private String expertContent;
+    private String expertEvidence;
+    private String staffNote;
+    private Long processingBy;
     private int status;
     private long bookingId;
 }

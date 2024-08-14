@@ -15,5 +15,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Page<Transaction> findByAccountIdAndStatus(long id, int status, Pageable pageable);
 
-    List<Transaction> findByStatusAndCreatedAtBefore(int status, LocalDateTime date);
+    List<Transaction> findByStatusAndTransactionTypeIdAndCreatedAtBefore(int status,int transactionTypeId, LocalDateTime date);
+
+    Transaction findByReferIdAndTransactionTypeId(long referId, long transactionTypeId);
 }

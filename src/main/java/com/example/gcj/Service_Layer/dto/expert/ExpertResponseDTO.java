@@ -21,4 +21,6 @@ public class ExpertResponseDTO {
     private int yearExperience;
     private int personalPoint;
     private double cost;
+    private String backgroundImage;
+    private String shortDescription;
 }

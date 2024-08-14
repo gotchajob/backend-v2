@@ -23,6 +23,8 @@ import com.example.gcj.Service_Layer.mapper.ExpertSkillOptionMapper;
 import com.example.gcj.Shared.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,8 @@ public class ExpertServiceImpl implements ExpertService {
         final int yearExperiencePoint = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_POINT, Integer.class);
         final double expertYearExpertPointMaxFactor = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_MAX_FACTOR, Double.class);
         final int numberExpertMatch = policyService.getByKey(PolicyKey.NUMBER_EXPERT_MATCH, Integer.class);
+        final double weightPersonalPoint = 3;
+        final int personalPoint = 60;
 
         HashMap<Long, Double> expertPoints = new HashMap<>();
         if (main == null) {
@@ -72,8 +76,33 @@ public class ExpertServiceImpl implements ExpertService {
             addSkillOptionPoints(main, expertPoints, skillOptionIds);
         }
 
-
         return getResultList(expertPoints, numberExpertMatch);
+    }
+
+    @Override
+    public List<ExpertMatchListResponseDTO> newExpertMatch(Integer main, List<Long> skillOptionIds, List<String> nations, Integer yearExperience) {
+        final double weightNation = policyService.getByKey(PolicyKey.EXPERT_NATION_SUPPORT_POINT, Double.class);
+        final double weightExperience = policyService.getByKey(PolicyKey.EXPERT_YEAR_EXPERIENCE_POINT, Double.class);
+        final double weightSkill = policyService.getByKey(PolicyKey.EXPERT_SKILL_POINT, Double.class);
+        final double weightPersonalPoint = policyService.getByKey(PolicyKey.EXPERT_PERSONAL_POINT, Double.class);
+        final int personalPoint = policyService.getByKey(PolicyKey.EXPERT_PERSONAL_POINT_MIN_TO_MATCHING, Integer.class);;
+
+        final int numberExpertMatch = policyService.getByKey(PolicyKey.NUMBER_EXPERT_MATCH, Integer.class);
+
+        Pageable pageable = PageRequest.of(0, numberExpertMatch);
+
+        List<ExpertMatchListResponseDTO> matchingExperts = expertRepository.findMatchingExperts(yearExperience, nations, skillOptionIds, personalPoint, weightExperience, weightNation, weightSkill, weightPersonalPoint, main, pageable);
+        for (ExpertMatchListResponseDTO matchingExpert : matchingExperts) {
+            List<ExpertNationSupportResponseDTO> _expertNationSupport = expertNationSupportRepository
+                    .findByExpertId(matchingExpert.getExpertId()).stream().map(ExpertNationSupportMapper::toDto).toList();
+            List<ExpertSkillOptionResponseDTO> _expertSkillOptions = expertSkillOptionRepository
+                    .findByExpertId(matchingExpert.getExpertId()).stream().map(ExpertSkillOptionMapper::toDto).toList();
+
+            matchingExpert.setSkills(_expertSkillOptions);
+            matchingExpert.setNationSupport(_expertNationSupport);
+        }
+
+        return matchingExperts;
     }
 
     @Override
@@ -189,11 +218,26 @@ public class ExpertServiceImpl implements ExpertService {
         if (expert == null) {
             throw new CustomException("not found expert with id " + expertId);
         }
+
         checkExpertCost(cost);
 
         expert.setCost(cost);
         expertRepository.save(expert);
 
+        return true;
+    }
+
+    @Override
+    public boolean updateExpertPoint(long expertId, int point) {
+        Expert expert = get(expertId);
+
+        int newExpertPoint = expert.getPersonalPoint() + point;
+        expert.setPersonalPoint(newExpertPoint);
+        if (newExpertPoint < 30) {
+            //todo: ban expert??
+        }
+
+        expertRepository.save(expert);
         return true;
     }
 
@@ -338,5 +382,14 @@ public class ExpertServiceImpl implements ExpertService {
                 "[GotchaJob]\n";
 
         emailService.sendEmail(email, subject, body);
+    }
+
+    private Expert get(long id) {
+        Expert expert = expertRepository.getById(id);
+        if (expert == null) {
+            throw new CustomException("not found expert with id " + id);
+        }
+
+        return expert;
     }
 }

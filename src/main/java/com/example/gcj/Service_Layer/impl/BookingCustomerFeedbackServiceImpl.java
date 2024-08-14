@@ -4,16 +4,18 @@ import com.example.gcj.Repository_Layer.model.Booking;
 import com.example.gcj.Repository_Layer.model.BookingCustomerFeedback;
 import com.example.gcj.Repository_Layer.repository.BookingCustomerFeedbackRepository;
 import com.example.gcj.Repository_Layer.repository.BookingRepository;
-import com.example.gcj.Service_Layer.dto.booking_customer_feedback.BookingCustomerFeedbackListResponseDTO;
-import com.example.gcj.Service_Layer.dto.booking_customer_feedback.BookingCustomerFeedbackResponseDTO;
-import com.example.gcj.Service_Layer.dto.booking_customer_feedback.CreateBookingCustomerFeedbackRequestDTO;
+import com.example.gcj.Service_Layer.dto.booking_customer_feedback.*;
 import com.example.gcj.Service_Layer.dto.booking_customer_feedback_answer.BookingCustomerFeedbackAnswerListResponseDTO;
-import com.example.gcj.Service_Layer.service.BookingCustomerFeedbackAnswerService;
-import com.example.gcj.Service_Layer.service.BookingCustomerFeedbackService;
-import com.example.gcj.Service_Layer.service.ExpertSkillRatingService;
-import com.example.gcj.Shared.exception.CustomException;
+import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.mapper.BookingCustomerFeedbackMapper;
+import com.example.gcj.Service_Layer.service.*;
+import com.example.gcj.Shared.enums.PolicyKey;
+import com.example.gcj.Shared.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +27,8 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
     private final BookingRepository bookingRepository;
     private final BookingCustomerFeedbackAnswerService bookingCustomerFeedbackAnswerService;
     private final ExpertSkillRatingService expertSkillRatingService;
+    private final ExpertService expertService;
+    private final PolicyService policyService;
 
     @Override
     public boolean create(long customerId, CreateBookingCustomerFeedbackRequestDTO request) {
@@ -51,6 +55,11 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
 
         if (request.getSkillRatings() != null) {
             expertSkillRatingService.create(request.getSkillRatings(), build.getId());
+        }
+
+        if (request.getRating() == 5) {
+            int pointWhenGoodFeedback = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_HAVE_GOOD_FEEDBACK, Integer.class);
+            expertService.updateExpertPoint(booking.getExpertId(), pointWhenGoodFeedback);
         }
 
         return true;
@@ -110,5 +119,17 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
         bookingCustomerFeedbackRepository.save(feedback);
 
         return true;
+    }
+
+    @Override
+    public List<BookingCustomerFeedbackTotalRatingResponseDTO> totalRatingByExpert(long expertId) {
+        return bookingCustomerFeedbackRepository.getTotalRatingByExpert(expertId);
+    }
+
+    @Override
+    public PageResponseDTO<BookingCustomerFeedbackSimpleResponseDTO> getListByExpert(int pageNumber, int pageSize, String sortBy, Long expertId) {
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize, Sort.by(sortBy).descending());
+        Page<BookingCustomerFeedback> page = bookingCustomerFeedbackRepository.findByExpertId(expertId, pageable);
+        return new PageResponseDTO<>(page.map(BookingCustomerFeedbackMapper::toDtoSimple).toList(), page.getTotalPages());
     }
 }

@@ -5,6 +5,7 @@ import com.example.gcj.Repository_Layer.repository.CategoryRepository;
 import com.example.gcj.Repository_Layer.repository.ExpertFormRequireRepository;
 import com.example.gcj.Service_Layer.dto.expert_form_require.CreateExpertFormRequireRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert_form_require.ExpertFormRequireResponseDTO;
+import com.example.gcj.Service_Layer.dto.expert_form_require.UpdateExpertFormRequireRequestDTO;
 import com.example.gcj.Service_Layer.service.ExpertFormRequireService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
@@ -54,5 +55,39 @@ public class ExpertFormRequireServiceImpl implements ExpertFormRequireService {
         List<ExpertFormRequire> expertFormRequireList = expertFormRequireRepository.findByCategoryId(categoryId);
 
         return expertFormRequireList.stream().map(ExpertFormRequireMapper::toDto).toList();
+    }
+
+    @Override
+    public boolean update(long id, UpdateExpertFormRequireRequestDTO request) {
+        ExpertFormRequire expertFormRequire = get(id);
+        if (request.getCategoryId() != null && !categoryRepository.existsById(request.getCategoryId())) {
+            throw new CustomException("not found category with id " + request.getCategoryId());
+        }
+
+        expertFormRequire.setCategoryId(request.getCategoryId());
+        expertFormRequire.setName(request.getName());
+        expertFormRequire.setDescription(request.getDescription());
+        expertFormRequireRepository.save(expertFormRequire);
+
+        return true;
+    }
+
+    @Override
+    public boolean delete(long id) {
+        ExpertFormRequire expertFormRequire = get(id);
+
+        expertFormRequire.setStatus(0);
+        expertFormRequireRepository.save(expertFormRequire);
+
+        return true;
+    }
+
+    private ExpertFormRequire get(long id) {
+        ExpertFormRequire expertFormRequire = expertFormRequireRepository.findById(id);
+        if (expertFormRequire == null) {
+            throw new CustomException("not found expert form require with id " + id);
+        }
+
+        return expertFormRequire;
     }
 }

@@ -4,12 +4,9 @@ import com.example.gcj.Service_Layer.dto.booking.*;
 import com.example.gcj.Service_Layer.service.BookingService;
 import com.example.gcj.Service_Layer.service.CustomerService;
 import com.example.gcj.Service_Layer.service.ExpertService;
-import com.example.gcj.Service_Layer.service.PolicyService;
-import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -24,7 +21,6 @@ public class BookingController {
     private final BookingService bookingService;
     private final CustomerService customerService;
     private final ExpertService expertService;
-    private final PolicyService policyService;
 
     @GetMapping("")
     @Operation(description = "")
@@ -53,24 +49,6 @@ public class BookingController {
         long expertId = expertService.getCurrentExpertId();
         List<BookingListResponseDTO> response = bookingService.getByExpertIdAndStatus(expertId, status);
         return Response.ok(response);
-    }
-
-    @GetMapping("/price")
-    public Response<BookingPriceResponseDTO> getBookingPrice(
-    ) {
-        long price = policyService.getByKey(PolicyKey.BOOKING_PRICE, Long.class);
-        return Response.ok(BookingPriceResponseDTO.builder().price(price).build());
-    }
-
-    @PatchMapping("/price")
-    @Secured(Role.STAFF)
-    @Operation(description = "role: admin")
-    public Response<String> updateBookingPrice(
-            @RequestBody @Valid UpdateBookingPriceRequestDTO requestDTO
-    ) {
-
-        policyService.update(PolicyKey.BOOKING_PRICE, String.valueOf(requestDTO.getPrice()));
-        return Response.ok(null);
     }
 
     @PatchMapping("/{id}/complete")
@@ -106,7 +84,6 @@ public class BookingController {
     public Response<String> create(
             @RequestBody CreateBookingRequestDTO request
     ) {
-        //todo: update availability status
         long customerId = customerService.getCurrentCustomerId();
         bookingService.create(customerId, request);
         return Response.ok(null);

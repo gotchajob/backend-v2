@@ -1,9 +1,6 @@
 package com.example.gcj.Repository_Layer.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -18,5 +15,6 @@ public class BookingReportSuggest {
     private long id;
 
     private long reportId;
-    private long suggestId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ReportSuggest suggest;
 }

@@ -89,7 +89,6 @@ public class GlobalExceptionHandler {
         errorResponse.setStatus(INTERNAL_SERVER_ERROR.value());
 
         String typeError = e.getClass().getName();
-        System.out.println(typeError);
         return new Response<>(Status.ERROR.name(), "server error. type error: " + typeError, errorResponse);
     }
 

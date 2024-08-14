@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ExpertService {
     List<ExpertMatchListResponseDTO> expertMatch(Integer main, List<Long> skillOptionIds, List<String> nations, int yearExperience);
+    List<ExpertMatchListResponseDTO> newExpertMatch(Integer main, List<Long> skillOptionIds, List<String> nations, Integer yearExperience);
     PageResponseDTO<ExpertAccountResponse> getExpert(int pageNumber, int pageSize, String sortBy, String ...search);
     ExpertAccountResponse getExpert(long id);
     ExpertAccountResponse getByCurrent();
@@ -19,4 +20,5 @@ public interface ExpertService {
     String getEmailByExpertId(long expertId);
 
     boolean updatePrice(long expertId, double cost);
+    boolean updateExpertPoint(long expertId, int point);
 }

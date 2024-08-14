@@ -26,7 +26,7 @@ public interface CvTemplateRepository extends JpaRepository<CvTemplate, Long> {
             "LEFT JOIN Cv c ON c.cvTemplateId = ct.id " +
             "INNER JOIN CvCategory cc ON ct.categoryId = cc.id " +
             "WHERE (:categoryId IS NULL OR ct.categoryId = :categoryId) " +
-            "AND (:status IS NULL OR ct.status = :status) " +
+            "AND (:status IS NULL OR ct.status = :status) AND ct.status != 0 " +
             "GROUP BY ct.id, ct.categoryId, cc.name, ct.name, ct.image, ct.status, ct.createdAt")
     List<CvTemplateListDetailResponseDTO> getAndCountNumberUse(Long categoryId, Integer status);
 }

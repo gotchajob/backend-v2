@@ -18,4 +18,6 @@ public interface TransactionService {
 
     @Scheduled(fixedRate = 60000)
     void autoFailTransaction();
+
+    PageResponseDTO<TransactionCurrentListResponseDTO> getAllCurrent(int pageNumber, int pageSize, String sortBy, String[] search);
 }

@@ -36,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final PolicyService policyService;
     private final EmailService emailService;
     private final AccountService accountService;
+    private final ExpertService expertService;
     private final BookingTicketService bookingTicketService;
 
     @Override
@@ -53,53 +54,10 @@ public class BookingServiceImpl implements BookingService {
         if (request == null) {
             throw new CustomException("request is null");
         }
-
-        Expert expert = expertRepository.getById(request.getExpertId());
-        if (expert == null) {
-            throw new CustomException("not found expert with expert id "  + request.getExpertId());
-        }
-        if (expert.getStatus() != ExpertStatus.BOOKING) {
-            throw new CustomException("expert is not order to booking");
-        }
-
-
-        long minusToBooking = policyService.getByKey(PolicyKey.MINUS_TO_BOOKING, Long.class);
-        Availability availability = availabilityRepository.findById(request.getAvailabilityId());
-        if (availability == null) {
-            throw new CustomException("not found availability with id " + request.getAvailabilityId());
-        }
-        if (availability.getStatus() != AvailabilityStatus.VALID) {
-            throw new CustomException("invalid availability. current status is " + availability.getStatus());
-        }
-        
-        if (availability.getExpertId() != request.getExpertId()) {
-            throw new CustomException("expert in availability not same with expert in request");
-        }
-        
-        LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
-        if (LocalDateTime.now().plusMinutes(minusToBooking).isAfter(interviewTime)) {
-            throw new CustomException("booking need at least " + minusToBooking + " days before interview start");
-        }
-        
-        availability.setStatus(AvailabilityStatus.BOOKED);
-        availabilityRepository.save(availability);
-
-        Cv cv = cvRepository.getById(request.getCustomerCvId());
-        if (cv == null) {
-            throw new CustomException("not found cv with cv id " + cv.getId());
-        }
-
-        if (cv.getCustomerId() != customerId) {
-            throw new CustomException("current customer id not same with customer id in cv");
-        }
-
-        Customer customer = customerRepository.findById(customerId);
-        if (customer == null) {
-            throw new CustomException("not found customer with customer id " + customerId);
-        }
-        if (!bookingTicketService.hadTicket(customerId)) {
-            throw new CustomException("not already purchased booking service");
-        }
+        //check overlap booking
+        double cost = checkExpertAndGetCost(request.getExpertId());
+        checkBookingDate(request.getAvailabilityId(), request.getExpertId(), customerId);
+        checkBookingCv(request.getCustomerCvId(), customerId);
 
         Booking build = Booking
                 .builder()
@@ -113,14 +71,60 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         Booking save = bookingRepository.save(build);
 
-        bookingTicketService.useTicket(customerId, save.getId());
-
         if (request.getBookingSkill() == null || request.getBookingSkill().isEmpty()) {
             return true;
         }
-
         bookingSkillService.add(request.getBookingSkill(), save.getId());
+
+        accountService.bookingPayment(cost, save.getId());
+
         return true;
+    }
+
+    private double checkExpertAndGetCost(long expertId) {
+        Expert expert = expertRepository.getById(expertId);
+        if (expert == null) {
+            throw new CustomException("not found expert with expert id "  + expertId);
+        }
+        if (expert.getStatus() != ExpertStatus.BOOKING) {
+            throw new CustomException("expert is not order to booking");
+        }
+
+        return expert.getCost();
+    }
+
+    private void checkBookingDate(long availabilityId, long expertId, long customerId) {
+        long minusToBooking = policyService.getByKey(PolicyKey.MINUS_TO_BOOKING, Long.class);
+        Availability availability = availabilityRepository.findById(availabilityId);
+        if (availability == null) {
+            throw new CustomException("not found availability with id " + availabilityId);
+        }
+        if (availability.getStatus() != AvailabilityStatus.VALID) {
+            throw new CustomException("invalid availability. current status is " + availability.getStatus());
+        }
+
+        if (availability.getExpertId() != availabilityId) {
+            throw new CustomException("expert in availability not same with expert in request");
+        }
+
+        LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
+        if (LocalDateTime.now().plusMinutes(minusToBooking).isAfter(interviewTime)) {
+            throw new CustomException("booking need at least " + minusToBooking + " days before interview start");
+        }
+
+        availability.setStatus(AvailabilityStatus.BOOKED);
+        availabilityRepository.save(availability);
+    }
+
+    private void checkBookingCv(long cvId, long customerId) {
+        Cv cv = cvRepository.getById(cvId);
+        if (cv == null) {
+            throw new CustomException("not found cv with cv id " + cv.getId());
+        }
+
+        if (cv.getCustomerId() != customerId) {
+            throw new CustomException("current customer id not same with customer id in cv");
+        }
     }
 
     @Override
@@ -255,7 +259,12 @@ public class BookingServiceImpl implements BookingService {
 
         availability.setStatus(AvailabilityStatus.DELETE);
         availabilityRepository.save(availability);
-        bookingTicketService.validTicketWhenCancelBooking(booking.getId());
+
+        accountService.refundWhenCancelBooking(booking.getCustomerId(), booking.getId());
+
+        int expertPointWhenRejectBooking = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_REJECT_BOOKING, Integer.class);
+        expertService.updateExpertPoint(expertId, -expertPointWhenRejectBooking);
+
         return true;
     }
 
@@ -305,13 +314,21 @@ public class BookingServiceImpl implements BookingService {
     @Scheduled(fixedRate = 60000)
     public void autoCompleteBooking() {
         List<Booking> bookingList = bookingRepository.findByStatusAndExpireCompleteDateBefore(BookingStatus.WAIT_TO_FEEDBACK, LocalDateTime.now());
+        int pointWhenCompleteBooking = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_COMPLETE_BOOKING, Integer.class);
+
         for (Booking booking : bookingList) {
             booking.setStatus(BookingStatus.COMPLETE);
             Long userId = expertRepository.getUserIdById(booking.getExpertId());
             if (userId == null) {
                 continue;
             }
-            accountService.sendMoneyToExpert(userId, booking.getId());
+
+            boolean result = accountService.sendMoneyToExpert(userId, booking.getId());
+            if (!result) {
+                bookingList.remove(booking);
+            }
+
+            expertService.updateExpertPoint(booking.getExpertId(), pointWhenCompleteBooking);
         }
         bookingRepository.saveAll(bookingList);
     }
@@ -392,7 +409,8 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(BookingStatus.CANCEl_BY_CUSTOMER);
         bookingRepository.save(booking);
-        bookingTicketService.validTicketWhenCancelBooking(booking.getId());
+
+        accountService.refundWhenCancelBooking(booking.getCustomerId(), booking.getId());
         return true;
     }
 
@@ -416,14 +434,17 @@ public class BookingServiceImpl implements BookingService {
         if (!canCancelBooking(interviewDay)) {
             throw new CustomException("too late to cancel");
         }
-        System.out.println(interviewDay + " interview day");
         availability.setStatus(AvailabilityStatus.DELETE);
         availabilityRepository.save(availability);
 
         booking.setStatus(BookingStatus.CANCEL_BY_EXPERT);
         bookingRepository.save(booking);
 
-        bookingTicketService.validTicketWhenCancelBooking(booking.getId());
+        accountService.refundWhenCancelBooking(booking.getCustomerId(), booking.getId());
+
+        int pointWhenCancelBooking = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_CANCEL_BOOKING, Integer.class);
+        expertService.updateExpertPoint(expertId, -pointWhenCancelBooking);
+
         return true;
     }
 

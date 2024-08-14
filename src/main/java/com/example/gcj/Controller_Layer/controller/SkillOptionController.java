@@ -5,6 +5,7 @@ import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill_option.UpdateSkillOptionRequestDTO;
 import com.example.gcj.Service_Layer.service.SkillOptionService;
 import com.example.gcj.Shared.util.Response;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +19,10 @@ public class SkillOptionController {
 
     @GetMapping("")
     public Response<List<SkillOptionResponseDTO>> getOptionList(
-            @RequestParam(required = false) Long categoryId
+            @RequestParam(required = false) @Min(1) Long categoryId,
+            @RequestParam(required = false) @Min(1) Long skillId
     ) {
-        if (categoryId == null) {
-            List<SkillOptionResponseDTO> _skillOption = skillOptionService.getAll();
-            return Response.ok(_skillOption);
-        }
-
-        List<SkillOptionResponseDTO> response = skillOptionService.findSkillOptionByCategory(categoryId);
+        List<SkillOptionResponseDTO> response = skillOptionService.getAll(categoryId, skillId);
         return Response.ok(response);
     }
 
@@ -45,17 +42,18 @@ public class SkillOptionController {
         return Response.ok(null);
     }
 
-    @PutMapping("")
-    public Response<List<UpdateSkillOptionRequestDTO>> updateSkillOptions(
-            @RequestBody List<UpdateSkillOptionRequestDTO> request
+    @PatchMapping("/{id}")
+    public Response<String> updateSkillOptions(
+            @PathVariable long id,
+            @RequestBody UpdateSkillOptionRequestDTO request
     ) {
-        skillOptionService.updateSkillOptions(request);
+        skillOptionService.update(id, request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
     public Response<String> deleteSkillOptions(
-            @PathVariable Long id
+            @PathVariable long id
     ) {
         skillOptionService.deleteSkillOptions(id);
         return Response.ok(null);

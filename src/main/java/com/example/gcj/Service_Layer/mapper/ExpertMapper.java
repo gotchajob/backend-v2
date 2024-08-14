@@ -36,6 +36,8 @@ public class ExpertMapper {
                 .yearExperience(expert.getYearExperience())
                 .education(expert.getEducation())
                 .cost(expert.getCost())
+                .shortDescription(expert.getShortDescription())
+                .backgroundImage(expert.getBackgroundImage())
 
                 .build();
     }
@@ -88,6 +90,8 @@ public class ExpertMapper {
                 .education(expert.getEducation())
                 .yearExperience(expert.getYearExperience())
                 .cost(expert.getCost())
+                .shortDescription(expert.getShortDescription())
+                .backgroundImage(expert.getBackgroundImage())
 
                 .build();
     }
@@ -112,6 +116,8 @@ public class ExpertMapper {
                 .yearExperience(expert.getYearExperience())
                 .personalPoint(expert.getPersonalPoint())
                 .cost(expert.getCost())
+                .shortDescription(expert.getShortDescription())
+                .backgroundImage(expert.getBackgroundImage())
                 .build();
     }
 }

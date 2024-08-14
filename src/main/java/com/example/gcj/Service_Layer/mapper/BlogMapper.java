@@ -27,7 +27,7 @@ public class BlogMapper {
                 .content(blog.getContent())
                 .createdAt(blog.getCreatedAt())
                 .likes(null)
-                .category(blog.getCategory().getName())
+                .category(blog.getCategory().getCategory())
                 .profile(UserMapper.toUserProfile(blog.getAuthor()))
                 .relateBlog(relateBlog.stream().map(BlogMapper::toDto).toList())
                 .build();

@@ -28,6 +28,8 @@ public class Expert extends AbstractEntity {
     private int personalPoint;
     private double cost;
     private String certification;
+    private String backgroundImage;
+    private String shortDescription;
 
     @OneToOne(fetch = FetchType.LAZY)
     private User user;

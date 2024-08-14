@@ -4,20 +4,25 @@ import com.example.gcj.Repository_Layer.model.Cv;
 import com.example.gcj.Repository_Layer.model.CvTemplate;
 import com.example.gcj.Repository_Layer.repository.CvRepository;
 import com.example.gcj.Repository_Layer.repository.CvTemplateRepository;
+import com.example.gcj.Repository_Layer.repository.SearchRepository;
 import com.example.gcj.Service_Layer.dto.cv.*;
+import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.CvService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
 import com.example.gcj.Service_Layer.mapper.CvMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CvServiceImpl implements CvService {
     private final CvRepository cvRepository;
+    private final SearchRepository searchRepository;
     private final CvTemplateRepository cvTemplateRepository;
 
 
@@ -114,5 +119,43 @@ public class CvServiceImpl implements CvService {
         cvRepository.save(cv);
 
         return true;
+    }
+
+    @Override
+    public boolean updateToShare(long customerId, long id) {
+        Cv cv = get(id);
+
+        if (cv.getStatus() == 1) {
+            cv.setStatus(2);
+        } else if (cv.getStatus() == 2) {
+            cv.setStatus(1);
+        }
+
+        cvRepository.save(cv);
+        return true;
+    }
+
+    @Override
+    public PageResponseDTO<CVListResponseDTO> getShare(int pageNumber, int pageSize, String sortBy, String[] search) {
+        String newSearch = "status=2";
+        if (search == null) {
+            search = new String[0];
+        }
+
+        search = Arrays.copyOf(search, search.length + 1);
+        search[search.length - 1] = newSearch;
+
+        Page<Cv> cvPage = searchRepository.getEntitiesPage(Cv.class, pageNumber, pageSize, sortBy, search);
+
+        return new PageResponseDTO<>(cvPage.map(CvMapper::toDto).stream().toList(), cvPage.getTotalPages());
+    }
+
+    private Cv get(long id) {
+        Cv cv = cvRepository.getById(id);
+        if (cv == null) {
+            throw new CustomException("not found cv with id " + id);
+        }
+
+        return cv;
     }
 }

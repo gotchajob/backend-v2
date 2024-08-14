@@ -24,7 +24,6 @@ public class CreateExpertAccountRequestDTO implements Serializable {
     private String linkedInUrl;
     private String education;
     private int yearExperience;
-    private double cost;
     private String certification;
 
     private List<String> nationSupport;

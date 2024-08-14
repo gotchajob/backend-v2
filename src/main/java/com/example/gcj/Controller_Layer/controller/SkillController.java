@@ -6,6 +6,7 @@ import com.example.gcj.Service_Layer.dto.skill.UpdateSkillRequestDTO;
 import com.example.gcj.Service_Layer.service.SkillService;
 import com.example.gcj.Shared.util.Response;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +20,10 @@ public class SkillController {
     private final SkillService skillService;
 
     @GetMapping("")
-    public Response<List<SkillResponseDTO>> getSkillList() {
-        List<SkillResponseDTO> skill = skillService.getAll();
+    public Response<List<SkillResponseDTO>> get(
+            @RequestParam(required = false) @Min(1) Long categoryId
+    ) {
+        List<SkillResponseDTO> skill = skillService.getAll(categoryId);
         return Response.ok(skill);
     }
 
@@ -40,19 +43,20 @@ public class SkillController {
         return Response.ok(null);
     }
 
-    @PutMapping("")
+    @PatchMapping("/{id}")
     public Response<String> updateSkill(
-            @RequestBody List<UpdateSkillRequestDTO> request
+            @PathVariable long id,
+            @RequestBody UpdateSkillRequestDTO request
     ) {
-            skillService.updateSkill(request);
-            return Response.ok(null);
+        skillService.update(id, request);
+        return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
     public Response<String> deleteSkill(
             @PathVariable long id
     ) {
-            skillService.deleteSkill(id);
-            return Response.ok(null);
+        skillService.deleteSkill(id);
+        return Response.ok(null);
     }
 }

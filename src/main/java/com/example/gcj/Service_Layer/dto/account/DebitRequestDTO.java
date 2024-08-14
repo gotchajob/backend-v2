@@ -10,4 +10,5 @@ import java.io.Serializable;
 public class DebitRequestDTO implements Serializable {
     private double amount;
     private String description;
+    private long bankInfoId;
 }

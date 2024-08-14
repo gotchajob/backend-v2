@@ -9,7 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ExpertFormRequireRepository extends JpaRepository<ExpertFormRequire, Long> {
-    ExpertFormRequireRepository findById(long id);
+    @Query("SELECT e FROM ExpertFormRequire e WHERE e.status != 0 AND e.id =:id")
+    ExpertFormRequire findById(long id);
 
     @Query("SELECT e FROM ExpertFormRequire e WHERE e.categoryId =:categoryId AND e.status != 0")
     List<ExpertFormRequire> findByCategoryId(Long categoryId);

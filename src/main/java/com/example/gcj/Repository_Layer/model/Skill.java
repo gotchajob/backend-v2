@@ -12,4 +12,5 @@ import lombok.*;
 public class Skill extends AbstractEntity {
     private long categoryId;
     private String name;
+    private int status;
 }

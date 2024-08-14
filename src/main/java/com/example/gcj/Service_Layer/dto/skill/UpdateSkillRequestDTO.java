@@ -1,14 +1,14 @@
 package com.example.gcj.Service_Layer.dto.skill;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class UpdateSkillRequestDTO {
-    private long categoryId;
-    private long skillId;
     private String skillName;
 }

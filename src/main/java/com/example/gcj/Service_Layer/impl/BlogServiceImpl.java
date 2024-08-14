@@ -1,9 +1,7 @@
 package com.example.gcj.Service_Layer.impl;
 
-import com.example.gcj.Repository_Layer.model.Blog;
-import com.example.gcj.Repository_Layer.model.BlogReaction;
-import com.example.gcj.Repository_Layer.model.Category;
-import com.example.gcj.Repository_Layer.model.User;
+import com.example.gcj.Repository_Layer.model.*;
+import com.example.gcj.Repository_Layer.repository.BlogCategoryRepository;
 import com.example.gcj.Repository_Layer.repository.BlogCommentRepository;
 import com.example.gcj.Repository_Layer.repository.BlogReactionRepository;
 import com.example.gcj.Repository_Layer.repository.BlogRepository;
@@ -13,7 +11,9 @@ import com.example.gcj.Service_Layer.dto.blog.CreateBlogDTO;
 import com.example.gcj.Service_Layer.dto.other.LikeDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.BlogService;
+import com.example.gcj.Service_Layer.service.PolicyService;
 import com.example.gcj.Service_Layer.service.UserService;
+import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Service_Layer.mapper.BlogMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,11 @@ public class BlogServiceImpl implements BlogService {
     private final static int ACTIVE = 1;
     private final static int NUMBER_RELATE_BLOG = 3;
 
-    private final BlogRepository blogRepository;
     private final UserService userService;
+    private final PolicyService policyService;
+
+    private final BlogRepository blogRepository;
+    private final BlogCategoryRepository blogCategoryRepository;
     private final BlogCommentRepository blogCommentRepository;
     private final BlogReactionRepository blogReactionRepository;
 
@@ -47,12 +50,17 @@ public class BlogServiceImpl implements BlogService {
         if (author == null) {
             throw new CustomException("invalid author");
         }
+        if (!blogCategoryRepository.existsById(request.getCategoryId())) {
+            throw new CustomException("not found blog category with id " + request.getCategoryId());
+        }
+
+
         Blog blog = Blog.builder()
                 .thumbnail(request.getThumbnail())
                 .title(request.getTitle())
                 .shortDescription(request.getShortDescription())
                 .content(request.getContent())
-                .category(Category.builder().id(request.getCategoryId()).build())
+                .category(BlogCategory.builder().id(request.getCategoryId()).build())
                 .author(author)
                 .status(ACTIVE)
                 .build();
@@ -74,6 +82,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogResponseDTO getBlog(long id) {
+        Integer numberRelateBlog = policyService.getByKey(PolicyKey.NUMBER_RELATE_BLOG, Integer.class);
         User currentUser = userService.currentUser();
         boolean liked = false;
         Integer rated = 0;
@@ -95,7 +104,7 @@ public class BlogServiceImpl implements BlogService {
         double averageRating = _averageRating == null? 0 : _averageRating.doubleValue();
         long ratingQuantity = blogReactionRepository.countByBlogIdAndRatingNotNull(id);
 
-        List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), NUMBER_RELATE_BLOG);
+        List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), numberRelateBlog);
         BlogResponseDTO response = BlogMapper.toDto(blog, relateBlogs);
         LikeDTO likeDTO = LikeDTO.builder()
                 .liked(liked)

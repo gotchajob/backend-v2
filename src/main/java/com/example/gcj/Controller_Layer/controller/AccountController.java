@@ -1,10 +1,7 @@
 package com.example.gcj.Controller_Layer.controller;
 
 import com.example.gcj.External_Service.VnPayService;
-import com.example.gcj.Service_Layer.dto.account.CreditRequestDTO;
-import com.example.gcj.Service_Layer.dto.account.DebitRequestDTO;
-import com.example.gcj.Service_Layer.dto.account.GetBalanceAccountResponseDTO;
-import com.example.gcj.Service_Layer.dto.account.GetVnPayUrlResponseDTO;
+import com.example.gcj.Service_Layer.dto.account.*;
 import com.example.gcj.Service_Layer.service.AccountService;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.util.Response;
@@ -75,6 +72,27 @@ public class AccountController {
     ) {
         long userId = userService.getCurrentUserId();
         accountService.withdrawn(userId, request);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/withdrawn/{transactionId}/complete")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
+    public Response<String> completeWithDraw(
+            @PathVariable long transactionId
+    ) {
+        accountService.completeWithDraw(transactionId);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/withdrawn/{transactionId}/reject")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
+    public Response<String> completeWithDraw(
+            @PathVariable long transactionId,
+            @RequestBody RejectWithDrawRequestDTO request
+    ) {
+        accountService.rejectWithDraw(transactionId, request);
         return Response.ok(null);
     }
 }

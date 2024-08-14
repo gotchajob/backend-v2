@@ -6,6 +6,7 @@ import com.example.gcj.Service_Layer.dto.category.CategoryListResponseDTO;
 import com.example.gcj.Service_Layer.dto.category.CreateCategoryRequestDTO;
 import com.example.gcj.Service_Layer.dto.category.UpdateCategoryRequestDTO;
 import com.example.gcj.Service_Layer.service.CategoryService;
+import com.example.gcj.Service_Layer.service.SkillService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Service_Layer.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final SkillService skillService;
 
     @Override
     public List<CategoryListResponseDTO> getAll() {
@@ -26,13 +28,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public boolean delete(long id) {
-        Category category = categoryRepository.findById(id);
-        if (category == null) {
-            throw new CustomException("not found category");
-        }
+        Category category = get(id);
 
         category.setStatus(0);
         categoryRepository.save(category);
+
+        skillService.deleteSkillByCategoryId(id);
 
         return true;
     }
@@ -46,10 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CustomException("name cannot be null");
         }
 
-        Category category = categoryRepository.findById(id);
-        if (category == null) {
-            throw new CustomException("not found");
-        }
+        Category category = get(id);
 
         category.setName(request.getName());
         categoryRepository.save(category);
@@ -69,5 +67,14 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(category);
 
         return true;
+    }
+
+    private Category get(long id) {
+        Category category = categoryRepository.findById(id);
+        if (category == null) {
+            throw new CustomException("not found category with id " + id);
+        }
+
+        return  category;
     }
 }

@@ -21,8 +21,7 @@ public class Blog extends AbstractEntity {
     private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private Category category;
+    private BlogCategory category;
 
     public Blog(long id) {
         this.setId(id);

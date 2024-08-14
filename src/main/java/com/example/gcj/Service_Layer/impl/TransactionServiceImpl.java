@@ -92,10 +92,16 @@ public class TransactionServiceImpl implements TransactionService {
         long minusToAutoCancel = policyService.getByKey(PolicyKey.MINUS_TO_AUTO_CANCEL_TRANSACTION, Long.class);
         LocalDateTime localDateTime = LocalDateTime.now().minusMinutes(minusToAutoCancel);
 
-        List<Transaction> transactionList = transactionRepository.findByStatusAndCreatedAtBefore(TransactionStatus.PROCESSING, localDateTime);
+        List<Transaction> transactionList = transactionRepository.findByStatusAndTransactionTypeIdAndCreatedAtBefore(TransactionStatus.PROCESSING, TransactionType.DEPOSIT, localDateTime);
         for (Transaction transaction : transactionList) {
             transaction.setStatus(TransactionStatus.FAIL);
         }
         transactionRepository.saveAll(transactionList);
+    }
+
+    @Override
+    public PageResponseDTO<TransactionCurrentListResponseDTO> getAllCurrent(int pageNumber, int pageSize, String sortBy, String[] search) {
+        Page<Transaction> entitiesPage = searchRepository.getEntitiesPage(Transaction.class, pageNumber, pageSize, sortBy, search);
+        return new PageResponseDTO<>(entitiesPage.map(TransactionMapper::toDtoCurrent).toList(), entitiesPage.getTotalPages());
     }
 }

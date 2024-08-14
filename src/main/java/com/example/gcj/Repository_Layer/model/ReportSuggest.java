@@ -13,4 +13,8 @@ public class ReportSuggest extends AbstractEntity {
     private String report;
     private String description;
     private int status;
+
+    public ReportSuggest(long id) {
+        this.setId(id);
+    }
 }

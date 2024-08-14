@@ -148,6 +148,7 @@ public class UserServiceImpl implements UserService {
         }
 
         int defaultPersonalPoint = policyService.getByKey(PolicyKey.DEFAULT_EXPERT_POINT, Integer.class);
+        double expertCostMin = policyService.getByKey(PolicyKey.EXPERT_COST_MIN, Double.class);
 
         User user = User.builder()
                 .email(email)
@@ -175,7 +176,7 @@ public class UserServiceImpl implements UserService {
                 .personalPoint(defaultPersonalPoint)
                 .yearExperience(request.getYearExperience())
                 .status(2)
-                .cost(request.getCost())
+                .cost(expertCostMin)
                 .certification(request.getCertification())
                 .build();
         expert.setUser(_user);

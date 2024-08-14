@@ -13,4 +13,5 @@ public class SkillOption extends AbstractEntity {
     private long id;
     private long skillId;
     private String name;
+    private int status;
 }

@@ -28,8 +28,8 @@ public class BlogController {
     private final BlogCommentService blogCommentService;
 
     @PostMapping("")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: staff")
     public Response<String> createBlog(
             @RequestBody CreateBlogDTO request
     ) {

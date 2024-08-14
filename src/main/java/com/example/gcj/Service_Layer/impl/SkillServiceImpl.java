@@ -1,36 +1,37 @@
 package com.example.gcj.Service_Layer.impl;
 
 import com.example.gcj.Repository_Layer.model.Skill;
+import com.example.gcj.Repository_Layer.repository.CategoryRepository;
 import com.example.gcj.Repository_Layer.repository.SkillRepository;
 import com.example.gcj.Service_Layer.dto.skill.CreateSkillRequestDTO;
 import com.example.gcj.Service_Layer.dto.skill.SkillResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill.UpdateSkillRequestDTO;
+import com.example.gcj.Service_Layer.mapper.SkillMapper;
+import com.example.gcj.Service_Layer.service.SkillOptionService;
 import com.example.gcj.Service_Layer.service.SkillService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Service_Layer.mapper.SkillMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
-
+    private final CategoryRepository categoryRepository;
+    private final SkillOptionService skillOptionService;
 
     @Override
-    public List<SkillResponseDTO> getAll() {
-        List<Skill> skillList = skillRepository.findAll();
+    public List<SkillResponseDTO> getAll(Long categoryId) {
+        List<Skill> skillList = skillRepository.findAll(categoryId);
         return skillList.stream().map(SkillMapper::toDto).toList();
     }
 
     @Override
-    public List<SkillResponseDTO> findSkillByCategoryId(long catogoryId) {
-        List<Skill> skillList = skillRepository.findAllByCategoryId(catogoryId);
+    public List<SkillResponseDTO> findSkillByCategoryId(long categoryId) {
+        List<Skill> skillList = skillRepository.findAllByCategoryId(categoryId);
         return skillList.stream().map(SkillMapper::toDto).collect(Collectors.toList());
     }
 
@@ -38,58 +39,62 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public void createSkill(CreateSkillRequestDTO request) {
         if(request == null) {
-            throw new CustomException("Null request");
+            throw new CustomException("bad request");
         }
+        if (!categoryRepository.existsById(request.getCategoryId())) {
+            throw new CustomException("not found category with id " + request.getCategoryId());
+        }
+
         Skill skill = Skill.builder()
                 .categoryId(request.getCategoryId())
                 .name(request.getName())
+                .status(1)
                 .build();
         skillRepository.save(skill);
     }
 
     @Override
-    public List<UpdateSkillRequestDTO> updateSkill(List<UpdateSkillRequestDTO> request) {
-        List<UpdateSkillRequestDTO> updateSkillList = new ArrayList<>();
-        for (UpdateSkillRequestDTO dto : request) {
-            Optional<Skill> existingSkill = skillRepository.findById(dto.getSkillId());
-            if(existingSkill.isPresent()) {
-                Skill existing = existingSkill.get();
-                existing.setName(dto.getSkillName());
-                existing.setCategoryId(dto.getCategoryId());
-                skillRepository.save(existing);
-                updateSkillList.add(convertToDTO(existing));
-            }
-        }
-        return updateSkillList;
-    }
+    public void deleteSkill(long id) {
+        Skill skill = get(id);
 
-//    @Override
-//    public void updateSkill(UpdateSkillRequestDTO request) {
-//        Optional<Skill> existingSkillList = skillRepository.findById(id);
-//        if(!existingSkillList.isPresent()) {
-//            throw new CustomException("Skill not found with id" + id);
-//        }
-//
-//        Skill existingSkill = existingSkillList.get();
-//        existingSkill.setCategoryId(request.getCategoryId());
-//        existingSkill.setName(request.getSkillName());
-//
-//        skillRepository.save(existingSkill);
-//    }
+        skill.setStatus(0);
+        skillRepository.save(skill);
+
+        skillOptionService.deleteBySkillId(skill.getId());
+    }
 
     @Override
-    public void deleteSkill(long id) {
-        if(!skillRepository.existsById(id)) {
-            throw new CustomException("Skill not found with id" + id);
+    public boolean deleteSkillByCategoryId(long categoryId) {
+        List<Skill> list = skillRepository.findAllByCategoryId(categoryId);
+        for (Skill skill : list) {
+            skill.setStatus(0);
+
+            skillOptionService.deleteBySkillId(skill.getId());
         }
-        skillRepository.deleteById(id);
+        skillRepository.saveAll(list);
+
+        return true;
     }
 
-    private UpdateSkillRequestDTO convertToDTO(Skill skill) {
-        return UpdateSkillRequestDTO.builder()
-                .skillId(skill.getId())
-                .skillName(skill.getName())
-                .categoryId(skill.getCategoryId())
-                .build();
+    @Override
+    public boolean update(long id, UpdateSkillRequestDTO request) {
+        Skill skill = get(id);
+
+        skill.setName(request.getSkillName());
+        skillRepository.save(skill);
+
+        return true;
     }
+
+    private Skill get(long id) {
+        Skill skill = skillRepository.findById(id);
+        if (skill == null) {
+            throw new CustomException("not found skill with id " + id);
+        }
+
+        return skill;
+    }
+
+
+
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Repository
 public interface CvRepository extends JpaRepository<Cv, Long> {
+    @Query("SELECT c FROM Cv c WHERE c.id = :id and c.status != 0")
     Cv getById(long id);
 
     @Query("SELECT c FROM Cv c WHERE c.customerId = :customerId and c.status != 0")

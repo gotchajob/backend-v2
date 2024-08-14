@@ -10,5 +10,5 @@ public class CreateBlogDTO implements Serializable {
     private String title;
     private String shortDescription;
     private String content;
-    private int categoryId;
+    private long categoryId;
 }
