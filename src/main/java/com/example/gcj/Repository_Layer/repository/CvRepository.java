@@ -15,5 +15,4 @@ public interface CvRepository extends JpaRepository<Cv, Long> {
 
     @Query("SELECT c FROM Cv c WHERE c.customerId = :customerId and c.status != 0")
     List<Cv> findByCustomerId(@Param("customerId") long customerId);
-
 }

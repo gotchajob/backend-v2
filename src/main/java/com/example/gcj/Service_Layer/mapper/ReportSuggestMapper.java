@@ -13,6 +13,7 @@ public class ReportSuggestMapper {
                 .builder()
                 .id(reportSuggest.getId())
                 .report(reportSuggest.getReport())
+                .description(reportSuggest.getDescription())
                 .build();
     }
 }

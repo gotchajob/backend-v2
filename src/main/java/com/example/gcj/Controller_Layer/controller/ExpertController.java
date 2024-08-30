@@ -2,6 +2,7 @@ package com.example.gcj.Controller_Layer.controller;
 
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateCostRequestDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateExpertProfileRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.ExpertAccountResponse;
 import com.example.gcj.Service_Layer.service.ExpertService;
@@ -83,6 +84,33 @@ public class ExpertController {
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertService.updatePrice(expertId, updateCostRequestDTO.getCost());
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/update-profile")
+    @Secured(Role.EXPERT)
+    public Response<String> updateProfile(
+            @RequestBody UpdateExpertProfileRequestDTO request
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        expertService.updateProfile(expertId, request);
+        return Response.ok(null);
+    }
+
+
+    @PatchMapping("/accept-booking")
+    @Secured(Role.EXPERT)
+    public Response<String> acceptBooking(
+    ) {
+        expertService.updateCurrentExpertStatus(1);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/block-booking")
+    @Secured(Role.EXPERT)
+    public Response<String> blockBooking(
+    ) {
+        expertService.updateCurrentExpertStatus(3);
         return Response.ok(null);
     }
 

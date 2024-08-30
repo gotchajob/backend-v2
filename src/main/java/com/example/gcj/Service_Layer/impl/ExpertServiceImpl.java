@@ -7,6 +7,7 @@ import com.example.gcj.Repository_Layer.model.ExpertSkillOption;
 import com.example.gcj.Repository_Layer.model.User;
 import com.example.gcj.Repository_Layer.repository.*;
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateExpertProfileRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert_nation_support.ExpertNationSupportResponseDTO;
 import com.example.gcj.Service_Layer.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
@@ -238,6 +239,44 @@ public class ExpertServiceImpl implements ExpertService {
         }
 
         expertRepository.save(expert);
+        return true;
+    }
+
+    @Override
+    public boolean updateProfile(long expertId, UpdateExpertProfileRequestDTO request) {
+        Expert expert = get(expertId);
+
+        expert.setBio(request.getBio());
+        expert.setBirthDate(request.getBirthDate());
+        expert.setPortfolioUrl(request.getPortfolioUrl());
+        expert.setEmailContact(request.getEmailContact());
+        expert.setLinkedinUrl(request.getLinkedInUrl());
+        expert.setFacebookUrl(request.getFacebookUrl());
+        expert.setTwitterUrl(request.getTwitterUrl());
+        expert.setBackgroundImage(request.getBackgroundImage());
+        expert.setEducation(request.getEducation());
+        expert.setYearExperience(request.getYearExperience());
+        expertRepository.save(expert);
+
+        User user = expert.getUser();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+        user.setAvatar(request.getAvatar());
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public boolean updateCurrentExpertStatus(int status) {
+        String currentUserEmail = userService.currentUserEmail();
+
+        Expert expert = expertRepository.getByEmail(currentUserEmail);
+        expert.setStatus(status);
+        expertRepository.save(expert);
+
         return true;
     }
 

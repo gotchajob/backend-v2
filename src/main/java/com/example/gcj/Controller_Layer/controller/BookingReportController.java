@@ -3,7 +3,9 @@ package com.example.gcj.Controller_Layer.controller;
 import com.example.gcj.Service_Layer.dto.booking_report.*;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.BookingReportService;
+import com.example.gcj.Service_Layer.service.CustomerService;
 import com.example.gcj.Service_Layer.service.ExpertService;
+import com.example.gcj.Service_Layer.service.StaffService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,8 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class BookingReportController {
     private final BookingReportService bookingReportService;
     private final ExpertService expertService;
+    private final CustomerService customerService;
+    private final StaffService staffService;
 
     @GetMapping("")
+    @Secured(Role.STAFF)
     @Operation(description = "finish. <br> 1. processing 2. expert processing 3. staff processing, 4. approve 5. reject")
     public Response<PageResponseDTO<BookingReportListResponseDTO>> get(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
@@ -45,14 +50,15 @@ public class BookingReportController {
     }
 
     @GetMapping("/for-customer")
-    @Operation(description = "note finish")
+    @Secured(Role.USER)
+    @Operation(description = "finish")
     public Response<PageResponseDTO<BookingReportListResponseDTO>> getForCustomer(
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
             @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String... search
+            @RequestParam(required = false) String sortBy
     ) {
-        PageResponseDTO<BookingReportListResponseDTO> response = bookingReportService.get(pageNumber, pageSize, sortBy, search);
+        long customerId = customerService.getCurrentCustomerId();
+        PageResponseDTO<BookingReportListResponseDTO> response = bookingReportService.getForCustomer(pageNumber, pageSize, sortBy, customerId);
         return Response.ok(response);
     }
 
@@ -75,7 +81,7 @@ public class BookingReportController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(description = "coming soon")
+    @Operation(description = "finish")
     public Response<String> update(
             @PathVariable long id,
             @RequestBody UpdateBookingReportRequestDTO request
@@ -86,17 +92,18 @@ public class BookingReportController {
 
     @PatchMapping("/{id}/notify-expert")
     @Secured(Role.STAFF)
-    @Operation(description = "coming soon")
+    @Operation(description = "finish")
     public Response<String> notifyExpert(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody BookingReportNotifyExpertRequestDTO request
     ) {
-        bookingReportService.notifyExpert(id);
+        bookingReportService.notifyExpert(id, request);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}/expert-up-evidence")
     @Secured(Role.EXPERT)
-    @Operation(description = "coming soon")
+    @Operation(description = "finish")
     public Response<String> expertUpEvidence(
             @PathVariable long id,
             @RequestBody ExpertUpEvidenceRequestDTO request
@@ -107,21 +114,26 @@ public class BookingReportController {
     }
 
     @PatchMapping("/{id}/approve")
-    @Operation(description = "coming soon")
+    @Secured(Role.STAFF)
+    @Operation(description = "finish")
     public Response<String> approve(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody BookingReportStaffNoteRequestDTO request
     ) {
-        bookingReportService.approve(id, 0);
+        long currentStaffId = staffService.getCurrentStaffId();
+        bookingReportService.approve(id, currentStaffId, request);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}/reject")
-    @Operation(description = "coming soon")
+    @Secured(Role.STAFF)
+    @Operation(description = "finish")
     public Response<String> reject(
-            @PathVariable long id
+            @PathVariable long id,
+            @RequestBody BookingReportStaffNoteRequestDTO request
     ) {
-        //todo: add staff id
-        bookingReportService.reject(id, 0);
+        long currentStaffId = staffService.getCurrentStaffId();
+        bookingReportService.reject(id, currentStaffId, request);
         return Response.ok(null);
     }
 

@@ -1,15 +1,16 @@
 package com.example.gcj.Controller_Layer.controller;
 
-import com.example.gcj.Service_Layer.dto.cv_comment.CreateCvCommentRequestDTO;
-import com.example.gcj.Service_Layer.dto.cv_comment.CvCommentListResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_comment.CvCommentResponseDTO;
-import com.example.gcj.Service_Layer.dto.cv_comment.UpdateCvCommentRequestDTO;
+import com.example.gcj.Service_Layer.dto.cv_share_comment.CreateCvShareCommentRequestDTO;
+import com.example.gcj.Service_Layer.dto.cv_share_comment.CvShareCommentListResponseDTO;
+import com.example.gcj.Service_Layer.dto.cv_share_comment.CvCommentResponseDTO;
+import com.example.gcj.Service_Layer.dto.cv_share_comment.UpdateCvShareCommentRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.CustomerService;
 import com.example.gcj.Service_Layer.service.CvShareCommentService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -24,7 +25,7 @@ public class CvShareCommentController {
 
     @GetMapping("")
     @Operation(description = "finish")
-    public Response<PageResponseDTO<CvCommentListResponseDTO>> get(
+    public Response<PageResponseDTO<CvShareCommentListResponseDTO>> get(
 
             @RequestParam(required = false, defaultValue = "1") @Min(1) int pageNumber,
             @RequestParam(required = false, defaultValue = "6") @Min(1) int pageSize,
@@ -33,7 +34,7 @@ public class CvShareCommentController {
             @RequestParam long cvShareId
     ) {
         String searchByCvId = "cvShareId:" + cvShareId;
-        PageResponseDTO<CvCommentListResponseDTO> response = cvShareCommentService.get(pageNumber, pageSize, sortBy, searchByCvId);
+        PageResponseDTO<CvShareCommentListResponseDTO> response = cvShareCommentService.get(pageNumber, pageSize, sortBy, searchByCvId);
         return Response.ok(response);
     }
 
@@ -50,7 +51,7 @@ public class CvShareCommentController {
     @Secured(Role.USER)
     @Operation(description = "finish. role: customer")
     public Response<String> create(
-            @RequestBody CreateCvCommentRequestDTO request
+            @RequestBody @Valid CreateCvShareCommentRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         cvShareCommentService.create(customerId, request);
@@ -61,7 +62,7 @@ public class CvShareCommentController {
     @Operation(description = "coming soon")
     public Response<String> update(
             @PathVariable long id,
-            @RequestBody UpdateCvCommentRequestDTO request
+            @RequestBody UpdateCvShareCommentRequestDTO request
     ) {
         cvShareCommentService.update(id, request);
         return Response.ok(null);

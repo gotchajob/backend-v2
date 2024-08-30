@@ -30,8 +30,9 @@ public class Util {
         }
         return null;
     }
+
     public static Date expipyDate(int expiryTimeInMinute) {
-        return new Date(System.currentTimeMillis() + (1000L *60*expiryTimeInMinute));
+        return new Date(System.currentTimeMillis() + (1000L * 60 * expiryTimeInMinute));
     }
 
     public static String generateRandomNumberString(int length) {
@@ -82,7 +83,7 @@ public class Util {
 
     public static Pageable generatePage(int page, int limit, String sortBy, String sortOrder) {
         Sort.Direction direction = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return PageRequest.of(page-1, limit, direction, sortBy);
+        return PageRequest.of(page - 1, limit, direction, sortBy);
     }
 
     public static String generateRandomPassword() {
@@ -137,6 +138,10 @@ public class Util {
             }
         }
         return sorts;
+    }
+
+    public static Pageable pageableConvert(int pageNumber, int pageSize, String sort) {
+        return PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortConvert(sort)));
     }
 
 

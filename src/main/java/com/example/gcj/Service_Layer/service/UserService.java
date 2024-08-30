@@ -23,4 +23,6 @@ public interface UserService {
     PageResponseDTO<UserListResponseDTO> getByUserAndExpert(Pageable pageable, String[] user, String[] expert);
 
     boolean changePassword(ChangePasswordRequestDTO request);
+
+    boolean updateProfile(UpdateUserProfileRequestDTO request);
 }

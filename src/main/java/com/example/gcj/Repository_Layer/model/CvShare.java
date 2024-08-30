@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class CvShare extends AbstractEntity {
     private long cvId;
+    private long customerId;
     private String cvImage;
     private String caption;
     private long categoryId;

@@ -1,4 +1,4 @@
-package com.example.gcj.Service_Layer.dto.cv_comment;
+package com.example.gcj.Service_Layer.dto.cv_share_comment;
 
 import lombok.Builder;
 import lombok.Getter;

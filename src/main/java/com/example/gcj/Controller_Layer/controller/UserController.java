@@ -49,6 +49,15 @@ public class UserController {
         return Response.ok(null);
     }
 
+
+    @PatchMapping("/update-profile")
+    public Response<String> updateProfile(
+            @RequestBody @Valid UpdateUserProfileRequestDTO request
+    ) {
+        userService.updateProfile(request);
+        return Response.ok(null);
+    }
+
     @PostMapping("/forget-password")
     public Response<String> forgetPassword(
 
@@ -100,6 +109,7 @@ public class UserController {
         userService.unbanUser(id);
         return Response.ok(null);
     }
+
 
     @GetMapping("/current")
     @Secured({Role.ADMIN, Role.USER, Role.EXPERT})

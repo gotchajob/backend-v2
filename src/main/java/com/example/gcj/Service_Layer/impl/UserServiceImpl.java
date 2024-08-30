@@ -350,6 +350,20 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public boolean updateProfile(UpdateUserProfileRequestDTO request) {
+        User user = currentUser();
+
+        user.setAddress(request.getAddress());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAvatar(request.getAvatar());
+        user.setPhone(request.getPhone());
+        userRepository.save(user);
+
+        return true;
+    }
+
     private void sendEmailApproveExpert(String email, String password, String fullName) {
         String subject = "Approval Request to Become a Expert on Gotchajob";
         String body = "Dear " + fullName + ",\n" +

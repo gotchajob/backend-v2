@@ -13,5 +13,6 @@ public class CvShareComment extends AbstractEntity {
     private long cvShareId;
     private long customerId;
     private String comment;
+    private int rating;
     private int status;
 }

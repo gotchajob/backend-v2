@@ -17,6 +17,7 @@ public class CvShareMapper {
                 .category("coming soon!")
                 .caption(cvShare.getCaption())
                 .createdAt(cvShare.getCreatedAt())
+                .customerId(cvShare.getCustomerId())
                 .build();
     }
 }

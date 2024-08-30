@@ -7,4 +7,5 @@ import lombok.*;
 public class ReportSuggestListResponseDTO {
     private long id;
     private String report;
+    private String description;
 }

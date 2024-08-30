@@ -18,6 +18,8 @@ public class BookingReportMapper {
                 .staffNote(bookingReport.getStaffNote())
                 .status(bookingReport.getStatus())
                 .bookingId(bookingReport.getBookingId())
+                .createdAt(bookingReport.getCreatedAt())
+                .updatedAt(bookingReport.getUpdatedAt())
                 .build();
     }
 
@@ -33,6 +35,8 @@ public class BookingReportMapper {
                 .customerEvidence(bookingReport.getCustomerEvidence())
                 .createdAt(bookingReport.getCreatedAt())
                 .bookingId(bookingReport.getBookingId())
+                .status(bookingReport.getStatus())
+                .updatedAt(bookingReport.getUpdatedAt())
                 .build();
     }
 }

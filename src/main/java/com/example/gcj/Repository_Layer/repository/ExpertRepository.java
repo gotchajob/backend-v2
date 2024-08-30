@@ -59,4 +59,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
             Pageable pageable
     );
 
+    @Query("SELECT e FROM Expert e JOIN User u WHERE u.email =: email AND e.status != 0")
+    Expert getByEmail(String email);
+
 }

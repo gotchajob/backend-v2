@@ -90,10 +90,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private Customer getCurrentCustomer() {
-        long userId = userService.getCurrentUserId();
-        Customer customer = customerRepository.findByUserId(userId);
+        String email = userService.currentUserEmail();
+        Customer customer = customerRepository.currentCustomer(email);
         if (customer == null) {
-            customer = createDefaultCustomer(userId);
+            customer = createDefaultCustomer(userService.getCurrentUserId());
         }
 
         return customer;

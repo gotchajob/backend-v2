@@ -17,6 +17,9 @@ public class BookingReportForExpertResponseDTO {
     private String customerEvidence;
     private long bookingId;
     private Date createdAt;
+    private Date updatedAt;
+    private int status;
+
 
     private List<BookingReportSuggestListResponseDTO> bookingReportSuggest;
 }

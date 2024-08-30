@@ -16,15 +16,17 @@ public interface BookingReportService {
 
     boolean delete(long id);
 
-    boolean reject(long id, long staffId);
+    boolean reject(long id, long staffId, BookingReportStaffNoteRequestDTO request);
 
-    boolean approve(long id, long staffId);
+    boolean approve(long id, long staffId, BookingReportStaffNoteRequestDTO request);
 
     PageResponseDTO<BookingReportListResponseDTO> get(int pageNumber, int pageSize, String sortBy, String[] search);
 
-    boolean notifyExpert(long id);
+    boolean notifyExpert(long id, BookingReportNotifyExpertRequestDTO request);
 
     boolean updateExpertEvidence(long id, ExpertUpEvidenceRequestDTO request, long expertId);
 
     PageResponseDTO<BookingReportForExpertResponseDTO> getForExpert(int pageNumber, int pageSize, String sortBy, long expertId);
+
+    PageResponseDTO<BookingReportListResponseDTO> getForCustomer(int pageNumber, int pageSize, String sortBy, long customerId);
 }
