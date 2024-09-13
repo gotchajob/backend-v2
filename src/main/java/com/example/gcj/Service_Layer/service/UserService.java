@@ -25,4 +25,12 @@ public interface UserService {
     boolean changePassword(ChangePasswordRequestDTO request);
 
     boolean updateProfile(UpdateUserProfileRequestDTO request);
+
+    boolean createVerifyEmail(String email);
+
+    boolean verifyEmail(String email, String code);
+
+    boolean forgetPassword(String email, String code);
+
+    boolean createForgetPassword(String email);
 }

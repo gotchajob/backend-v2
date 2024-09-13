@@ -12,6 +12,7 @@ import com.example.gcj.Service_Layer.service.ExpertSkillOptionService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
 import com.example.gcj.Service_Layer.mapper.ExpertSkillOptionMapper;
+import com.example.gcj.Shared.util.status.ExpertSkillOptionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +68,13 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
 
     @Override
     public List<ExpertSkillOptionResponseDTO> getByExpertId(long expertId) {
-        List<Object[]> expertSkillOptions = expertSkillOptionRepository.findWithRating(expertId);
+        List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findByExpertId(expertId);
+        return expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
+    }
+
+    @Override
+    public List<ExpertSkillOptionResponseDTO> getByExpertId(long expertId, int status) {
+        List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findByExpertIdAndStatus(expertId, status);
         return expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
     }
 
@@ -95,5 +102,58 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
     @Override
     public void get(List<Long> skillOptionId) {
 
+    }
+
+    @Override
+    public boolean show(long id, long expertId) {
+        ExpertSkillOption expertSkillOption = get(id);
+
+        if (expertSkillOption.getExpertId() != expertId) {
+            throw new CustomException("expert skill option not yours");
+        }
+
+        if (expertSkillOption.getStatus() == ExpertSkillOptionStatus.SHOW) {
+            return true;
+        }
+
+        expertSkillOption.setStatus(ExpertSkillOptionStatus.SHOW);
+        save(expertSkillOption);
+
+        return true;
+    }
+
+    @Override
+    public boolean hidden(long id, long expertId) {
+        ExpertSkillOption expertSkillOption = get(id);
+
+        if (expertSkillOption.getExpertId() != expertId) {
+            throw new CustomException("expert skill option not yours");
+        }
+
+        if (expertSkillOption.getStatus() == ExpertSkillOptionStatus.HIDDEN) {
+            return true;
+        }
+
+        expertSkillOption.setStatus(ExpertSkillOptionStatus.HIDDEN);
+        save(expertSkillOption);
+
+        return true;
+    }
+
+    private ExpertSkillOption save(ExpertSkillOption expertSkillOption) {
+        if (expertSkillOption == null) {
+            return null;
+        }
+
+        return expertSkillOptionRepository.save(expertSkillOption);
+    }
+
+    private ExpertSkillOption get(long id) {
+        ExpertSkillOption expertSkillOption = expertSkillOptionRepository.findById(id);
+        if (expertSkillOption == null) {
+            throw new CustomException("not found expert skill option");
+        }
+
+        return expertSkillOption;
     }
 }

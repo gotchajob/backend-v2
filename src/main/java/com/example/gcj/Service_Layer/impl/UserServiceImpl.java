@@ -2,12 +2,10 @@ package com.example.gcj.Service_Layer.impl;
 
 import com.example.gcj.External_Service.EmailService;
 import com.example.gcj.Repository_Layer.model.Customer;
+import com.example.gcj.Repository_Layer.model.EmailVerificationCode;
 import com.example.gcj.Repository_Layer.model.Expert;
 import com.example.gcj.Repository_Layer.model.User;
-import com.example.gcj.Repository_Layer.repository.CustomerRepository;
-import com.example.gcj.Repository_Layer.repository.ExpertRepository;
-import com.example.gcj.Repository_Layer.repository.SearchRepository;
-import com.example.gcj.Repository_Layer.repository.UserRepository;
+import com.example.gcj.Repository_Layer.repository.*;
 import com.example.gcj.Repository_Layer.specification.ObjectSpecificationBuilder;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.*;
@@ -33,6 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +59,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
     private final CustomerRepository customerRepository;
+    private final EmailVerificationCodeRepository emailVerificationCodeRepository;
 
 
     @Override
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
-                .status(1)
+                .status(UserStatus.NOT_VERIFY)
                 .roleId(4)
                 .build();
         User save = userRepository.save(user);
@@ -364,6 +364,86 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public boolean createVerifyEmail(String email) {
+        String code = Util.generateCode();
+        int expireTime = 30;
+
+        User user = userRepository.getUserByEmail(email);
+        if (user == null) {
+            throw new CustomException("not found user with email " + email);
+        }
+        if (user.getStatus() != UserStatus.NOT_VERIFY) {
+            throw new CustomException("user verified");
+        }
+        if (user.getRoleId() != USER_ROLE) {
+            throw new CustomException("just use for verify user account");
+        }
+
+        EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.getByUserId(user.getId());
+        if (emailVerificationCode == null) {
+            emailVerificationCode = EmailVerificationCode
+                    .builder()
+                    .isUsed(false)
+                    .expiresAt(LocalDateTime.now().plusMinutes(expireTime))
+                    .verificationCode(code)
+                    .userId(user.getId())
+                    .build();
+        }
+
+        emailVerificationCode.setVerificationCode(code);
+        emailVerificationCode.setExpiresAt(LocalDateTime.now().plusMinutes(expireTime));
+        emailVerificationCode.setUsed(false);
+
+        emailVerificationCodeRepository.save(emailVerificationCode);
+
+        sendEmailVerify(email, code, user.getFirstName() + " " + user.getLastName());
+
+        return true;
+    }
+
+    @Override
+    public boolean verifyEmail(String email, String code) {
+        User user = userRepository.getUserByEmail(email);
+        if (user == null) {
+            throw new CustomException("not found user with email " + email);
+        }
+        if (user.getStatus() != UserStatus.NOT_VERIFY) {
+            throw new CustomException("user verified");
+        }
+
+        EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.getByVerificationCodeAndUserId(code, user.getId());
+        if (emailVerificationCode == null) {
+            throw new CustomException("invalid code");
+        }
+
+        if (LocalDateTime.now().isAfter(emailVerificationCode.getExpiresAt())) {
+            throw new CustomException("code is expire");
+        }
+
+        if (!emailVerificationCode.isUsed()) {
+            throw new CustomException("code is used");
+        }
+
+        emailVerificationCode.setUsed(true);
+        emailVerificationCodeRepository.save(emailVerificationCode);
+
+        user.setStatus(UserStatus.ACTIVE);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public boolean forgetPassword(String email, String code) {
+        return false;
+    }
+
+    @Override
+    public boolean createForgetPassword(String email) {
+        return false;
+    }
+
     private void sendEmailApproveExpert(String email, String password, String fullName) {
         String subject = "Approval Request to Become a Expert on Gotchajob";
         String body = "Dear " + fullName + ",\n" +
@@ -405,6 +485,24 @@ public class UserServiceImpl implements UserService {
                 "Best regards,\n" +
                 "\n" +
                 "GotchaJob\n";
+
+        emailService.sendEmail(email, subject, body);
+    }
+
+    private void sendEmailVerify(String email, String code, String fullName) {
+        String subject = "Verify Your Email for GotchaJob";
+        String body = "Hi " + fullName + ",\n" +
+                "\n" +
+                "Thank you for registering with GotchaJob. To complete your registration and verify your email, please use the following verification code:\n" +
+                "\n" +
+                "Your verification code: \n" + code +
+                "\n" +
+                "This code will expire in 10 minutes.\n" +
+                "\n" +
+                "If you did not create an account with GotchaJob, please disregard this email.\n" +
+                "\n" +
+                "Best regards,\n" +
+                "GotchaJob Team\n";
 
         emailService.sendEmail(email, subject, body);
     }

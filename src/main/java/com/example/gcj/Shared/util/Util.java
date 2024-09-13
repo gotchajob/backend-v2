@@ -144,5 +144,15 @@ public class Util {
         return PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortConvert(sort)));
     }
 
+    public static String generateCode() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            sb.append(random.nextInt(10));
+        }
+
+        return sb.toString();
+    }
+
 
 }

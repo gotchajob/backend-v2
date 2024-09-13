@@ -7,22 +7,21 @@ import jakarta.persistence.Id;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
-
+import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Revenue {
+public class EmailVerificationCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private long transactionId;
-    private double amount;
-    private int percent;
+    private long userId;
+    private String verificationCode;
     @CreationTimestamp
-    private Date createdAt;
-
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
+    private boolean isUsed;
 }

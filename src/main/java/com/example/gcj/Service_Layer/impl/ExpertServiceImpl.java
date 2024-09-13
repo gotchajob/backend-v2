@@ -7,6 +7,7 @@ import com.example.gcj.Repository_Layer.model.ExpertSkillOption;
 import com.example.gcj.Repository_Layer.model.User;
 import com.example.gcj.Repository_Layer.repository.*;
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateExpertDescriptionRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertProfileRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert_nation_support.ExpertNationSupportResponseDTO;
@@ -275,6 +276,19 @@ public class ExpertServiceImpl implements ExpertService {
 
         Expert expert = expertRepository.getByEmail(currentUserEmail);
         expert.setStatus(status);
+        expertRepository.save(expert);
+
+        return true;
+    }
+
+    @Override
+    public boolean updateDescription(long expertId, UpdateExpertDescriptionRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("bad request");
+        }
+
+        Expert expert = get(expertId);
+        expert.setShortDescription(request.getShortDescription());
         expertRepository.save(expert);
 
         return true;

@@ -1,7 +1,8 @@
 package com.example.gcj.Repository_Layer.repository;
 
-import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO;
 import com.example.gcj.Repository_Layer.model.ExpertSkillOption;
+import com.example.gcj.Service_Layer.dto.dash_board.ExpertDashboardResponseDTO;
+import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,8 +14,9 @@ import java.util.List;
 
 @Repository
 public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOption, Long> {
-    @Query("SELECT e FROM ExpertSkillOption e WHERE e.expertId = :expertId AND e.status = 1")
+    @Query("SELECT e FROM ExpertSkillOption e WHERE e.expertId = :expertId AND e.status != 0")
     List<ExpertSkillOption> findByExpertId(@Param("expertId") long expertId);
+    List<ExpertSkillOption> findByExpertIdAndStatus(long expertId, int status);
 
     ExpertSkillOption findById(long id);
     ExpertSkillOption findByExpertIdAndSkillOptionId(long expertId, long skillOptionId);
@@ -54,4 +56,14 @@ public interface ExpertSkillOptionRepository extends JpaRepository<ExpertSkillOp
             "WHERE eso.id IN (:expertSkillOptionIds) " +
             "GROUP BY eso.id, s.id, s.name, so.id, so.name")
     List<SkillOptionBookingResponseDTO> getByExpertSkillOptionId(List<Long> expertSkillOptionIds);
+
+    @Query("SELECT new com.example.gcj.Service_Layer.dto.dash_board.ExpertDashboardResponseDTO(c.name, COALESCE(count(distinct eso.expertId), 0)) " +
+            "FROM Category c " +
+            "LEFT JOIN Skill s ON s.categoryId = c.id " +
+            "LEFT JOIN SkillOption so ON so.skillId = s.id " +
+            "LEFT JOIN ExpertSkillOption eso ON eso.skillOption.id = so.id " +
+            "LEFT JOIN Expert e ON e.id = eso.expertId " +
+            "WHERE (eso.status != 0 OR eso IS NULL) AND c.status = 1 AND (s.status = 1 OR s.status IS NULL) AND (so.status = 1 OR so.status IS NULL) AND (e.status = 1 OR e IS NULL) " +
+            "GROUP BY c.id, c.name")
+    List<ExpertDashboardResponseDTO> countExpertByCategory();
 }

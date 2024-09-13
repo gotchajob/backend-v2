@@ -58,6 +58,7 @@ public class ExpertMapper {
                 .avatar(user.getAvatar())
                 .point(point)
                 .cost(expert.getCost())
+                .shortDescription(expert.getShortDescription())
                 .build();
     }
 

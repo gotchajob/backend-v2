@@ -23,13 +23,14 @@ public class ExpertMatchListResponseDTO implements Serializable {
     private int yearExperience;
     private String bio;
     private double cost;
+    private String shortDescription;
+    private double point;
+
     private List<ExpertSkillOptionResponseDTO> Skills;
     private List<ExpertNationSupportResponseDTO> nationSupport;
 
-    private double point;
 
-
-    public ExpertMatchListResponseDTO(long userId, long expertId, String firstName, String lastName, String avatar, String email, int yearExperience, String bio, double cost, double point) {
+    public ExpertMatchListResponseDTO(long userId, long expertId, String firstName, String lastName, String avatar, String email, int yearExperience, String bio, String shortDescription, double cost, double point) {
         this.userId = userId;
         this.expertId = expertId;
         this.fullName = firstName + " " + lastName;
@@ -39,5 +40,6 @@ public class ExpertMatchListResponseDTO implements Serializable {
         this.bio = bio;
         this.cost = cost;
         this.point = point;
+        this.shortDescription = shortDescription;
     }
 }

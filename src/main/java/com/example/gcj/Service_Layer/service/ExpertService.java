@@ -1,6 +1,7 @@
 package com.example.gcj.Service_Layer.service;
 
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateExpertDescriptionRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertProfileRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
@@ -26,4 +27,6 @@ public interface ExpertService {
     boolean updateProfile(long expertId, UpdateExpertProfileRequestDTO request);
 
     boolean updateCurrentExpertStatus(int status);
+
+    boolean updateDescription(long expertId, UpdateExpertDescriptionRequestDTO request);
 }

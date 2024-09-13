@@ -2,6 +2,7 @@ package com.example.gcj.Controller_Layer.controller;
 
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateCostRequestDTO;
+import com.example.gcj.Service_Layer.dto.expert.UpdateExpertDescriptionRequestDTO;
 import com.example.gcj.Service_Layer.dto.expert.UpdateExpertProfileRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.ExpertAccountResponse;
@@ -9,6 +10,7 @@ import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -94,6 +96,16 @@ public class ExpertController {
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertService.updateProfile(expertId, request);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/update-description")
+    @Secured(Role.EXPERT)
+    public Response<String> updateDescription(
+            @RequestBody @Valid UpdateExpertDescriptionRequestDTO request
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        expertService.updateDescription(expertId, request);
         return Response.ok(null);
     }
 

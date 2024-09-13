@@ -58,13 +58,6 @@ public class UserController {
         return Response.ok(null);
     }
 
-    @PostMapping("/forget-password")
-    public Response<String> forgetPassword(
-
-    ) {
-        return Response.ok("null");
-    }
-
     @GetMapping("")
     //@Secured(Role.ADMIN)
     @Operation(description = "role: admin/super admin <br>" +
@@ -142,6 +135,43 @@ public class UserController {
             throw new CustomException("Email " + email + " is not exist!");
         }
 
+        return Response.ok(null);
+    }
+
+    @GetMapping("/{email}/verify/{code}")
+    @Operation()
+    public Response<String> verifyEmail(
+            @PathVariable String email,
+            @PathVariable String code
+    ) {
+        userService.verifyEmail(email, code);
+        return Response.ok(null);
+    }
+
+    @PostMapping("/{email}/verify")
+    @Operation()
+    public Response<String> createVerify(
+            @PathVariable String email
+    ) {
+        userService.createVerifyEmail(email);
+        return Response.ok(null);
+    }
+
+    @PostMapping("/{email}/forget-password")
+    @Operation()
+    public Response<String> createForgetPassword(
+            @PathVariable String email
+    ) {
+        userService.createForgetPassword(email);
+        return Response.ok(null);
+    }
+    @PostMapping("/{email}/forget-password/{code}")
+    @Operation()
+    public Response<String> forgetPassword(
+            @PathVariable String email,
+            @PathVariable String code
+    ) {
+        userService.forgetPassword(email, code);
         return Response.ok(null);
     }
 

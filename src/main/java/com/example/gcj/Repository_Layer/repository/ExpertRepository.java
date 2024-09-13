@@ -31,12 +31,12 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     boolean existsByUserIdAndStatusNotZero(long userId);
 
     @Query("SELECT new com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO( " +
-            "u.id, e.id, u.firstName, u.lastName, u.avatar, u.email, e.yearExperience, e.bio, e.cost, " +
+            "u.id, e.id, u.firstName, u.lastName, u.avatar, u.email, e.yearExperience, e.bio, e.shortDescription, e.cost, " +
             "(CASE WHEN e.yearExperience >= :yearExperience THEN :weightExperience ELSE 0 END + " +
             "COALESCE((SELECT SUM(CASE WHEN ens.nation IN :nations THEN :weightNation ELSE 0 END) " +
-            "FROM ExpertNationSupport ens WHERE ens.expertId = e.id), 0) + " +
+            "FROM ExpertNationSupport ens WHERE ens.expertId = e.id AND ens.status = 1), 0) + " +
             "COALESCE((SELECT SUM(CASE WHEN eso.skillOption.id IN :skillOptionIds THEN :weightSkill ELSE 0 END) " +
-            "FROM ExpertSkillOption eso WHERE eso.expertId = e.id), 0) + " +
+            "FROM ExpertSkillOption eso WHERE eso.expertId = e.id AND eso.status = 1), 0) + " +
             "(CASE WHEN e.personalPoint >= :personalPoint THEN :weightPersonalPoint ELSE 0 END)) AS point) " +
             "FROM Expert e " +
             "JOIN e.user u " +
