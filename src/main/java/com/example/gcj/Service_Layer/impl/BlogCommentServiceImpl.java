@@ -9,9 +9,9 @@ import com.example.gcj.Service_Layer.dto.blog_comment.BlogCommentListDTO;
 import com.example.gcj.Service_Layer.dto.blog_comment.CreateBlogCommentDTO;
 import com.example.gcj.Service_Layer.dto.other.LikeDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
+import com.example.gcj.Service_Layer.mapper.BlogCommentMapper;
 import com.example.gcj.Service_Layer.service.BlogCommentService;
 import com.example.gcj.Service_Layer.service.UserService;
-import com.example.gcj.Service_Layer.mapper.BlogCommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,4 +62,6 @@ public class BlogCommentServiceImpl implements BlogCommentService {
         }
         return new PageResponseDTO<>(blogCommentList, comments.getTotalPages());
     }
+
+
 }

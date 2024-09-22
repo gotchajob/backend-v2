@@ -45,4 +45,5 @@ public interface CvTemplateRepository extends JpaRepository<CvTemplate, Long> {
             "WHERE ct.status != 0 " +
             "GROUP BY ct.id, ct.categoryId, cc.name, ct.name, ct.image, ct.status, ct.createdAt")
     List<TopUseCvTemplateResponseDTO> getAndCountNumberUse(Pageable pageable);
+
 }

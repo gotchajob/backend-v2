@@ -1,5 +1,6 @@
 package com.example.gcj.Service_Layer.dto.booking_report;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -7,5 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UpdateBookingReportRequestDTO {
+    @NotBlank
     private String content;
 }

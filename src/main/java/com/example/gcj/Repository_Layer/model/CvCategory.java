@@ -21,5 +21,6 @@ public class CvCategory {
     private String description;
     private String image;
     private String icon;
+    private int status;
 
 }

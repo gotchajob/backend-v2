@@ -34,8 +34,6 @@ public class CvShareServiceImpl implements CvShareService {
             throw new CustomException("bad request");
         }
 
-        //todo: check customer id
-
         Cv cv = cvRepository.getById(request.getCvId());
         if (cv == null) {
             throw new CustomException("not found cv");
@@ -60,8 +58,9 @@ public class CvShareServiceImpl implements CvShareService {
     }
 
     @Override
-    public boolean update(long id, UpdateCvShareRequestDTO request) {
+    public boolean update(long id, UpdateCvShareRequestDTO request, long customerId) {
         CvShare cvShare = get(id);
+        checkAuthor(customerId, cvShare);
 
         cvShare.setCaption(request.getCaption());
         save(cvShare);
@@ -70,8 +69,9 @@ public class CvShareServiceImpl implements CvShareService {
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id, long customerId) {
         CvShare cvShare = get(id);
+        checkAuthor(customerId, cvShare);
 
         cvShare.setStatus(0);
         save(cvShare);
@@ -88,15 +88,17 @@ public class CvShareServiceImpl implements CvShareService {
             r.setUserInfo(customerRepository.getUserInfo(r.getCustomerId()));
 
             List<CvShareRatingListResponseDTO> ratingByCvShareId = cvShareCommentRepository.getRatingByCvShareId(r.getId());
-            r.setCvShareRating(ratingByCvShareId);
+            r.setRating(ratingByCvShareId);
         }
 
         return new PageResponseDTO<>(responseList, entitiesPage.getTotalPages());
     }
 
     @Override
-    public boolean updateStatus(long id, int status) {
+    public boolean updateStatus(long id, int status, long customerId) {
         CvShare cvShare = get(id);
+        checkAuthor(customerId, cvShare);
+
         if (cvShare.getStatus() == status) {
             return false;
         }
@@ -108,8 +110,10 @@ public class CvShareServiceImpl implements CvShareService {
     }
 
     @Override
-    public CvShareResponseDTO getById(long id) {
+    public CvShareResponseDTO getById(long id, long customerId) {
         CvShare cvShare = get(id);
+        checkAuthor(customerId, cvShare);
+
         List<CvShareRatingListResponseDTO> rating = cvShareCommentRepository.getRatingByCvShareId(cvShare.getId());
         UserInfoResponseDTO userInfo = customerRepository.getUserInfo(cvShare.getCustomerId());
 
@@ -147,5 +151,17 @@ public class CvShareServiceImpl implements CvShareService {
         }
 
         return cvShare;
+    }
+
+    private boolean checkAuthor(long customerId, CvShare cvShare) {
+        if (cvShare == null) {
+            return false;
+        }
+
+        if (cvShare.getCustomerId() != customerId) {
+            throw new CustomException("current customer is not same with customer in cv share");
+        }
+
+        return true;
     }
 }

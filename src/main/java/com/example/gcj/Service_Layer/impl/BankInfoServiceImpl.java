@@ -57,8 +57,11 @@ public class BankInfoServiceImpl implements BankInfoService {
     }
 
     @Override
-    public boolean update(long id, UpdateBankInfoRequestDTO request) {
+    public boolean update(long id, UpdateBankInfoRequestDTO request, long accountId) {
         BankInfo bankInfo = get(id);
+        if (bankInfo.getAccountId() != accountId) {
+            throw new CustomException("current account not equal with account in bank info");
+        }
 
         bankInfo.setBankCode(request.getBankCode());
         bankInfo.setNameHolder(request.getNameHolder());
@@ -69,8 +72,11 @@ public class BankInfoServiceImpl implements BankInfoService {
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id, long accountId) {
         BankInfo bankInfo = get(id);
+        if (bankInfo.getAccountId() != accountId) {
+            throw new CustomException("current account not equal with account in bank info");
+        }
 
         bankInfo.setStatus(0);
         save(bankInfo);

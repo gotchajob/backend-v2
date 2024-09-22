@@ -18,7 +18,6 @@ import java.util.List;
 public class BookingRejectSuggestServiceImpl implements BookingRejectSuggestService {
     private final BookingRejectSuggestRepository bookingRejectSuggestRepository;
 
-
     @Override
     public boolean delete(long id) {
         if (!bookingRejectSuggestRepository.existsById(id)) {
@@ -55,10 +54,6 @@ public class BookingRejectSuggestServiceImpl implements BookingRejectSuggestServ
     public boolean create(CreateBookingRejectSuggestRequestDTO request) {
         if (request == null) {
             throw new CustomException("bad request");
-        }
-
-        if (request.getType() < 1 || request.getType() > 2) {
-            throw new CustomException("invalid type");
         }
 
         BookingRejectSuggest build = BookingRejectSuggest

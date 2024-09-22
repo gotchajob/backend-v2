@@ -9,6 +9,7 @@ import com.example.gcj.Service_Layer.service.StaffService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -65,26 +66,28 @@ public class BookingReportController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BookingReportResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BookingReportResponseDTO response = bookingReportService.getById(id);
         return Response.ok(response);
     }
 
     @PostMapping("")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> create(
-            @RequestBody CreateBookingReportRequestDTO request
+            @RequestBody @Valid CreateBookingReportRequestDTO request
     ) {
-        bookingReportService.create(request);
+        long customerId = customerService.getCurrentCustomerId();
+        bookingReportService.create(request, customerId);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}")
     @Operation(description = "finish")
     public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateBookingReportRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateBookingReportRequestDTO request
     ) {
         bookingReportService.update(id, request);
         return Response.ok(null);
@@ -94,8 +97,8 @@ public class BookingReportController {
     @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> notifyExpert(
-            @PathVariable long id,
-            @RequestBody BookingReportNotifyExpertRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid BookingReportNotifyExpertRequestDTO request
     ) {
         bookingReportService.notifyExpert(id, request);
         return Response.ok(null);
@@ -105,8 +108,8 @@ public class BookingReportController {
     @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> expertUpEvidence(
-            @PathVariable long id,
-            @RequestBody ExpertUpEvidenceRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid ExpertUpEvidenceRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         bookingReportService.updateExpertEvidence(id, request, expertId);
@@ -117,8 +120,8 @@ public class BookingReportController {
     @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> approve(
-            @PathVariable long id,
-            @RequestBody BookingReportStaffNoteRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid BookingReportStaffNoteRequestDTO request
     ) {
         long currentStaffId = staffService.getCurrentStaffId();
         bookingReportService.approve(id, currentStaffId, request);
@@ -129,8 +132,8 @@ public class BookingReportController {
     @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> reject(
-            @PathVariable long id,
-            @RequestBody BookingReportStaffNoteRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid BookingReportStaffNoteRequestDTO request
     ) {
         long currentStaffId = staffService.getCurrentStaffId();
         bookingReportService.reject(id, currentStaffId, request);
@@ -138,9 +141,10 @@ public class BookingReportController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         bookingReportService.delete(id);
         return Response.ok(null);

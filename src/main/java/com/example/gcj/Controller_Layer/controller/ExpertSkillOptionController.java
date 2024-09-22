@@ -7,6 +7,7 @@ import com.example.gcj.Service_Layer.service.ExpertSkillOptionService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,14 @@ public class ExpertSkillOptionController {
 
     @GetMapping("")
     public Response<List<ExpertSkillOptionResponseDTO>> getExpertSkillOption(
-            @RequestParam long expertId
+            @RequestParam @Min(1) long expertId
     ) {
         List<ExpertSkillOptionResponseDTO> response = expertSkillOptionService.getByExpertId(expertId, 1);
         return Response.ok(response);
     }
 
     @GetMapping("/current")
+    @Secured(Role.EXPERT)
     public Response<List<ExpertSkillOptionResponseDTO>> getCurrent(
     ) {
         long expertId = expertService.getCurrentExpertId();
@@ -48,7 +50,7 @@ public class ExpertSkillOptionController {
     @PatchMapping("/{id}/hidden")
     @Secured(Role.EXPERT)
     public Response<String> hide(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertSkillOptionService.hidden(id, expertId);
@@ -58,7 +60,7 @@ public class ExpertSkillOptionController {
     @PatchMapping("/{id}/show")
     @Secured(Role.EXPERT)
     public Response<String> show(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertSkillOptionService.show(id, expertId);

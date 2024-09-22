@@ -12,15 +12,15 @@ import java.util.List;
 public interface CvShareService {
     boolean create(CreateCvShareRequestDTO request, long customerId);
 
-    boolean update(long id, UpdateCvShareRequestDTO request);
+    boolean update(long id, UpdateCvShareRequestDTO request, long customerId);
 
-    boolean delete(long id);
+    boolean delete(long id, long customerId);
 
     PageResponseDTO<CvShareListResponseDTO> get(int pageNumber, int pageSize, String sortBy, String[] search);
 
-    boolean updateStatus(long id, int i);
+    boolean updateStatus(long id, int i, long customerId);
 
-    CvShareResponseDTO getById(long id);
+    CvShareResponseDTO getById(long id, long customerId);
 
     List<CvShareRatingListResponseDTO> getRating(long id);
 }

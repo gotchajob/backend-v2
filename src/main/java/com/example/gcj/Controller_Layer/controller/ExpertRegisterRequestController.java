@@ -11,10 +11,12 @@ import com.example.gcj.Service_Layer.dto.user.CreateExpertAccountRequestDTO;
 import com.example.gcj.Service_Layer.service.ExpertFormCriteriaService;
 import com.example.gcj.Service_Layer.service.ExpertRegisterRequestService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,6 +70,7 @@ public class ExpertRegisterRequestController {
     }
 
     @PatchMapping("/{id}/approve")
+    @Secured(Role.STAFF)
     public Response<String> approveRegister(
             @PathVariable long id,
             @RequestBody ApproveExpertRegisterRequestDTO requestDTO
@@ -86,6 +89,7 @@ public class ExpertRegisterRequestController {
     }
 
     @PatchMapping("/{id}/approve-form")
+    @Secured(Role.STAFF)
     public Response<String> approveRegisterForm(
             @PathVariable long id
     ) {
@@ -94,6 +98,7 @@ public class ExpertRegisterRequestController {
     }
 
     @PatchMapping("/{id}/reject-form")
+    @Secured(Role.STAFF)
     public Response<String> rejectRegister(
             @PathVariable long id,
             @RequestBody(required = false) RejectFromRegisterRequestDTO requestDTO
@@ -112,6 +117,7 @@ public class ExpertRegisterRequestController {
     }
 
     @PatchMapping("/{id}/ban")
+    @Secured(Role.STAFF)
     public Response<String> banRequest(
             @PathVariable long id
     ) {

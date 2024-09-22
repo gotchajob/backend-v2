@@ -18,4 +18,6 @@ public interface BookingExpertFeedbackRepository extends JpaRepository<BookingEx
 
     @Query("SELECT b FROM BookingExpertFeedback b WHERE b.id = :id AND b.status != 0")
     BookingExpertFeedback findById(long id);
+
+    boolean existsByBookingIdAndStatus(long bookingId, int status);
 }

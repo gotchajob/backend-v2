@@ -13,6 +13,7 @@ public class ExpertQuestionCategory extends AbstractEntity{
     private String category;
     private String description;
     private Long createdBy;
+    private int status;
 
     public ExpertQuestionCategory(long id) {
         this.setId(id);

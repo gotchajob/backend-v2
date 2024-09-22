@@ -18,6 +18,7 @@ public class CvShareMapper {
                 .caption(cvShare.getCaption())
                 .createdAt(cvShare.getCreatedAt())
                 .customerId(cvShare.getCustomerId())
+                .status(cvShare.getStatus())
                 .build();
     }
 }

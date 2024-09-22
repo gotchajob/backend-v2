@@ -17,7 +17,7 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     @Query(value = "SELECT * FROM blog b WHERE b.category_id = :categoryId AND b.id != :excludeBlogId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Blog> findRelateBlogs(long categoryId, long excludeBlogId, int limit);
 
-    @Query(value = "SELECT * FROM blog b WHERE b.category_id = :categoryId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
-    List<Blog> findBlogByCategoryId(long categoryId, int limit);
+    @Query("SELECT b FROM Blog b WHERE b.id =:id AND b.status = 1")
+    Blog getById(int id);
 
 }

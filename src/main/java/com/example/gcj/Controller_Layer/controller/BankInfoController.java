@@ -6,6 +6,8 @@ import com.example.gcj.Service_Layer.service.BankInfoService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class BankInfoController {
     private final AccountService accountService;
 
     @GetMapping("")
-    //@Secured(Role.STAFF)
+    @Secured(Role.STAFF)
     @Operation(description = "finish. role: staff")
     public Response<List<BankInfoListResponseDTO>> get(
     ) {
@@ -41,7 +43,7 @@ public class BankInfoController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BankInfoResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BankInfoResponseDTO response = bankInfoService.getById(id);
         return Response.ok(response);
@@ -51,7 +53,7 @@ public class BankInfoController {
     @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<CreateBankInfoResponseDTO> create(
-            @RequestBody CreateBankInfoRequestDTO request
+            @RequestBody @Valid CreateBankInfoRequestDTO request
     ) {
         long accountId = accountService.getCurrentAccountId();
         CreateBankInfoResponseDTO response = bankInfoService.create(request, accountId);
@@ -59,21 +61,25 @@ public class BankInfoController {
     }
 
     @PatchMapping("/{id}")
+    @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> update(
             @PathVariable long id,
-            @RequestBody UpdateBankInfoRequestDTO request
+            @RequestBody @Valid UpdateBankInfoRequestDTO request
     ) {
-        bankInfoService.update(id, request);
+        long accountId = accountService.getCurrentAccountId();
+        bankInfoService.update(id, request, accountId);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> delete(
             @PathVariable long id
     ) {
-        bankInfoService.delete(id);
+        long accountId = accountService.getCurrentAccountId();
+        bankInfoService.delete(id, accountId);
         return Response.ok(null);
     }
 }

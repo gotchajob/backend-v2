@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -93,7 +94,10 @@ public class ExpertServiceImpl implements ExpertService {
 
         Pageable pageable = PageRequest.of(0, numberExpertMatch);
 
-        List<ExpertMatchListResponseDTO> matchingExperts = expertRepository.findMatchingExperts(yearExperience, nations, skillOptionIds, personalPoint, weightExperience, weightNation, weightSkill, weightPersonalPoint, main, pageable);
+        List<ExpertMatchListResponseDTO> matchingExperts = expertRepository.findMatchingExperts(
+                yearExperience, nations, skillOptionIds, personalPoint, weightExperience,
+                weightNation, weightSkill, weightPersonalPoint, main, pageable);
+
         for (ExpertMatchListResponseDTO matchingExpert : matchingExperts) {
             List<ExpertNationSupportResponseDTO> _expertNationSupport = expertNationSupportRepository
                     .findByExpertId(matchingExpert.getExpertId()).stream().map(ExpertNationSupportMapper::toDto).toList();
@@ -230,6 +234,7 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
+    @Transactional
     public boolean updateExpertPoint(long expertId, int point) {
         Expert expert = get(expertId);
 

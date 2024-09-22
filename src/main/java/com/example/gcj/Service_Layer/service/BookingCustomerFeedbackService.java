@@ -12,7 +12,7 @@ public interface BookingCustomerFeedbackService {
     BookingCustomerFeedbackResponseDTO getByBookingId(long bookingId);
 
     List<BookingCustomerFeedbackListResponseDTO> get();
-    boolean delete(long id);
+    boolean delete(long id, long customerId);
 
     List<BookingCustomerFeedbackTotalRatingResponseDTO> totalRatingByExpert(long expertId);
 

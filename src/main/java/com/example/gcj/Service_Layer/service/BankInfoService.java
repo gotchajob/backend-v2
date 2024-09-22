@@ -11,9 +11,9 @@ public interface BankInfoService {
 
     CreateBankInfoResponseDTO create(CreateBankInfoRequestDTO request, long accountId);
 
-    boolean update(long id, UpdateBankInfoRequestDTO request);
+    boolean update(long id, UpdateBankInfoRequestDTO request, long accountId);
 
-    boolean delete(long id);
+    boolean delete(long id, long accountId);
 
     List<BankInfoListResponseDTO> getByAccount(long accountId);
 }

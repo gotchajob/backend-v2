@@ -9,6 +9,8 @@ import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +45,7 @@ public class BookingExpertFeedbackQuestionController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BookingExpertFeedbackQuestionResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BookingExpertFeedbackQuestionResponseDTO responseDTO = bookingExpertFeedbackQuestionService.getById(id);
         return Response.ok(responseDTO);
@@ -53,7 +55,7 @@ public class BookingExpertFeedbackQuestionController {
     @Operation(description = "finish")
     @Secured(Role.EXPERT)
     public Response<String> create(
-            @RequestBody CreateBookingExpertFeedbackQuestionRequestDTO request
+            @RequestBody @Valid CreateBookingExpertFeedbackQuestionRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         bookingExpertFeedbackQuestionService.create(request, expertId);
@@ -64,7 +66,7 @@ public class BookingExpertFeedbackQuestionController {
     @Operation(description = "finish")
     public Response<String> update(
             @PathVariable long id,
-            @RequestBody UpdateBookingExpertFeedbackQuestionRequestDTO request
+            @RequestBody @Valid UpdateBookingExpertFeedbackQuestionRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         bookingExpertFeedbackQuestionService.update(id, request, expertId);
@@ -72,11 +74,13 @@ public class BookingExpertFeedbackQuestionController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
-        bookingExpertFeedbackQuestionService.delete(id);
+        long expertId = expertService.getCurrentExpertId();
+        bookingExpertFeedbackQuestionService.delete(id, expertId);
         return Response.ok(null);
     }
 }

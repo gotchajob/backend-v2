@@ -1,9 +1,15 @@
 package com.example.gcj.Service_Layer.service;
 
-import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
-import com.example.gcj.Service_Layer.dto.user.*;
 import com.example.gcj.Repository_Layer.model.User;
+import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.CreateStaffRequestDTO;
+import com.example.gcj.Service_Layer.dto.staff.StaffListResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.StaffResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.UpdateStaffRequestDTO;
+import com.example.gcj.Service_Layer.dto.user.*;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface UserService {
     void signup(SignupRequestDTO request);
@@ -33,4 +39,16 @@ public interface UserService {
     boolean forgetPassword(String email, String code);
 
     boolean createForgetPassword(String email);
+
+    boolean createStaffAccount(CreateStaffRequestDTO request);
+
+    boolean updateStaffAccount(long id, UpdateStaffRequestDTO request);
+
+    boolean updateStaffStatus(long id, int disable);
+
+    StaffResponseDTO getStaffAccountById(long id);
+
+    PageResponseDTO<StaffListResponseDTO> getStaffList(int pageNumber, int pageSize, String sortBy, String... search);
+
+    List<StaffListResponseDTO> getAllStaffList();
 }

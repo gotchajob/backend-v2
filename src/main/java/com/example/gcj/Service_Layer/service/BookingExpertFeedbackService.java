@@ -16,5 +16,5 @@ public interface BookingExpertFeedbackService {
 
     boolean create(CreateBookingExpertFeedbackRequestDTO requestDTO, long expertId);
 
-    boolean delete(long id);
+    boolean delete(long id, long expertId);
 }

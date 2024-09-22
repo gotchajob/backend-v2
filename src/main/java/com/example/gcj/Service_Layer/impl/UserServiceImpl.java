@@ -1,25 +1,23 @@
 package com.example.gcj.Service_Layer.impl;
 
 import com.example.gcj.External_Service.EmailService;
-import com.example.gcj.Repository_Layer.model.Customer;
-import com.example.gcj.Repository_Layer.model.EmailVerificationCode;
-import com.example.gcj.Repository_Layer.model.Expert;
-import com.example.gcj.Repository_Layer.model.User;
+import com.example.gcj.Repository_Layer.model.*;
 import com.example.gcj.Repository_Layer.repository.*;
 import com.example.gcj.Repository_Layer.specification.ObjectSpecificationBuilder;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.CreateStaffRequestDTO;
+import com.example.gcj.Service_Layer.dto.staff.StaffListResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.StaffResponseDTO;
+import com.example.gcj.Service_Layer.dto.staff.UpdateStaffRequestDTO;
 import com.example.gcj.Service_Layer.dto.user.*;
-import com.example.gcj.Service_Layer.service.ExpertNationSupportService;
-import com.example.gcj.Service_Layer.service.ExpertSkillOptionService;
-import com.example.gcj.Service_Layer.service.PolicyService;
-import com.example.gcj.Service_Layer.service.UserService;
+import com.example.gcj.Service_Layer.mapper.ExpertMapper;
+import com.example.gcj.Service_Layer.mapper.UserMapper;
+import com.example.gcj.Service_Layer.service.*;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.JwtUtil;
 import com.example.gcj.Shared.util.Regex;
 import com.example.gcj.Shared.util.Util;
-import com.example.gcj.Service_Layer.mapper.ExpertMapper;
-import com.example.gcj.Service_Layer.mapper.UserMapper;
 import com.example.gcj.Shared.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,9 +42,10 @@ public class UserServiceImpl implements UserService {
     final static int USER_ROLE = 4;
     final static int DEFAULT_EXPERT_STATUS = 2;
     final static String DEFAULT_PASSWORD = "default";
-
     final static int BAN_STATUS = 0;
     final static int UNBAN_STATUS = 1;
+    private static final int STAFF_ROLE = 2;
+
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwt;
@@ -60,6 +60,8 @@ public class UserServiceImpl implements UserService {
     private final SearchRepository searchRepository;
     private final CustomerRepository customerRepository;
     private final EmailVerificationCodeRepository emailVerificationCodeRepository;
+    private final StaffRepository staffRepository;
+
 
 
     @Override
@@ -125,10 +127,11 @@ public class UserServiceImpl implements UserService {
                 .build();
         User save = userRepository.save(user);
 
+        Integer defaultMaxAllowCv = policyService.getByKey(PolicyKey.DEFAULT_MAX_ALLOW_CV, Integer.class);
         Customer customer = Customer
                 .builder()
                 .userId(save.getId())
-                .maxAllowCv(5)
+                .maxAllowCv(defaultMaxAllowCv)
                 .build();
         customerRepository.save(customer);
     }
@@ -421,7 +424,7 @@ public class UserServiceImpl implements UserService {
             throw new CustomException("code is expire");
         }
 
-        if (!emailVerificationCode.isUsed()) {
+        if (emailVerificationCode.isUsed()) {
             throw new CustomException("code is used");
         }
 
@@ -442,6 +445,115 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean createForgetPassword(String email) {
         return false;
+    }
+
+    @Override
+    public boolean createStaffAccount(CreateStaffRequestDTO request) {
+        if (request == null) {
+            throw new CustomException("bad request");
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new CustomException("email is existed!");
+        }
+
+        User user = User
+                .builder()
+                .email(request.getEmail())
+                .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .roleId(STAFF_ROLE)
+                .status(UserStatus.ACTIVE)
+                .build();
+        User save = userRepository.save(user);
+
+        Staff build = Staff
+                .builder()
+                .userId(save.getId())
+                .build();
+
+        staffRepository.save(build);
+
+        return true;
+    }
+
+    @Override
+    public boolean updateStaffAccount(long id, UpdateStaffRequestDTO request) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("not found staff account with id " + id);
+        }
+
+        if (user.getRoleId() != STAFF_ROLE) {
+            throw new CustomException("account is not staff");
+        }
+
+        if (request.getPassword() != null) {
+            user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+        }
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public boolean updateStaffStatus(long id, int status) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("not found staff account with id " + id);
+        }
+
+        if (user.getRoleId() != STAFF_ROLE) {
+            throw new CustomException("account is not staff");
+        }
+        if (user.getStatus() == status) {
+            return true;
+        }
+
+        user.setStatus(status);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public StaffResponseDTO getStaffAccountById(long id) {
+        User user = userRepository.getUserById(id);
+        if (user == null) {
+            throw new CustomException("not found staff account with id " + id);
+        }
+
+        if (user.getRoleId() != STAFF_ROLE) {
+            throw new CustomException("account is not staff");
+        }
+
+        return StaffResponseDTO
+                .builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatar(user.getAvatar())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    public PageResponseDTO<StaffListResponseDTO> getStaffList(int pageNumber, int pageSize, String sortBy, String... search) {
+        Page<User> users = searchRepository.getEntitiesPage(User.class, pageNumber, pageSize, sortBy, search);
+        return new PageResponseDTO<>(users.map(UserMapper::staffDTO).toList(), users.getTotalPages());
+    }
+
+    @Override
+    public List<StaffListResponseDTO> getAllStaffList() {
+        List<User> userList = userRepository.findByRoleIdAndStatusNot(STAFF_ROLE, 0);
+        return userList.stream().map(UserMapper::staffDTO).toList();
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {

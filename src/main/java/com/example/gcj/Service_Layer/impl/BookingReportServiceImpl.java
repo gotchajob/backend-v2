@@ -66,12 +66,15 @@ public class BookingReportServiceImpl implements BookingReportService {
     }
 
     @Override
-    public boolean create(CreateBookingReportRequestDTO request) {
+    public boolean create(CreateBookingReportRequestDTO request, long customerId) {
         if (request == null) {
             throw new CustomException("bad request");
         }
 
-        checkBookingId(request.getBookingId());
+        checkBookingId(request.getBookingId(), customerId);
+        if (bookingReportRepository.existsByBookingIdAndStatus(request.getBookingId(), 1)) {
+            throw new CustomException("you are already report the booking");
+        }
 
         BookingReport build = BookingReport
                 .builder()
@@ -203,7 +206,7 @@ public class BookingReportServiceImpl implements BookingReportService {
         return bookingReport;
     }
 
-    private boolean checkBookingId(long bookingId) {
+    private boolean checkBookingId(long bookingId, long customerId) {
         Booking booking = bookingRepository.findById(bookingId);
         if (booking == null) {
             throw new CustomException("not found booking with id " + bookingId);
@@ -211,6 +214,10 @@ public class BookingReportServiceImpl implements BookingReportService {
 
         if (booking.getStatus() != BookingStatus.WAIT_TO_FEEDBACK) {
             throw new CustomException("current booking status is not wait to feedback");
+        }
+
+        if (booking.getCustomerId() != customerId) {
+            throw new CustomException("current customer is not same with customer in booking");
         }
 
         return true;

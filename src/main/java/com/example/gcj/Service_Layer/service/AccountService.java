@@ -22,4 +22,6 @@ public interface AccountService {
     boolean bookingPayment(double cost, long bookingId);
 
     boolean refundWhenCancelBooking(long customerId, long bookingId);
+
+    double getCurrentBalance();
 }

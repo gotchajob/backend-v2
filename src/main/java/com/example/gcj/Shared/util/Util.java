@@ -154,5 +154,20 @@ public class Util {
         return sb.toString();
     }
 
+    public static String[] appendStringArrays(String[] array1, String[] array2) {
+        // Check for null arrays and handle accordingly
+        if (array1 == null) array1 = new String[0];
+        if (array2 == null) array2 = new String[0];
+
+        // Create a new array with the combined length of both input arrays
+        String[] combinedArray = new String[array1.length + array2.length];
+
+        // Copy elements from both arrays into the combined array
+        System.arraycopy(array1, 0, combinedArray, 0, array1.length);
+        System.arraycopy(array2, 0, combinedArray, array1.length, array2.length);
+
+        return combinedArray;
+    }
+
 
 }

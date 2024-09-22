@@ -5,9 +5,12 @@ import com.example.gcj.Service_Layer.dto.skill.SkillResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill.UpdateSkillRequestDTO;
 import com.example.gcj.Service_Layer.service.SkillService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,32 +32,35 @@ public class SkillController {
 
     @GetMapping("/category/{categoryId}")
     public Response<List<SkillResponseDTO>> getSkillListByCategoryId(
-            @PathVariable long categoryId
+            @PathVariable @Min(1) long categoryId
     ) {
         List<SkillResponseDTO> skills = skillService.findSkillByCategoryId(categoryId);
         return Response.ok(skills);
     }
 
     @PostMapping("")
+    @Secured(Role.STAFF)
     public Response<String> createSkill(
-            @RequestBody CreateSkillRequestDTO request
+            @RequestBody @Valid CreateSkillRequestDTO request
     ) {
         skillService.createSkill(request);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}")
+    @Secured(Role.STAFF)
     public Response<String> updateSkill(
-            @PathVariable long id,
-            @RequestBody UpdateSkillRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateSkillRequestDTO request
     ) {
         skillService.update(id, request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     public Response<String> deleteSkill(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         skillService.deleteSkill(id);
         return Response.ok(null);

@@ -25,8 +25,7 @@ public class ExpertController {
     private final ExpertService expertService;
 
     @GetMapping("/match")
-    @Operation(description = "each nation = 2 point, each experience = 3 -> 6 point, each skills = (sum rating + default point) / (number rating + 1) <br>" +
-            "by: 1(nation), 2 (skill option), 3 (year experience)")
+    @Operation(description = "")
     public Response<List<ExpertMatchListResponseDTO>> matchExpert(
             @RequestParam(required = false) List<Long> skillOptionId,
             @RequestParam(required = false) List<String> nation,
@@ -38,7 +37,7 @@ public class ExpertController {
     }
 
     @GetMapping("/match-v2")
-    @Operation(description = "")
+    @Operation(description = "by: 1 year experience, 2 nation support, 3 skill")
     public Response<List<ExpertMatchListResponseDTO>> matchExpertV2(
             @RequestParam(required = false) List<Long> skillOptionId,
             @RequestParam(required = false) List<String> nation,
@@ -50,6 +49,7 @@ public class ExpertController {
     }
 
     @GetMapping("")
+    @Secured(Role.STAFF)
     @Operation(description = "sortBy: (field name):asc|desc. example: id:desc <br>" +
             "search: (key)(:|>|<)(value). example: id:11, bio:123")
     public Response<PageResponseDTO<ExpertAccountResponse>> getExpertList(
@@ -108,7 +108,6 @@ public class ExpertController {
         expertService.updateDescription(expertId, request);
         return Response.ok(null);
     }
-
 
     @PatchMapping("/accept-booking")
     @Secured(Role.EXPERT)

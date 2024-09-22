@@ -21,4 +21,6 @@ public interface ExpertQuestionCategoryService {
     List<ExpertQuestionCategoryListResponseDTO> get();
 
     boolean update(long id, UpdateExpertQuestionCategoryRequestDTO request, long expertId);
+
+    boolean updateStatus(long id, int status, long expertId);
 }

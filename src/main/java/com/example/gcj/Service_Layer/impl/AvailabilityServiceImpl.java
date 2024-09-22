@@ -13,6 +13,8 @@ import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Service_Layer.mapper.AvailabilityMapper;
 import com.example.gcj.Shared.util.status.AvailabilityStatus;
+import com.example.gcj.Shared.util.status.ExpertStatus;
+import com.example.gcj.Shared.util.status.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -98,6 +100,15 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Override
     public List<AvailabilityListResponseDTO> getValidDateToBooking(long expertId) {
+        Expert expert = expertRepository.getById(expertId);
+        if (expert == null) {
+            throw new CustomException("not found expert with id " + expertId);
+        }
+
+        if (expert.getStatus() != ExpertStatus.BOOKING || expert.getUser().getStatus() != UserStatus.ACTIVE) {
+            throw new CustomException("expert is not accept to booking");
+        }
+
         long minusToValidBooking = policyService.getByKey(PolicyKey.MINUS_TO_VALID_AVAILABILITY, Long.class);
         LocalDateTime now = LocalDateTime.now().plusMinutes(minusToValidBooking);
 

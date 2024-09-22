@@ -7,6 +7,7 @@ import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -23,6 +24,7 @@ public class BookingController {
     private final ExpertService expertService;
 
     @GetMapping("")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<List<BookingListResponseDTO>> get(
     ) {
@@ -51,28 +53,10 @@ public class BookingController {
         return Response.ok(response);
     }
 
-    @PatchMapping("/{id}/complete")
-    @Operation(description = "update to status 5")
-    public Response<String> completeBooking(
-            @PathVariable long id
-    ) {
-        bookingService.completeBooking(id);
-        return Response.ok(null);
-    }
-
-    @PatchMapping("/{id}/wait-to-feedback")
-    @Operation(description = "update to status 4")
-    public Response<String> endBooking(
-            @PathVariable long id
-    ) {
-        bookingService.endBooking(id);
-        return Response.ok(null);
-    }
-
     @GetMapping("/{id}")
     @Operation(description = "")
     public Response<BookingResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BookingResponseDTO response = bookingService.getById(id);
         return Response.ok(response);
@@ -82,22 +66,10 @@ public class BookingController {
     @Secured(Role.USER)
     @Operation(description = "")
     public Response<String> create(
-            @RequestBody CreateBookingRequestDTO request
+            @RequestBody @Valid CreateBookingRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         bookingService.create(customerId, request);
-        return Response.ok(null);
-    }
-
-    @PatchMapping("/{id}")
-    @Secured("role")
-    @Operation(description = "")
-    public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateBookingRequestDTO request
-    ) {
-
-        bookingService.update(id, request);
         return Response.ok(null);
     }
 
@@ -105,7 +77,7 @@ public class BookingController {
     @Secured({Role.USER})
     @Operation(description = "cancel by customer")
     public Response<String> cancelByCustomer(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long customerId = customerService.getCurrentCustomerId();
         bookingService.cancel(customerId, id);
@@ -116,7 +88,7 @@ public class BookingController {
     @Secured({Role.EXPERT})
     @Operation(description = "cancel by expert, will delete availability, only cancel when status is 2 and on valid time")
     public Response<String> cancelByExpert(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long expertId = expertService.getCurrentExpertId();
         bookingService.cancelByExpert(expertId, id);
@@ -127,7 +99,7 @@ public class BookingController {
     @Secured({Role.EXPERT})
     @Operation(description = "for expert only")
     public Response<String> acceptBooking(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long currentExpertId = expertService.getCurrentExpertId();
         bookingService.approve(currentExpertId, id);
@@ -138,8 +110,8 @@ public class BookingController {
     @Secured({Role.EXPERT})
     @Operation(description = "for expert when status is 1")
     public Response<String> rejectBooking(
-            @PathVariable long id,
-            @RequestBody RejectBookingRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid RejectBookingRequestDTO request
     ) {
         long currentExpertId = expertService.getCurrentExpertId();
         bookingService.reject(currentExpertId, id, request);
@@ -147,9 +119,10 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         bookingService.delete(id);
         return Response.ok(null);

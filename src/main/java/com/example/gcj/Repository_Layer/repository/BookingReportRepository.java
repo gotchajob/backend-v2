@@ -22,4 +22,6 @@ public interface BookingReportRepository extends JpaRepository<BookingReport, Lo
 
     @Query("SELECT br FROM BookingReport br INNER JOIN Booking b ON br.bookingId = b.id WHERE br.status != 0 AND b.customerId =:customerId")
     Page<BookingReport> findByCustomer(long customerId, Pageable pageable);
+
+    boolean existsByBookingIdAndStatus(long bookingId, int status);
 }

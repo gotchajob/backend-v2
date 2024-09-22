@@ -8,7 +8,7 @@ import com.example.gcj.Service_Layer.dto.booking_expert_feedback_question.Update
 import java.util.List;
 
 public interface BookingExpertFeedbackQuestionService {
-    boolean delete(long id);
+    boolean delete(long id, long expertId);
 
     boolean update(long id, UpdateBookingExpertFeedbackQuestionRequestDTO request, long expertId);
 

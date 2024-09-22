@@ -58,7 +58,9 @@ public class ExpertQuestionCategoryServiceImpl implements ExpertQuestionCategory
                 .category(request.getCategory())
                 .description(request.getDescription())
                 .createdBy(expertId)
+                .status(1)
                 .build();
+
         expertQuestionCategoryRepository.save(build);
         return true;
     }
@@ -106,5 +108,19 @@ public class ExpertQuestionCategoryServiceImpl implements ExpertQuestionCategory
         expertQuestionCategoryRepository.save(category);
 
         return true;
+    }
+
+    @Override
+    public boolean updateStatus(long id, int status, long expertId) {
+        ExpertQuestionCategory category = expertQuestionCategoryRepository.findById(id);
+        if (category == null) {
+            throw new CustomException("not found expert question category with id " + id);
+        }
+
+        if (category.getCreatedBy() != expertId) {
+            throw new CustomException("expert question category is not yours");
+        }
+
+        return false;
     }
 }

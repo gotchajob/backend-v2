@@ -1,7 +1,9 @@
 package com.example.gcj.Service_Layer.impl;
 
+import com.example.gcj.Repository_Layer.model.Booking;
 import com.example.gcj.Repository_Layer.model.BookingExpertFeedback;
 import com.example.gcj.Repository_Layer.repository.BookingExpertFeedbackRepository;
+import com.example.gcj.Repository_Layer.repository.BookingRepository;
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback.BookingExpertFeedbackListResponseDTO;
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback.BookingExpertFeedbackResponseDTO;
 import com.example.gcj.Service_Layer.dto.booking_expert_feedback.CreateBookingExpertFeedbackRequestDTO;
@@ -10,6 +12,7 @@ import com.example.gcj.Service_Layer.service.BookingExpertFeedbackAnswerService;
 import com.example.gcj.Service_Layer.service.BookingExpertFeedbackService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Service_Layer.mapper.BookingExpertFeedbackMapper;
+import com.example.gcj.Shared.util.status.BookingStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import java.util.List;
 public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackService {
     private final BookingExpertFeedbackRepository bookingExpertFeedbackRepository;
     private final BookingExpertFeedbackAnswerService bookingExpertFeedbackAnswerService;
+    private final BookingRepository bookingRepository;
 
     @Override
     public List<BookingExpertFeedbackListResponseDTO> get(Long bookingId) {
@@ -73,6 +77,23 @@ public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackSer
             throw new CustomException("bad request");
         }
 
+        Booking booking = bookingRepository.findById(requestDTO.getBookingId());
+        if (booking == null) {
+            throw new CustomException("not found booking with id " + requestDTO.getBookingId());
+        }
+        if (booking.getExpertId() != expertId) {
+            throw new CustomException("current expert not same with expert in booking!");
+        }
+        if (booking.getStatus() != BookingStatus.INTERVIEWING
+                && booking.getStatus() != BookingStatus.WAIT_TO_FEEDBACK
+                && booking.getStatus() != BookingStatus.COMPLETE) {
+            throw new CustomException("invalid booking status");
+        }
+
+        if (bookingExpertFeedbackRepository.existsByBookingIdAndStatus(booking.getId(), 1)) {
+            throw new CustomException("you are already feedback!");
+        }
+
         BookingExpertFeedback build = BookingExpertFeedback
                 .builder()
                 .bookingId(requestDTO.getBookingId())
@@ -88,10 +109,18 @@ public class BookingExpertFeedbackServiceIml implements BookingExpertFeedbackSer
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id, long expertId) {
         BookingExpertFeedback feedback = bookingExpertFeedbackRepository.findById(id);
         if (feedback == null) {
             throw new CustomException("not found booking expert feedback with id " + id);
+        }
+
+        Booking booking = bookingRepository.findById(feedback.getBookingId());
+        if (booking == null) {
+            throw new CustomException("not found booking with id " + feedback.getBookingId());
+        }
+        if (booking.getExpertId() != expertId) {
+            throw new CustomException("current expert not same with expert in booking!");
         }
 
         feedback.setStatus(0);

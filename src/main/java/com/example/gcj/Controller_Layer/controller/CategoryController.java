@@ -5,9 +5,11 @@ import com.example.gcj.Service_Layer.dto.category.CreateCategoryRequestDTO;
 import com.example.gcj.Service_Layer.dto.category.UpdateCategoryRequestDTO;
 import com.example.gcj.Service_Layer.service.CategoryService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class CategoryController {
     }
 
     @PostMapping("")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<String> create(
             @RequestBody @Valid CreateCategoryRequestDTO request
@@ -34,6 +37,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<String> update(
             @PathVariable long id,
@@ -44,6 +48,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<String> delete(
             @PathVariable long id

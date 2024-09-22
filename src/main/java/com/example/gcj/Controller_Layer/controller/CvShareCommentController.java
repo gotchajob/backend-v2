@@ -41,7 +41,7 @@ public class CvShareCommentController {
     @GetMapping("/{id}")
     @Operation(description = "coming soon")
     public Response<CvCommentResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         CvCommentResponseDTO response = cvShareCommentService.getById(id);
         return Response.ok(response);

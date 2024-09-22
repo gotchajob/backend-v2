@@ -34,7 +34,7 @@ public class AvailabilityController {
     @GetMapping("/expert/{expertId}/valid-date-to-booking")
     @Operation(description = "")
     public Response<List<AvailabilityListResponseDTO>> getValidDate(
-            @PathVariable long expertId
+            @PathVariable @Min(1) long expertId
     ) {
         List<AvailabilityListResponseDTO> response = availabilityService.getValidDateToBooking(expertId);
         return Response.ok(response);
@@ -52,6 +52,7 @@ public class AvailabilityController {
     }
 
     @GetMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<AvailabilityResponseDTO> getById(
             @PathVariable long id
@@ -62,22 +63,12 @@ public class AvailabilityController {
 
     @PostMapping("")
     @Secured(Role.EXPERT)
-    @Operation(description = "Must be created 5 days before the interview begins, not be overlapping, start time < endTime")
+    @Operation(description = "")
     public Response<String> create(
         @RequestBody CreateAvailabilityListRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         availabilityService.create(expertId, request.getRequest());
-        return Response.ok(null);
-    }
-
-    @PatchMapping("/{id}")//todo: finish this
-    @Secured("role")
-    @Operation(description = "")
-    public Response<String> update(
-            @PathVariable long id
-    ) {
-
         return Response.ok(null);
     }
 

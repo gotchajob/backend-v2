@@ -12,6 +12,7 @@ import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import com.example.gcj.Shared.util.status.CvShareStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -81,9 +82,10 @@ public class CvShareController {
     @Secured(Role.USER)
     @Operation(description = "")
     public Response<CvShareResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
-        CvShareResponseDTO response = cvShareService.getById(id);
+        long customerId = customerService.getCurrentCustomerId();
+        CvShareResponseDTO response = cvShareService.getById(id, customerId);
         return Response.ok(response);
     }
 
@@ -91,16 +93,17 @@ public class CvShareController {
     @Secured(Role.USER)
     @Operation(description = "")
     public Response<List<CvShareRatingListResponseDTO>> getRating(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         List<CvShareRatingListResponseDTO> response = cvShareService.getRating(id);
         return Response.ok(response);
     }
 
     @PostMapping("")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> create(
-            @RequestBody CreateCvShareRequestDTO request
+            @RequestBody @Valid CreateCvShareRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         cvShareService.create(request, customerId);
@@ -108,40 +111,48 @@ public class CvShareController {
     }
 
     @PatchMapping("/{id}")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateCvShareRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateCvShareRequestDTO request
     ) {
-        cvShareService.update(id, request);
+        long customerId = customerService.getCurrentCustomerId();
+        cvShareService.update(id, request, customerId);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}/hidden")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> hidden(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
-        cvShareService.updateStatus(id, CvShareStatus.HIDDEN);
+        long customerId = customerService.getCurrentCustomerId();
+        cvShareService.updateStatus(id, CvShareStatus.HIDDEN, customerId);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}/cancel-hidden")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> cancelHidden(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
-        cvShareService.updateStatus(id, CvShareStatus.SHARE);
+        long customerId = customerService.getCurrentCustomerId();
+        cvShareService.updateStatus(id, CvShareStatus.SHARE, customerId);
         return Response.ok(null);
     }
 
 
     @DeleteMapping("/{id}")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
-        cvShareService.delete(id);
+        long customerId = customerService.getCurrentCustomerId();
+        cvShareService.delete(id, customerId);
         return Response.ok(null);
     }
 }

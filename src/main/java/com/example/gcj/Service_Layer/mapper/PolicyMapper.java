@@ -15,6 +15,7 @@ public class PolicyMapper {
                 .id(policy.getId())
                 .key(policy.getKey())
                 .value(policy.getValue())
+                .description(policy.getDescription())
                 .build();
     }
 

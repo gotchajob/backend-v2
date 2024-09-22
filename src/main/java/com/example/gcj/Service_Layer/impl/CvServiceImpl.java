@@ -7,6 +7,7 @@ import com.example.gcj.Repository_Layer.repository.CvTemplateRepository;
 import com.example.gcj.Repository_Layer.repository.SearchRepository;
 import com.example.gcj.Service_Layer.dto.cv.*;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
+import com.example.gcj.Service_Layer.service.CustomerService;
 import com.example.gcj.Service_Layer.service.CvService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Status;
@@ -24,7 +25,7 @@ public class CvServiceImpl implements CvService {
     private final CvRepository cvRepository;
     private final SearchRepository searchRepository;
     private final CvTemplateRepository cvTemplateRepository;
-
+    private final CustomerService customerService;
 
     @Override
     public List<CVListResponseDTO> getByCustomerId(long customerId) {
@@ -61,7 +62,13 @@ public class CvServiceImpl implements CvService {
         if (request == null) {
             throw new CustomException("invalid request");
         }
-        //todo: check number of cv
+
+        int maxCv = customerService.getMaxCv(customerId);
+        long numberCv = cvRepository.countByStatusNotAndCustomerId(0, customerId);
+        if (numberCv >= maxCv) {
+            throw new CustomException("You have reached your CV creation limit");
+        }
+
         CvTemplate cvTemplate = cvTemplateRepository.findById(request.getCvTemplateId());
         if (cvTemplate == null) {
             throw new CustomException("not found cv template with id " + request.getCvTemplateId());

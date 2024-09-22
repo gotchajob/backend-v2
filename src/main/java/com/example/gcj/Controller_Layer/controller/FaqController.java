@@ -6,9 +6,12 @@ import com.example.gcj.Service_Layer.dto.faq.UpdateFaqRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.FaqService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,17 +30,19 @@ public class FaqController {
     }
 
     @PostMapping("")
+    @Secured(Role.STAFF)
     public Response<String> createFaq(
-            @RequestBody CreateFaqRequestDTO request
+            @RequestBody @Valid CreateFaqRequestDTO request
     ) {
         faqService.createFaq(request);
         return Response.ok(null);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
+    @Secured(Role.STAFF)
     public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateFaqRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateFaqRequestDTO request
     ) {
         faqService.updateFaq(id, request);
         return Response.ok(null);

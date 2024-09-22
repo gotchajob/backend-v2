@@ -212,7 +212,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean bookingPayment(double cost, long bookingId) {
         Account currentAccount = getCurrentAccount();
-        if (cost < currentAccount.getBalance()) {
+        if (cost > currentAccount.getBalance()) {
             throw new CustomException("not enough money in account");
         }
 
@@ -256,6 +256,12 @@ public class AccountServiceImpl implements AccountService {
         transactionRepository.save(transaction);
 
         return true;
+    }
+
+    @Override
+    public double getCurrentBalance() {
+        Account currentAccount = getCurrentAccount();
+        return currentAccount.getBalance();
     }
 
     private Transaction checkTransactionWithDraw(long transactionId) {

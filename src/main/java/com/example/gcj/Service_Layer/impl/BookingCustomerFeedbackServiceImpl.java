@@ -11,6 +11,7 @@ import com.example.gcj.Service_Layer.mapper.BookingCustomerFeedbackMapper;
 import com.example.gcj.Service_Layer.service.*;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
+import com.example.gcj.Shared.util.status.BookingStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,15 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
         }
         if (booking.getCustomerId() != customerId) {
             throw new CustomException("current customer not same with customer id in booking");
+        }
+        if (booking.getStatus() != BookingStatus.INTERVIEWING
+                && booking.getStatus() != BookingStatus.WAIT_TO_FEEDBACK
+                && booking.getStatus() != BookingStatus.COMPLETE) {
+            throw new CustomException("booking invalid status!");
+        }
+
+        if (bookingCustomerFeedbackRepository.existsByBookingIdAndStatus(booking.getId(), 1)) {
+            throw new CustomException("you are already feedback!");
         }
 
         BookingCustomerFeedback build = BookingCustomerFeedback
@@ -109,10 +119,20 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id, long customerId) {
+
         BookingCustomerFeedback feedback = bookingCustomerFeedbackRepository.findById(id);
         if (feedback == null) {
             throw new CustomException("not found booking customer feedback with id " + id);
+        }
+
+        Booking booking = bookingRepository.findById(feedback.getBookingId());
+        if (booking == null) {
+            throw new CustomException("not found booking with id " + feedback.getBookingId());
+        }
+
+        if (booking.getCustomerId() != customerId) {
+            throw new CustomException("current customer not same with customer id in booking t");
         }
 
         feedback.setStatus(0);

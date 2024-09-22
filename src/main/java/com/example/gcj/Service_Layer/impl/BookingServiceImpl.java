@@ -17,6 +17,7 @@ import com.example.gcj.Shared.util.status.ExpertStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +38,6 @@ public class BookingServiceImpl implements BookingService {
     private final EmailService emailService;
     private final AccountService accountService;
     private final ExpertService expertService;
-    private final BookingTicketService bookingTicketService;
 
     @Override
     public void delete(long id) {
@@ -49,13 +49,19 @@ public class BookingServiceImpl implements BookingService {
         return false;
     }
 
+    @Transactional
     @Override
     public boolean create(long customerId, CreateBookingRequestDTO request) {
         if (request == null) {
             throw new CustomException("request is null");
         }
-        //check overlap booking
+
         double cost = checkExpertAndGetCost(request.getExpertId());
+        double currentBalance = accountService.getCurrentBalance();
+        if (currentBalance < cost) {
+            throw new CustomException("not enough balance");
+        }
+
         checkBookingDate(request.getAvailabilityId(), request.getExpertId(), customerId);
         checkBookingCv(request.getCustomerCvId(), customerId);
 
@@ -103,7 +109,7 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("invalid availability. current status is " + availability.getStatus());
         }
 
-        if (availability.getExpertId() != availabilityId) {
+        if (availability.getExpertId() != expertId) {
             throw new CustomException("expert in availability not same with expert in request");
         }
 
@@ -149,7 +155,12 @@ public class BookingServiceImpl implements BookingService {
                 : bookingRepository.getByCustomerIdAndStatus(customerId, status);
 
         long minusToCancelBooking = getMinusToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        for (BookingListResponseDTO item : list) {
+            item.setExpertInfo(expertRepository.getExpertInfo(item.getExpertId()));
+        }
+
+        return list;
     }
 
     @Override

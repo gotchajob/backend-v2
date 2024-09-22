@@ -4,8 +4,11 @@ import com.example.gcj.Service_Layer.dto.cv_category.CreateCvCategoryRequestDTO;
 import com.example.gcj.Service_Layer.dto.cv_category.CvCategoryListResponseDTO;
 import com.example.gcj.Service_Layer.service.CvCategoryService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,16 +36,18 @@ public class CvCategoryController {
     }
 
     @PostMapping("")
+    @Secured(Role.STAFF)
     public Response<String> create(
-            @RequestBody CreateCvCategoryRequestDTO request
+            @RequestBody @Valid CreateCvCategoryRequestDTO request
     ) {
         cvCategoryService.create(request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         cvCategoryService.delete(id);
         return Response.ok(null);

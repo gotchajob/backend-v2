@@ -34,7 +34,7 @@ public class BookingExpertFeedbackController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BookingExpertFeedbackResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BookingExpertFeedbackResponseDTO response = bookingExpertFeedbackService.getById(id);
         return Response.ok(response);
@@ -43,7 +43,7 @@ public class BookingExpertFeedbackController {
     @GetMapping("/by-booking/{bookingId}")
     @Operation(description = "finish")
     public Response<BookingExpertFeedbackResponseDTO> getByBookingId(
-            @PathVariable long bookingId
+            @PathVariable @Min(1) long bookingId
     ) {
         BookingExpertFeedbackResponseDTO response = bookingExpertFeedbackService.getByBookingId(bookingId);
         return Response.ok(response);
@@ -60,21 +60,14 @@ public class BookingExpertFeedbackController {
         return Response.ok(null);
     }
 
-    @PatchMapping("/{id}")
-    @Operation(description = "coming soon")
-    public Response<String> update(
-            @PathVariable long id
-    ) {
-
-        return Response.ok(null);
-    }
-
     @DeleteMapping("/{id}")
+    @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> delete(
             @PathVariable long id
     ) {
-        bookingExpertFeedbackService.delete(id);
+        long expertId = expertService.getCurrentExpertId();
+        bookingExpertFeedbackService.delete(id, expertId);
         return Response.ok(null);
     }
 }

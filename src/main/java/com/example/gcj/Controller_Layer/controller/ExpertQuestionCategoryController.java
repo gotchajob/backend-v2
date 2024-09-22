@@ -9,6 +9,8 @@ import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +45,7 @@ public class ExpertQuestionCategoryController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<ExpertQuestionCategoryResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         ExpertQuestionCategoryResponseDTO response = expertQuestionCategoryService.getById(id);
         return Response.ok(response);
@@ -53,7 +55,7 @@ public class ExpertQuestionCategoryController {
     @Secured(Role.EXPERT)
     @Operation(description = "finish, role: expert")
     public Response<String> create(
-            @RequestBody CreateExpertQuestionCategoryRequestDTO request
+            @RequestBody @Valid CreateExpertQuestionCategoryRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertQuestionCategoryService.create(expertId, request);
@@ -64,11 +66,33 @@ public class ExpertQuestionCategoryController {
     @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateExpertQuestionCategoryRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateExpertQuestionCategoryRequestDTO request
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertQuestionCategoryService.update(id, request, expertId);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/{id}/disable")
+    @Secured(Role.EXPERT)
+    @Operation(description = "finish")
+    public Response<String> disable(
+            @PathVariable @Min(1) long id
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        expertQuestionCategoryService.updateStatus(id, 2, expertId);
+        return Response.ok(null);
+    }
+
+    @PatchMapping("/{id}/enable")
+    @Secured(Role.EXPERT)
+    @Operation(description = "finish")
+    public Response<String> enable(
+            @PathVariable @Min(1) long id
+    ) {
+        long expertId = expertService.getCurrentExpertId();
+        expertQuestionCategoryService.updateStatus(id, 1, expertId);
         return Response.ok(null);
     }
 
@@ -76,7 +100,7 @@ public class ExpertQuestionCategoryController {
     @Secured(Role.EXPERT)
     @Operation(description = "finish")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long expertId = expertService.getCurrentExpertId();
         expertQuestionCategoryService.delete(id, expertId);

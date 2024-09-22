@@ -41,6 +41,7 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
                 .builder()
                 .category(request.getCategory())
                 .description(request.getDescription())
+                .status(1)
                 .build();
         blogCategoryRepository.save(build);
 
@@ -63,9 +64,11 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
 
     @Override
     public boolean delete(long id) {
-        get(id);
-        
-        blogCategoryRepository.deleteById(id);
+        BlogCategory blogCategory = get(id);
+
+        blogCategory.setStatus(0);
+        blogCategoryRepository.save(blogCategory);
+
         return true;
     }
     

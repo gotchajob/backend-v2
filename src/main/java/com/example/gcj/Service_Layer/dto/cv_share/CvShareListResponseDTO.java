@@ -19,9 +19,10 @@ public class CvShareListResponseDTO {
     private String cvImage;
     private long categoryId;
     private String category;
+    private int status;
     private Date createdAt;
 
-    private List<CvShareRatingListResponseDTO> cvShareRating;
+    private List<CvShareRatingListResponseDTO> rating;
 
     private UserInfoResponseDTO userInfo;
 }

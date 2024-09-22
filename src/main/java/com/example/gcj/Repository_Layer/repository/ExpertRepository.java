@@ -2,6 +2,7 @@ package com.example.gcj.Repository_Layer.repository;
 
 import com.example.gcj.Repository_Layer.model.Expert;
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
+import com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -40,10 +41,10 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
             "(CASE WHEN e.personalPoint >= :personalPoint THEN :weightPersonalPoint ELSE 0 END)) AS point) " +
             "FROM Expert e " +
             "JOIN e.user u " +
-            "WHERE u.status = 1 AND e.status = 1 AND (:main IS NULL OR " +
+            "WHERE e.status = 1 AND e.personalPoint >= :personalPoint AND u.status = 1 AND e.status = 1 AND (:main IS NULL OR " +
             "(:main = 1 AND e.yearExperience >= :yearExperience) OR " +
-            "(:main = 2 AND EXISTS (SELECT 1 FROM ExpertNationSupport ens WHERE ens.expertId = e.id AND ens.nation IN :nations)) OR " +
-            "(:main = 3 AND EXISTS (SELECT 1 FROM ExpertSkillOption eso WHERE eso.expertId = e.id AND eso.skillOption.id IN :skillOptionIds))) " +
+            "(:main = 2 AND EXISTS (SELECT 1 FROM ExpertNationSupport ens WHERE ens.expertId = e.id AND ens.nation IN :nations AND ens.status = 1)) OR " +
+            "(:main = 3 AND EXISTS (SELECT 1 FROM ExpertSkillOption eso WHERE eso.expertId = e.id AND eso.skillOption.id IN :skillOptionIds AND eso.status = 1))) " +
             "GROUP BY e.id, u.id " +
             "ORDER BY point DESC, e.personalPoint DESC")
     List<ExpertMatchListResponseDTO> findMatchingExperts(
@@ -61,5 +62,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Query("SELECT e FROM Expert e JOIN User u WHERE u.email =: email AND e.status != 0")
     Expert getByEmail(String email);
+    @Query("SELECT new com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO(u.id, u.firstName, u.lastName, u.email, u.avatar) FROM Expert e JOIN User u ON e.user.id = u.id WHERE e.id =:expertId AND e.status != 0")
+    UserInfoResponseDTO getExpertInfo(long expertId);
 
 }

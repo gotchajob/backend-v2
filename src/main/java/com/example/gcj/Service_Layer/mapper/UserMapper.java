@@ -1,8 +1,9 @@
 package com.example.gcj.Service_Layer.mapper;
 
+import com.example.gcj.Repository_Layer.model.User;
+import com.example.gcj.Service_Layer.dto.staff.StaffListResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserListResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserProfileDTO;
-import com.example.gcj.Repository_Layer.model.User;
 
 public class UserMapper {
     public static UserListResponseDTO toDto(User user) {
@@ -24,6 +25,21 @@ public class UserMapper {
                 .build();
     }
 
+    public static StaffListResponseDTO staffDTO(User user) {
+        if (user == null) {
+            return StaffListResponseDTO.builder().build();
+        }
+
+        return StaffListResponseDTO.builder()
+                .id(user.getId())
+                .avatar(user.getAvatar())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .status(user.getStatus())
+                .build();
+    }
+
     public static UserProfileDTO toUserProfile(User user) {
         if (user == null) {
             return UserProfileDTO.builder().build();
@@ -33,6 +49,8 @@ public class UserMapper {
                 .id(user.getId())
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .avatar(user.getAvatar())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .address(user.getAddress())

@@ -8,6 +8,8 @@ import com.example.gcj.Service_Layer.service.BookingRejectSuggestService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -39,31 +41,31 @@ public class BookingRejectSuggestController {
     }
 
     @PostMapping("")
-    //@Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: STAFF")
     public Response<String> create(
-            @RequestBody CreateBookingRejectSuggestRequestDTO request
+            @RequestBody @Valid CreateBookingRejectSuggestRequestDTO request
     ) {
         bookingRejectSuggestService.create(request);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: STAFF")
     public Response<String> update(
-            @PathVariable long id,
-            @RequestBody UpdateBookingRejectSuggestRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateBookingRejectSuggestRequestDTO request
     ) {
         bookingRejectSuggestService.update(id, request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
-    @Secured(Role.ADMIN)
-    @Operation(description = "role: admin")
+    @Secured(Role.STAFF)
+    @Operation(description = "role: STAFF")
     public Response<String> delete(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         bookingRejectSuggestService.delete(id);
         return Response.ok(null);

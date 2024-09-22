@@ -27,4 +27,9 @@ public interface CvRepository extends JpaRepository<Cv, Long> {
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.status = :status AND MONTH(b.createdAt) = :month")
     Long countByStatusAndCreatedAtMonth(@Param("status") int status, @Param("month") int month);
+
+    long countByStatusNotAndCustomerId(int status, long customer);
+
+    @Query("SELECT cc.id FROM Cv c INNER JOIN CvTemplate ct ON c.cvTemplateId = ct.id INNER JOIN CvCategory cc ON ct.categoryId = cc.id WHERE c.id =:cvId ")
+    long getCvCategoryId(long cvId);
 }

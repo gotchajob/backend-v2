@@ -9,4 +9,6 @@ public class PolicyListResponseDTO {
     private long id;
     private String key;
     private String value;
+    private String description;
+
 }

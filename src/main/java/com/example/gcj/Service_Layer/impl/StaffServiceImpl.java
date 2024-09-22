@@ -26,6 +26,7 @@ public class StaffServiceImpl implements StaffService {
         return staffId;
     }
 
+    @Override
     public Staff createDefault(long userId) {
         Staff build = Staff
                 .builder()

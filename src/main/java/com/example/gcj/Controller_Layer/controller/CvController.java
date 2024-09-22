@@ -7,6 +7,7 @@ import com.example.gcj.Service_Layer.service.CvService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -48,7 +49,7 @@ public class CvController {
     @Secured(Role.USER)
     @Operation(description = "role: user")
     public Response<CvResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long customerId = customerService.getCurrentCustomerId();
         CvResponseDTO response = cvService.getById(customerId, id);
@@ -59,7 +60,7 @@ public class CvController {
     @Secured(Role.USER)
     @Operation(description = "role: user")
     public Response<CreateCvResponseDTO> create(
-            @RequestBody CreateCvRequestDTO request
+            @RequestBody @Valid CreateCvRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         CreateCvResponseDTO response =  cvService.create(customerId, request);
@@ -70,8 +71,8 @@ public class CvController {
     @Secured({Role.USER})
     @Operation(description = "role: user")
     public Response<String> updateCv(
-            @PathVariable long id,
-            @RequestBody UpdateCvRequestDTO request
+            @PathVariable @Min(1) long id,
+            @RequestBody @Valid UpdateCvRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         cvService.update(customerId, id, request);
@@ -81,7 +82,7 @@ public class CvController {
     @Secured({Role.USER})
     @Operation(description = "role: user. if not share -> share. share -> not share")
     public Response<String> updateToShare(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long customerId = customerService.getCurrentCustomerId();
         cvService.updateToShare(customerId, id);
@@ -92,7 +93,7 @@ public class CvController {
     @Secured({Role.USER})
     @Operation(description = "role: user")
     public Response<String> deleteCv(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         long customerId = customerService.getCurrentCustomerId();
         cvService.delete(customerId, id);

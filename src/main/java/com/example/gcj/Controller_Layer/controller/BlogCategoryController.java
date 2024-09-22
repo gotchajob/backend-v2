@@ -6,8 +6,11 @@ import com.example.gcj.Service_Layer.dto.blog_category.CreateBlogCategoryRequest
 import com.example.gcj.Service_Layer.dto.blog_category.UpdateBlogCategoryRequestDTO;
 import com.example.gcj.Service_Layer.service.BlogCategoryService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,25 +39,28 @@ public class BlogCategoryController {
     }
 
     @PostMapping("")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> create(
-            @RequestBody CreateBlogCategoryRequestDTO request
+            @RequestBody @Valid CreateBlogCategoryRequestDTO request
     ) {
         blogCategoryService.create(request);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> update(
             @PathVariable long id,
-            @RequestBody UpdateBlogCategoryRequestDTO request
+            @RequestBody @Valid UpdateBlogCategoryRequestDTO request
     ) {
         blogCategoryService.update(id, request);
         return Response.ok(null);
     }
 
     @DeleteMapping("/{id}")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<String> delete(
             @PathVariable long id

@@ -10,7 +10,7 @@ public interface BookingReportService {
 
     BookingReportResponseDTO getById(long id);
 
-    boolean create(CreateBookingReportRequestDTO request);
+    boolean create(CreateBookingReportRequestDTO request, long customerId);
 
     boolean update(long id, UpdateBookingReportRequestDTO request);
 

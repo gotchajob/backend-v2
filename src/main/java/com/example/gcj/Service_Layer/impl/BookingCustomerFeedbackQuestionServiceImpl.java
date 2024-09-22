@@ -4,11 +4,11 @@ import com.example.gcj.Repository_Layer.model.BookingCustomerFeedbackQuestion;
 import com.example.gcj.Repository_Layer.repository.BookingCustomerFeedbackQuestionRepository;
 import com.example.gcj.Service_Layer.dto.booking_customer_feedback_question.BookingCustomerFeedbackQuestionListResponseDTO;
 import com.example.gcj.Service_Layer.dto.booking_customer_feedback_question.BookingCustomerFeedbackQuestionResponseDTO;
-import com.example.gcj.Service_Layer.dto.booking_expert_feedback_question.CreateBookingExpertFeedbackQuestionRequestDTO;
-import com.example.gcj.Service_Layer.dto.booking_expert_feedback_question.UpdateBookingExpertFeedbackQuestionRequestDTO;
+import com.example.gcj.Service_Layer.dto.booking_customer_feedback_question.CreateBookingCustomerFeedbackQuestionRequestDTO;
+import com.example.gcj.Service_Layer.dto.booking_customer_feedback_question.UpdateBookingCustomerFeedbackQuestionRequestDTO;
+import com.example.gcj.Service_Layer.mapper.BookingCustomerFeedbackQuestionMapper;
 import com.example.gcj.Service_Layer.service.BookingCustomerFeedbackQuestionService;
 import com.example.gcj.Shared.exception.CustomException;
-import com.example.gcj.Service_Layer.mapper.BookingCustomerFeedbackQuestionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +21,19 @@ public class BookingCustomerFeedbackQuestionServiceImpl implements BookingCustom
 
     @Override
     public boolean delete(long id) {
-        if (!bookingCustomerFeedbackQuestionRepository.existsById(id)) {
+        BookingCustomerFeedbackQuestion bookingCustomerFeedbackQuestion = bookingCustomerFeedbackQuestionRepository.findById(id);
+        if (bookingCustomerFeedbackQuestion == null) {
             throw new CustomException("not found with id " + id);
         }
 
-        bookingCustomerFeedbackQuestionRepository.deleteById(id);
+        bookingCustomerFeedbackQuestion.setStatus(0);
+        bookingCustomerFeedbackQuestionRepository.save(bookingCustomerFeedbackQuestion);
+
         return true;
     }
 
     @Override
-    public boolean update(long id, UpdateBookingExpertFeedbackQuestionRequestDTO requestDTO) {
+    public boolean update(long id, UpdateBookingCustomerFeedbackQuestionRequestDTO requestDTO) {
         BookingCustomerFeedbackQuestion byId = bookingCustomerFeedbackQuestionRepository.findById(id);
         if (byId == null) {
             throw new CustomException("not found with id " + id);
@@ -44,11 +47,12 @@ public class BookingCustomerFeedbackQuestionServiceImpl implements BookingCustom
     }
 
     @Override
-    public boolean create(CreateBookingExpertFeedbackQuestionRequestDTO requestDTO) {
+    public boolean create(CreateBookingCustomerFeedbackQuestionRequestDTO requestDTO) {
         BookingCustomerFeedbackQuestion build = BookingCustomerFeedbackQuestion
                 .builder()
                 .question(requestDTO.getQuestion())
                 .type(requestDTO.getType())
+                .status(1)
                 .build();
         bookingCustomerFeedbackQuestionRepository.save(build);
 

@@ -6,6 +6,7 @@ import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -53,7 +54,7 @@ public class CvTemplateController {
     @Secured(Role.STAFF)
     @Operation(description = "role: staff")
     public Response<String> create(
-            @RequestBody CreateCvTemplateRequestDTO request
+            @RequestBody @Valid CreateCvTemplateRequestDTO request
     ) {
         long userId = userService.getCurrentUserId();
         cvTemplateService.create(userId, request);
@@ -65,7 +66,7 @@ public class CvTemplateController {
     @Operation(description = "role: staff")
     public Response<String> update(
             @PathVariable @Min(1) long id,
-            @RequestBody UpdateCvTemplateRequestDTO request
+            @RequestBody @Valid UpdateCvTemplateRequestDTO request
     ) {
         cvTemplateService.update(id, request);
         return Response.ok(null);

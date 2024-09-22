@@ -8,6 +8,7 @@ import com.example.gcj.Service_Layer.service.ExpertService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -47,7 +48,7 @@ public class BookingCustomerFeedbackController {
     @GetMapping("/total-rating/{expertId}")
     @Operation(description = "")
     public Response<List<BookingCustomerFeedbackTotalRatingResponseDTO>> getTotalRatingByExpertId(
-            @PathVariable long expertId
+            @PathVariable @Min(1) long expertId
     ) {
         List<BookingCustomerFeedbackTotalRatingResponseDTO> response = bookingCustomerFeedbackService.totalRatingByExpert(expertId);
         return Response.ok(response);
@@ -69,7 +70,7 @@ public class BookingCustomerFeedbackController {
     @GetMapping("/{id}")
     @Operation(description = "finish")
     public Response<BookingCustomerFeedbackResponseDTO> getById(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         BookingCustomerFeedbackResponseDTO responseDTO = bookingCustomerFeedbackService.getById(id);
         return Response.ok(responseDTO);
@@ -78,7 +79,7 @@ public class BookingCustomerFeedbackController {
     @GetMapping("/by-booking/{bookingId}")
     @Operation(description = "finish")
     public Response<BookingCustomerFeedbackResponseDTO> getByBookingId(
-            @PathVariable long bookingId
+            @PathVariable @Min(1) long bookingId
     ) {
         BookingCustomerFeedbackResponseDTO responseDTO = bookingCustomerFeedbackService.getByBookingId(bookingId);
         return Response.ok(responseDTO);
@@ -88,28 +89,21 @@ public class BookingCustomerFeedbackController {
     @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> create(
-            @RequestBody CreateBookingCustomerFeedbackRequestDTO request
+            @RequestBody @Valid CreateBookingCustomerFeedbackRequestDTO request
     ) {
         long customerId = customerService.getCurrentCustomerId();
         bookingCustomerFeedbackService.create(customerId, request);
         return Response.ok(null);
     }
 
-    @PatchMapping("/{id}")
-    @Operation(description = "not finish")
-    public Response<String> update(
-            @PathVariable long id
-    ) {
-
-        return Response.ok(null);
-    }
-
     @DeleteMapping("/{id}")
+    @Secured(Role.USER)
     @Operation(description = "finish")
     public Response<String> delete(
             @PathVariable long id
     ) {
-        bookingCustomerFeedbackService.delete(id);
+        long customerId = customerService.getCurrentCustomerId();
+        bookingCustomerFeedbackService.delete(id, customerId);
         return Response.ok(null);
     }
 }

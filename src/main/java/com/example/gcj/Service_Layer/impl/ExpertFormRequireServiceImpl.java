@@ -21,7 +21,6 @@ public class ExpertFormRequireServiceImpl implements ExpertFormRequireService {
     private final ExpertFormRequireRepository expertFormRequireRepository;
     private final CategoryRepository categoryRepository;
 
-
     @Override
     public boolean create(CreateExpertFormRequireRequestDTO request) {
         if (request == null) {

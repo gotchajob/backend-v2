@@ -3,9 +3,11 @@ package com.example.gcj.Controller_Layer.controller;
 import com.example.gcj.Service_Layer.dto.dash_board.*;
 import com.example.gcj.Service_Layer.service.DashBoardService;
 import com.example.gcj.Shared.util.Response;
+import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +22,7 @@ public class DashBoardController {
     private final DashBoardService dashBoardService;
 
     @GetMapping("/total-money")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<TotalMoneyTypeResponseDTO> getTotalMoney(
     ) {
@@ -28,6 +31,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/deposit")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<TransactionAmountDashBoardResponseDTO>> depositDashBoard(
             @RequestParam  int year
@@ -37,6 +41,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/revenue")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<TransactionAmountDashBoardResponseDTO>> revenueDashBoard(
             @RequestParam  int year
@@ -46,6 +51,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/total-booking")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<TotalBookingResponseDTO> totalBooking(
     ) {
@@ -54,6 +60,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/total-expert")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<TotalExpertResponseDTO> totalExpert(
     ) {
@@ -62,6 +69,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/expert")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<ExpertDashboardResponseDTO>> expertDashboard(
     ) {
@@ -70,6 +78,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/cv-template")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<CountCvTemplateDashBoardResponseDTO>> countCvTemplate(
     ) {
@@ -78,6 +87,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/cv")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<CountCvUsedDashBoardResponseDTO>> countCv(
     ) {
@@ -86,6 +96,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/total-cv")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<TotalCvResponseDTO> totalCv(
     ) {
@@ -94,6 +105,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/booking")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<BookingDashboardResponseDTO>> bookingDashboard(
             @RequestParam int year
@@ -102,6 +114,7 @@ public class DashBoardController {
         return Response.ok(response);
     }
     @GetMapping("/top-cv-template")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<TopUseCvTemplateResponseDTO>> topCvTemplate(
             @RequestParam(required = false, defaultValue = "asc") String sort,
@@ -112,6 +125,7 @@ public class DashBoardController {
     }
 
     @GetMapping("/top-expert")
+    @Secured(Role.STAFF)
     @Operation(description = "finish")
     public Response<List<TopExpertResponseDTO>> topExpert(
             @RequestParam(required = false, defaultValue = "5")  int size
@@ -119,11 +133,5 @@ public class DashBoardController {
         List<TopExpertResponseDTO> response = dashBoardService.topExpert(size);
         return Response.ok(response);
     }
-
-
-
-
-
-
 
 }

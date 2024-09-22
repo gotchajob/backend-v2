@@ -18,4 +18,5 @@ public class BookingExpertFeedbackQuestion {
     @ManyToOne(fetch = FetchType.LAZY)
     private ExpertQuestionCategory category;
     private long createdBy;
+    private int status;
 }

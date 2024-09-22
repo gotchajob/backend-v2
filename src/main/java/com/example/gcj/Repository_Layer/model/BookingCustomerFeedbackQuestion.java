@@ -18,4 +18,5 @@ public class BookingCustomerFeedbackQuestion {
     private long id;
     private String question;
     private String type;
+    private int status;
 }

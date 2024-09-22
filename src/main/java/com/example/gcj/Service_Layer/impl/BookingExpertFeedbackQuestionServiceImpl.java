@@ -23,12 +23,19 @@ public class BookingExpertFeedbackQuestionServiceImpl implements BookingExpertFe
     private final ExpertQuestionCategoryRepository expertQuestionCategoryRepository;
 
     @Override
-    public boolean delete(long id) {
-        if (!bookingExpertFeedbackQuestionRepository.existsById(id)) {
-            throw new CustomException("not found with id " + id);
+    public boolean delete(long id, long expertId) {
+        BookingExpertFeedbackQuestion feedbackQuestion = bookingExpertFeedbackQuestionRepository.findById(id);
+        if (feedbackQuestion == null) {
+            throw new CustomException("not found feedback question with id " + id);
         }
 
-        bookingExpertFeedbackQuestionRepository.deleteById(id);
+        if (feedbackQuestion.getCreatedBy() != expertId) {
+            throw new CustomException("feedback question not belong yours");
+        }
+
+        feedbackQuestion.setStatus(0);
+        bookingExpertFeedbackQuestionRepository.save(feedbackQuestion);
+
         return true;
     }
 
@@ -73,6 +80,7 @@ public class BookingExpertFeedbackQuestionServiceImpl implements BookingExpertFe
                 .type(request.getType())
                 .category(new ExpertQuestionCategory(request.getCategoryId()))
                 .createdBy(expertId)
+                .status(1)
                 .build();
         BookingExpertFeedbackQuestion save = bookingExpertFeedbackQuestionRepository.save(build);
 

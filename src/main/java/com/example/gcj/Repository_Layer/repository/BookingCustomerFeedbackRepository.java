@@ -32,4 +32,6 @@ public interface BookingCustomerFeedbackRepository extends JpaRepository<Booking
             "FROM BookingCustomerFeedback bcf INNER JOIN Booking b ON  bcf.bookingId = b.id " +
             "WHERE (:expertId is null OR b.expertId =:expertId) AND bcf.status = 1 AND b.status != 0")
     Page<BookingCustomerFeedback> findByExpertId(Long expertId, Pageable pageable);
+
+    boolean existsByBookingIdAndStatus(long bookingId, int status);
 }

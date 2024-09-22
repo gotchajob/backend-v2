@@ -66,6 +66,7 @@ public class PolicyServiceImpl implements PolicyService {
         }
 
         policy.setValue(request.getValue());
+        policy.setDescription(request.getDescription());
         policyRepository.save(policy);
         return true;
     }

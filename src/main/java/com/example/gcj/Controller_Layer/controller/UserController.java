@@ -3,17 +3,16 @@ package com.example.gcj.Controller_Layer.controller;
 import com.example.gcj.Repository_Layer.model.User;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.*;
+import com.example.gcj.Service_Layer.mapper.UserMapper;
 import com.example.gcj.Service_Layer.service.UserService;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
-import com.example.gcj.Service_Layer.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +26,7 @@ public class UserController {
     @PostMapping("/login")
     @Operation(description = "Email: admin/user/expert + @gmail.com <br>Password: Test12345")
     public Response<LoginResponseDTO> login(
-            @RequestBody LoginRequestDTO request
+            @RequestBody @Valid LoginRequestDTO request
     ) {
         LoginResponseDTO responseDTO = userService.login(request);
         return Response.ok(responseDTO);
@@ -35,7 +34,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public Response<String> signup(
-            @RequestBody SignupRequestDTO request
+            @RequestBody @Valid SignupRequestDTO request
     ) {
         userService.signup(request);
         return Response.ok(null);
@@ -73,31 +72,21 @@ public class UserController {
         return Response.ok(userList);
     }
 
-    @GetMapping("/advance-search")
-    public Response<PageResponseDTO<UserListResponseDTO>> getByAdvanceSearch(
-            Pageable pageable,
-            @RequestParam(required = false) String[] user,
-            @RequestParam(required = false) String[] expert
-    ) {
-        PageResponseDTO<UserListResponseDTO> userList = userService.getByUserAndExpert(pageable, user, expert);
-        return Response.ok(userList);
-    }
-
     @PatchMapping("/{id}/ban")
-    //@Secured(Role.ADMIN)
+    @Secured(Role.STAFF)
     @Operation(description = "role: admin/super admin")
     public Response<String> banUser(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         userService.banUser(id);
         return Response.ok(null);
     }
 
     @PatchMapping("/{id}/unban")
-    //@Secured(Role.ADMIN)
+    @Secured(Role.STAFF)
     @Operation(description = "role: admin/super admin")
     public Response<String> unbanUser(
-            @PathVariable long id
+            @PathVariable @Min(1) long id
     ) {
         userService.unbanUser(id);
         return Response.ok(null);
@@ -108,7 +97,6 @@ public class UserController {
     @Secured({Role.ADMIN, Role.USER, Role.EXPERT})
     @Operation(description = "role: admin/expert/user")
     public Response<UserProfileDTO> getCurrentUser(
-
     ) {
         User user = userService.currentUser();
         UserProfileDTO userProfile = UserMapper.toUserProfile(user);
@@ -118,7 +106,7 @@ public class UserController {
     @GetMapping("/expert/{userId}")
     @Operation(description = "role: n/a")
     public Response<ExpertAccountResponse> getExpert(
-        @PathVariable long userId
+        @PathVariable @Min(1) long userId
     ) {
         ExpertAccountResponse response = userService.getExpert(userId);
         return Response.ok(response);
@@ -128,7 +116,7 @@ public class UserController {
     @Operation(description = "role: n/a <br>" +
             "200: exist email")
     public Response<String> checkEmail(
-            @PathVariable String email
+            @PathVariable  String email
     ) {
         boolean isExistEmail = userService.isExistEmail(email);
         if (!isExistEmail) {
@@ -139,7 +127,6 @@ public class UserController {
     }
 
     @GetMapping("/{email}/verify/{code}")
-    @Operation()
     public Response<String> verifyEmail(
             @PathVariable String email,
             @PathVariable String code
