@@ -16,9 +16,11 @@ public class BookingListResponseDTO {
     private long customerId;
     private LocalDateTime startInterviewDate;
     private LocalDateTime endInterviewDate;
+    private String note;
     private int status;
     private java.util.Date createdAt;
     private boolean canCancel;
 
     private UserInfoResponseDTO expertInfo;
+    private UserInfoResponseDTO customerInfo;
 }

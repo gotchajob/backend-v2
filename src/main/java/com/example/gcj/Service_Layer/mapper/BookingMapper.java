@@ -26,6 +26,7 @@ public class BookingMapper {
                 .status(booking.getStatus())
                 .createdAt(booking.getCreatedAt())
                 .canCancel(canCancel)
+                .note(booking.getNote())
                 .build();
     }
 }

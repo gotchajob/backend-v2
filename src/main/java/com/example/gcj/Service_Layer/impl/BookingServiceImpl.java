@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
             throw new CustomException("not enough balance");
         }
 
-        checkBookingDate(request.getAvailabilityId(), request.getExpertId(), customerId);
+        checkBookingDate(request.getAvailabilityId(), request.getExpertId());
         checkBookingCv(request.getCustomerCvId(), customerId);
 
         Booking build = Booking
@@ -77,12 +77,11 @@ public class BookingServiceImpl implements BookingService {
                 .build();
         Booking save = bookingRepository.save(build);
 
+        accountService.bookingPayment(cost, save.getId());
         if (request.getBookingSkill() == null || request.getBookingSkill().isEmpty()) {
             return true;
         }
         bookingSkillService.add(request.getBookingSkill(), save.getId());
-
-        accountService.bookingPayment(cost, save.getId());
 
         return true;
     }
@@ -99,7 +98,7 @@ public class BookingServiceImpl implements BookingService {
         return expert.getCost();
     }
 
-    private void checkBookingDate(long availabilityId, long expertId, long customerId) {
+    private void checkBookingDate(long availabilityId, long expertId) {
         long minusToBooking = policyService.getByKey(PolicyKey.MINUS_TO_BOOKING, Long.class);
         Availability availability = availabilityRepository.findById(availabilityId);
         if (availability == null) {
