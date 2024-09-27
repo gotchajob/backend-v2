@@ -23,7 +23,7 @@ public class BookingSkillServiceImpl implements BookingSkillService {
     @Override
     public boolean add(List<Long> idList, long bookingId) {
         if (!bookingRepository.existsById(bookingId)) {
-            throw new CustomException("not found booking with id " + bookingId + " when create booking skill");
+            throw new CustomException("không tìm thấy buổi hẹn");
         }
 
 

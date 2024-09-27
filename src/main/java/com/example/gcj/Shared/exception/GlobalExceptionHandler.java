@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
             errorResponse.setMessage(message);
         }
 
-        return new Response<>(Status.WARNING.name(), "invalid data request", errorResponse);
+        return new Response<>(Status.ERROR.name(), "dữ liệu yêu cầu không hợp lệ", errorResponse);
     }
 
     @ExceptionHandler(CustomException.class)
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
         errorResponse.setError(BAD_REQUEST.getReasonPhrase());
         errorResponse.setStatus(BAD_REQUEST.value());
 
-        return new Response<>(Status.WARNING.name(), "customer error handle", errorResponse);
+        return new Response<>(Status.ERROR.name(), e.getMessage(), errorResponse);
     }
 
     // Handle NoHandlerFoundException
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
         errorResponse.setError(NOT_FOUND.getReasonPhrase());
         errorResponse.setStatus(NOT_FOUND.value());
 
-        return new Response<>(Status.WARNING.name(), "Endpoint not found", errorResponse);
+        return new Response<>(Status.WARNING.name(), "not found", errorResponse);
     }
 
     // Handle global exceptions
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
         errorResponse.setStatus(INTERNAL_SERVER_ERROR.value());
 
         String typeError = e.getClass().getName();
-        return new Response<>(Status.ERROR.name(), "server error. type error: " + typeError, errorResponse);
+        return new Response<>(Status.ERROR.name(), "lỗi máy chủ", errorResponse);
     }
 
 

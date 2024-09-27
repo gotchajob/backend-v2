@@ -9,5 +9,5 @@ public class BookingStatus {
     public static final int COMPLETE = 5;
     public static final int CANCEl_BY_CUSTOMER = 6;
     public static final int CANCEL_BY_EXPERT = 7;
-    public static final int REJECT_BY_EXPERT = 8;
+    public static final int REPORTED = 8;
 }

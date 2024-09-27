@@ -239,12 +239,29 @@ public class ExpertServiceImpl implements ExpertService {
         Expert expert = get(expertId);
 
         int newExpertPoint = expert.getPersonalPoint() + point;
-        expert.setPersonalPoint(newExpertPoint);
-        if (newExpertPoint < 30) {
-            //todo: ban expert??
+        int expertPersonalPointMin = policyService.getByKey(PolicyKey.EXPERT_PERSONAL_POINT_MIN, Integer.class);
+        int expertPersonalPointMax = policyService.getByKey(PolicyKey.EXPERT_PERSONAL_POINT_MAX, Integer.class);
+
+        if (newExpertPoint < expertPersonalPointMin) {
+            newExpertPoint = expertPersonalPointMin;
+        }
+        if (newExpertPoint > expertPersonalPointMax) {
+            newExpertPoint = expertPersonalPointMax;
         }
 
+        expert.setPersonalPoint(newExpertPoint);
         expertRepository.save(expert);
+
+        if (newExpertPoint == expertPersonalPointMin) {
+            User user = expert.getUser();
+            if (user == null) {
+                throw new CustomException("not found user");
+            }
+
+            user.setStatus(UserStatus.DISABLE);
+            userRepository.save(user);
+        }
+
         return true;
     }
 
@@ -406,7 +423,7 @@ public class ExpertServiceImpl implements ExpertService {
             } else {
                 List<Long> expertIds = new ArrayList<>(expertPoints.keySet());
                 if (expertIds != null && !expertIds.isEmpty()) {
-                    expertNationSupports = expertNationSupportRepository.findAllByNationInAndExpertIdIn(nations, expertIds);
+                    expertNationSupports = expertNationSupportRepository.findAllByNationInAndExpertIdInAndStatusNot(nations, expertIds, 0);
                 }
             }
 

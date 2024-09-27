@@ -16,7 +16,7 @@ public class BookingReportResponseDTO {
     private String expertContent;
     private String expertEvidence;
     private String staffNote;
-    private long processingBy;
+    private Long processingBy;
     private int status;
     private long bookingId;
     private Date createdAt;

@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -51,5 +53,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "ORDER BY month")
     List<BookingDashboardResponseDTO> bookingDashboardByStatusEachMonth(int year);
 
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.customerId = :customerId AND b.status = :status AND FUNCTION('MONTH', b.updatedAt) = :month AND FUNCTION('YEAR', b.updatedAt) = :year")
+    long countByCustomerIdAndStatusAndUpdatedAtMonthAndUpdatedAtYear(@Param("customerId") long customerId, @Param("status") int status, @Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.expertId = :expertId AND b.status = :status AND FUNCTION('MONTH', b.updatedAt) = :month AND FUNCTION('YEAR', b.updatedAt) = :year")
+    long countByExpertIdAndStatusAndUpdatedAtMonthAndUpdatedAtYear(@Param("expertId") long expertId, @Param("status") int status, @Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT b " +
+            "FROM Booking b INNER JOIN Availability a ON b.availability.id = a.id " +
+            "WHERE b.status = :status " +
+            "AND (a.availableDate < :currentDate OR " +
+            "(a.availableDate = :currentDate AND a.startTime < :currentTime))")
+    List<Booking> findBookingToReject(int status, LocalDate currentDate, LocalTime currentTime);
 }

@@ -17,6 +17,7 @@ import com.example.gcj.Shared.util.status.TransactionStatus;
 import com.example.gcj.Shared.util.status.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -144,6 +145,7 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Transactional
     @Override
     public boolean sendMoneyToExpert(long userId, long bookingId) {
         Account account = getAccountByUserId(userId);
@@ -162,7 +164,7 @@ public class AccountServiceImpl implements AccountService {
                 .accountId(account.getId())
                 .amount(moneyPayForExpert - revenueMoney)
                 .transactionTypeId(TransactionType.RECEIVE_FROM_SERVICE)
-                .description("receive money when complete a booking, booking id " + bookingId + ". system revenue is " + revenueMoney)
+                .description("nhận tiền khi hoàn thành lịch hẹn. booking id: " + bookingId)
                 .status(TransactionStatus.COMPLETE)
                 .referId(bookingId)
                 .build();
@@ -213,7 +215,7 @@ public class AccountServiceImpl implements AccountService {
     public boolean bookingPayment(double cost, long bookingId) {
         Account currentAccount = getCurrentAccount();
         if (cost > currentAccount.getBalance()) {
-            throw new CustomException("not enough money in account");
+            throw new CustomException("không đủ tiền trong tài khoản");
         }
 
         currentAccount.setBalance(currentAccount.getBalance() - cost);
@@ -222,7 +224,7 @@ public class AccountServiceImpl implements AccountService {
         Transaction transaction = Transaction
                 .builder()
                 .accountId(currentAccount.getId())
-                .description("pay for booking with cost " + cost)
+                .description("thanh toán cho dịch vụ")
                 .balanceAfterTransaction(currentAccount.getBalance())
                 .amount(cost)
                 .referId(bookingId)
@@ -251,9 +253,48 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(account.getBalance() + transaction.getAmount());
         accountRepository.save(account);
 
-        transaction.setStatus(TransactionStatus.FAIL);
-        transaction.setDescription("fail because booking is cancel");
-        transactionRepository.save(transaction);
+        Transaction buildTransaction = Transaction
+                .builder()
+                .accountId(account.getId())
+                .balanceAfterTransaction(account.getBalance())
+                .description("hoàn tiền khi hủy đặt lịch")
+                .transactionTypeId(TransactionType.REFUND)
+                .status(1)
+                .amount(transaction.getAmount())
+                .referId(bookingId)
+                .build();
+        transactionRepository.save(buildTransaction);
+
+        return true;
+    }
+
+    @Override
+    public boolean refundWhenReport(long customerId, long bookingId) {
+        Customer customer = customerRepository.findById(customerId);
+        if (customer == null) {
+            return false;
+        }
+
+        Account account = accountRepository.findByUserId(customer.getUserId());
+
+        Transaction transaction = transactionRepository.findByReferIdAndTransactionTypeId(bookingId, TransactionType.PAY_FOR_SERVICE);
+        if (transaction == null) {
+            return false;
+        }
+        account.setBalance(account.getBalance() + transaction.getAmount());
+        accountRepository.save(account);
+
+        Transaction buildTransaction = Transaction
+                .builder()
+                .accountId(account.getId())
+                .balanceAfterTransaction(account.getBalance())
+                .description("hoàn tiền khi báo cáo")
+                .transactionTypeId(TransactionType.REFUND)
+                .status(1)
+                .amount(transaction.getAmount())
+                .referId(bookingId)
+                .build();
+        transactionRepository.save(buildTransaction);
 
         return true;
     }

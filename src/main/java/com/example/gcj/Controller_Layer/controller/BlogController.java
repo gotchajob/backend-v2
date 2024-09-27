@@ -9,6 +9,7 @@ import com.example.gcj.Service_Layer.dto.blog_comment.CreateBlogCommentDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.service.BlogCommentService;
 import com.example.gcj.Service_Layer.service.BlogService;
+import com.example.gcj.Service_Layer.service.StaffService;
 import com.example.gcj.Shared.util.Response;
 import com.example.gcj.Shared.util.Role;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class BlogController {
     private final BlogService blogService;
     private final BlogCommentService blogCommentService;
+    private final StaffService staffService;
 
     @PostMapping("")
     @Secured(Role.STAFF)
@@ -31,7 +33,8 @@ public class BlogController {
     public Response<String> createBlog(
             @RequestBody @Valid CreateBlogRequestDTO request
     ) {
-        blogService.createBlog(request);
+        long currentStaffId = staffService.getCurrentStaffId();
+        blogService.createBlog(request, currentStaffId);
         return Response.ok(null);
     }
 

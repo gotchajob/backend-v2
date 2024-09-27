@@ -36,5 +36,7 @@ public interface BookingService {
     boolean completeBooking(long id);
     @Scheduled(fixedRate = 60000)
     void autoCompleteBooking();
+    @Scheduled(fixedRate = 60000)
+    void autoRejectBooking();
 
 }

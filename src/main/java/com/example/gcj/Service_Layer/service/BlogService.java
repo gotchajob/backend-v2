@@ -7,7 +7,7 @@ import com.example.gcj.Service_Layer.dto.blog.UpdateBlogRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 
 public interface BlogService {
-    void createBlog(CreateBlogRequestDTO request);
+    void createBlog(CreateBlogRequestDTO request, long currentStaffId);
     PageResponseDTO<BlogListResponseDTO> blogList(Long categoryId, int pageNumber, int pageSize);
     BlogResponseDTO getBlog(long id);
 

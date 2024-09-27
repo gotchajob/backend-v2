@@ -3,6 +3,7 @@ package com.example.gcj.Service_Layer.dto.booking;
 import com.example.gcj.Service_Layer.dto.cv.CvBookingResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserBookingInfoResponseDTO;
+import com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -27,4 +28,5 @@ public class BookingResponseDTO {
 
     private List<SkillOptionBookingResponseDTO> skillOptionBooking;
     private UserBookingInfoResponseDTO customerInfo;
+    private UserInfoResponseDTO expertInfo;
 }

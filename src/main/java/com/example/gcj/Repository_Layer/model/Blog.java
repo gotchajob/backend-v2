@@ -15,10 +15,7 @@ public class Blog extends AbstractEntity {
     private String shortDescription;
     private String content;
     private int status;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", referencedColumnName = "id")
-    private User author;
+    private long authorId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private BlogCategory category;

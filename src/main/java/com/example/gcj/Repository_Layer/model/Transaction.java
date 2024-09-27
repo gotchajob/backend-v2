@@ -24,6 +24,7 @@ public class Transaction {
     private long accountId;
     private double amount;
     private double balanceAfterTransaction;
+    @Builder.Default
     private int status = 1;
     private int transactionTypeId;
     private String description;

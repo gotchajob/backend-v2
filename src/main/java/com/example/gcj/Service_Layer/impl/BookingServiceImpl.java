@@ -7,6 +7,7 @@ import com.example.gcj.Service_Layer.dto.booking.*;
 import com.example.gcj.Service_Layer.dto.cv.CvBookingResponseDTO;
 import com.example.gcj.Service_Layer.dto.skill_option.SkillOptionBookingResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserBookingInfoResponseDTO;
+import com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO;
 import com.example.gcj.Service_Layer.service.*;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
@@ -53,13 +54,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public boolean create(long customerId, CreateBookingRequestDTO request) {
         if (request == null) {
-            throw new CustomException("request is null");
+            throw new CustomException("bad request");
         }
 
         double cost = checkExpertAndGetCost(request.getExpertId());
         double currentBalance = accountService.getCurrentBalance();
         if (currentBalance < cost) {
-            throw new CustomException("not enough balance");
+            throw new CustomException("không đủ tiền trong tài khoản");
         }
 
         checkBookingDate(request.getAvailabilityId(), request.getExpertId());
@@ -89,10 +90,10 @@ public class BookingServiceImpl implements BookingService {
     private double checkExpertAndGetCost(long expertId) {
         Expert expert = expertRepository.getById(expertId);
         if (expert == null) {
-            throw new CustomException("not found expert with expert id "  + expertId);
+            throw new CustomException("không tìm thấy chuyên gia");
         }
         if (expert.getStatus() != ExpertStatus.BOOKING) {
-            throw new CustomException("expert is not order to booking");
+            throw new CustomException("chuyên gia không nhận đặt lịch");
         }
 
         return expert.getCost();
@@ -102,19 +103,19 @@ public class BookingServiceImpl implements BookingService {
         long minusToBooking = policyService.getByKey(PolicyKey.MINUS_TO_BOOKING, Long.class);
         Availability availability = availabilityRepository.findById(availabilityId);
         if (availability == null) {
-            throw new CustomException("not found availability with id " + availabilityId);
+            throw new CustomException("không tìm thấy lịch rảnh của chuyên gia ");
         }
         if (availability.getStatus() != AvailabilityStatus.VALID) {
-            throw new CustomException("invalid availability. current status is " + availability.getStatus());
+            throw new CustomException("lịch rảnh của chuyên gia không hợp lệ");
         }
 
         if (availability.getExpertId() != expertId) {
-            throw new CustomException("expert in availability not same with expert in request");
+            throw new CustomException("lịch rảnh không phải của chuyên gia đã chọn");
         }
 
         LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
         if (LocalDateTime.now().plusMinutes(minusToBooking).isAfter(interviewTime)) {
-            throw new CustomException("booking need at least " + minusToBooking + " days before interview start");
+            throw new CustomException("cần đặt lich trước ngày, giờ phỏng vấn " + minusToBooking + " phút");
         }
 
         availability.setStatus(AvailabilityStatus.BOOKED);
@@ -124,11 +125,11 @@ public class BookingServiceImpl implements BookingService {
     private void checkBookingCv(long cvId, long customerId) {
         Cv cv = cvRepository.getById(cvId);
         if (cv == null) {
-            throw new CustomException("not found cv with cv id " + cv.getId());
+            throw new CustomException("không tìm thấy cv");
         }
 
         if (cv.getCustomerId() != customerId) {
-            throw new CustomException("current customer id not same with customer id in cv");
+            throw new CustomException("cv đã chọn không phải của bạn");
         }
     }
 
@@ -137,7 +138,9 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = bookingRepository.findAll();
 
         long minusToCancelBooking = getMinusToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        addCustomerAndExpertInfo(list);
+        return list;
     }
 
     @Override
@@ -145,7 +148,22 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = bookingRepository.getByCustomerId(customerId);
 
         long minusToCancelBooking = getMinusToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+
+        List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        addCustomerAndExpertInfo(list);
+        return list;
+
+    }
+
+    private void addCustomerAndExpertInfo(List<BookingListResponseDTO> list) {
+        for (BookingListResponseDTO b : list) {
+            UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(b.getCustomerId());
+            UserInfoResponseDTO expertInfo = expertRepository.getExpertInfo(b.getExpertId());
+
+            b.setCustomerInfo(customerInfo);
+            b.setExpertInfo(expertInfo);
+
+        }
     }
 
     @Override
@@ -155,9 +173,7 @@ public class BookingServiceImpl implements BookingService {
 
         long minusToCancelBooking = getMinusToCancel();
         List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
-        for (BookingListResponseDTO item : list) {
-            item.setExpertInfo(expertRepository.getExpertInfo(item.getExpertId()));
-        }
+        addCustomerAndExpertInfo(list);
 
         return list;
     }
@@ -167,13 +183,15 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = get(id);
         UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(booking.getCustomerId());
         if (customerInfo == null) {
-            throw new CustomException("not found customer info");
+            throw new CustomException("không tìm thấy thông tin khách hàng");
         }
 
         Cv customerCv = cvRepository.getById(booking.getCustomerCvId());
         if (customerCv == null) {
-            throw new CustomException("not found customer cv with id " + booking.getCustomerCvId());
+            throw new CustomException("không tìm thấy cv của khách hàng");
         }
+
+        UserInfoResponseDTO expertInfo = expertRepository.getExpertInfo(booking.getExpertId());
 
         CvBookingResponseDTO customerCvResponse = CvBookingResponseDTO
                 .builder()
@@ -200,6 +218,7 @@ public class BookingServiceImpl implements BookingService {
                 .note(booking.getNote())
                 .rejectReason(booking.getRejectReason())
                 .customerInfo(customerInfo)
+                .expertInfo(expertInfo)
                 .customerCv(customerCvResponse)
                 .status(booking.getStatus())
                 .createdAt(booking.getCreatedAt())
@@ -212,7 +231,7 @@ public class BookingServiceImpl implements BookingService {
     public boolean updateStatus(long id, int status) {
         Booking booking = bookingRepository.findById(id);
         if (booking == null) {
-            throw new CustomException("not found booking with id " + id);
+            throw new CustomException("không tìm thấy lich hẹn");
         }
 
         booking.setStatus(status);
@@ -225,21 +244,21 @@ public class BookingServiceImpl implements BookingService {
     public boolean approve(long expertId, long id) {
         Booking booking = get(id);
         if (booking.getExpertId() != expertId) {
-            throw new CustomException("current expert not same with expert in booking");
+            throw new CustomException("lịch hẹn không phải của bạn");
         }
 
         if (booking.getStatus() != BookingStatus.WAIT_EXPERT_ACCEPT) {
-            throw new CustomException("booking is not wait to expert accept");
+            throw new CustomException("trạng thái của lịch hẹn không hợp lệ");
         }
         Availability availability = booking.getAvailability();
         if (availability == null) {
-            throw new CustomException("not found availability");
+            throw new CustomException("không tìm thấy lich rảnh");
         }
 
         long minusBeforeToApprove = policyService.getByKey(PolicyKey.MINUS_BEFORE_APPROVE_BOOKING, Long.class);
         LocalDateTime interviewTime = availability.getAvailableDate().atTime(availability.getStartTime());
         if (LocalDateTime.now().plusMinutes(minusBeforeToApprove).isAfter(interviewTime)) {
-            throw new CustomException("need to approve before " + minusBeforeToApprove + " minus" +  " of interview day");
+            throw new CustomException("cần phải phê duyện trước ngày, giờ phỏng vấn " + minusBeforeToApprove + " phút");
         }
 
         booking.setStatus(BookingStatus.WAIT_TO_INTERVIEW);
@@ -251,11 +270,11 @@ public class BookingServiceImpl implements BookingService {
     public boolean reject(long expertId, long id, RejectBookingRequestDTO request) {
         Booking booking = get(id);
         if (booking.getExpertId() != expertId) {
-            throw new CustomException("current expert not same with expert in booking");
+            throw new CustomException("lịch hẹn không phải của bạn");
         }
 
         if (booking.getStatus() != BookingStatus.WAIT_EXPERT_ACCEPT) {
-            throw new CustomException("booking is not wait to expert accept");
+            throw new CustomException("trạng thái của lịch hẹn không hợp lệ");
         }
 
         booking.setStatus(BookingStatus.CANCEL_BY_EXPERT);
@@ -264,7 +283,7 @@ public class BookingServiceImpl implements BookingService {
 
         Availability availability = booking.getAvailability();
         if (availability == null) {
-            throw new CustomException("availability is null");
+            throw new CustomException("không tìm thấy lich rảnh");
         }
 
         availability.setStatus(AvailabilityStatus.DELETE);
@@ -282,7 +301,9 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingListResponseDTO> getByExpertId(long expertId) {
         List<Booking> bookings = bookingRepository.getByExpertId(expertId);
         long minusToCancelBooking = getMinusToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        addCustomerAndExpertInfo(list);
+        return  list;
     }
 
     @Override
@@ -291,14 +312,16 @@ public class BookingServiceImpl implements BookingService {
                 ? bookingRepository.getByExpertId(expertId)
                 : bookingRepository.getByExpertIdAndStatus(expertId, status);
         long minusToCancelBooking = getMinusToCancel();
-        return bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        List<BookingListResponseDTO> list = bookings.stream().map(b -> BookingMapper.toDto(b, minusToCancelBooking)).toList();
+        addCustomerAndExpertInfo(list);
+        return  list;
     }
 
     @Override
     public boolean endBooking(long id) {
         Booking booking = bookingRepository.findById(id);
         if (booking == null) {
-            throw new CustomException("not found booking with id " + id);
+            throw new CustomException("không tìm thấy lich hẹn");
         }
 
         booking.setStatus(BookingStatus.WAIT_TO_FEEDBACK);
@@ -333,14 +356,31 @@ public class BookingServiceImpl implements BookingService {
                 continue;
             }
 
+            expertService.updateExpertPoint(booking.getExpertId(), pointWhenCompleteBooking);
             boolean result = accountService.sendMoneyToExpert(userId, booking.getId());
             if (!result) {
-                bookingList.remove(booking);
+                continue;
             }
 
-            expertService.updateExpertPoint(booking.getExpertId(), pointWhenCompleteBooking);
+            bookingRepository.save(booking);
         }
-        bookingRepository.saveAll(bookingList);
+    }
+
+    @Override
+    @Scheduled(fixedRate = 60000)
+    public void autoRejectBooking() {
+        long minusToApproveBooking = policyService.getByKey(PolicyKey.MINUS_BEFORE_APPROVE_BOOKING, Long.class);
+        LocalDateTime current = LocalDateTime.now();
+        current.plusMinutes(minusToApproveBooking);
+        List<Booking> bookingToReject = bookingRepository.findBookingToReject(BookingStatus.WAIT_EXPERT_ACCEPT, current.toLocalDate(), current.toLocalTime());
+
+        for (Booking booking : bookingToReject) {
+            try {
+                reject(booking.getExpertId(), booking.getId(), RejectBookingRequestDTO.builder().reason("quá hạn duyệt lịch hẹn").build());
+            } catch (Exception e) {
+
+            }
+        }
     }
 
     @Override
@@ -382,21 +422,27 @@ public class BookingServiceImpl implements BookingService {
                 booking.setExpireCompleteDate(LocalDateTime.now().plusMinutes(minusToAutoCompleteBooking));
                 bookingRepository.save(booking);
 
-                sendEmailToCustomerWhenEndBooking(booking.getCustomerId());
+                sendEmailToCustomerWhenEndBooking(booking.getCustomerId(), booking.getId());
             }
         }
     }
 
-    private void sendEmailToCustomerWhenEndBooking(long customerId) {
+    private void sendEmailToCustomerWhenEndBooking(long customerId, long bookingId) {
         UserBookingInfoResponseDTO customerInfo = customerRepository.customerInfo(customerId);
         if (customerInfo == null || customerInfo.getEmail() == null) {
             return;
         }
-        String linkFeedback = "https://example.com/feedback";
+        String linkFeedback = "https://www.gotchajob.vn/feedback/" + bookingId;
 
-        String subject = "[Gotcha Job] feedback expert";
-        String body = "you just fish a booking at our website. " +
-                "here is link to feedback expert: " + linkFeedback;
+        String subject = "[Gotcha Job] Please Share Your Feedback on the Recent Booking";
+        String body = "Dear " + customerInfo.getFullName() + ",\n\n" +
+                "Thank you for completing your booking with us! We hope you had a great experience.\n\n" +
+                "We value your feedback and would appreciate it if you could take a moment to share your thoughts about the expert you booked. " +
+                "Please click the link below to provide your feedback:\n\n" +
+                linkFeedback + "\n\n" +
+                "Your feedback helps us improve our service and ensure a better experience for all our users.\n\n" +
+                "Best regards,\n" +
+                "Gotcha Job Team";
 
         emailService.sendEmail(customerInfo.getEmail(), subject, body);
     }
@@ -405,15 +451,24 @@ public class BookingServiceImpl implements BookingService {
     public boolean cancel(long customerId, long id) {
         Booking booking = get(id);
         if (booking.getCustomerId() != customerId) {
-            throw new CustomException("current customer not same with customer in booking");
+            throw new CustomException("buổi hẹn không phải của bạn");
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        long numberCancelThisMonth = bookingRepository.countByCustomerIdAndStatusAndUpdatedAtMonthAndUpdatedAtYear(customerId, BookingStatus.CANCEl_BY_CUSTOMER, now.getMonthValue(), now.getYear() );
+        long numberCanCancelByCustomer = policyService.getByKey(PolicyKey.NUMBER_CANCEL_BY_CUSTOMER, Long.class);
+        if (numberCancelThisMonth >= numberCanCancelByCustomer) {
+            throw new CustomException("chỉ có thể hủy tối đa " + numberCanCancelByCustomer + " lần mỗi tháng!");
+        } 
 
         Availability availability = checkBookingToCancelAndGetAvailability(booking);
 
         LocalDateTime interviewDay = availability.getAvailableDate().atTime(availability.getStartTime());
         if (!canCancelBooking(interviewDay)) {
-            throw new CustomException("too late to cancel");
+            throw new CustomException("quá trễ để hủy buổi hẹn");
         }
+
+
         availability.setStatus(AvailabilityStatus.VALID);
         availabilityRepository.save(availability);
 
@@ -425,11 +480,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public boolean cancelByExpert(long expertId, long id) {
         Booking booking = get(id);
         if (booking.getExpertId() != expertId) {
             throw new CustomException("current customer not same with customer in booking");
         }
+
+
 
         if (booking.getStatus() != BookingStatus.WAIT_TO_INTERVIEW) {
             throw new CustomException("current status is not wait to interview");
@@ -452,8 +510,13 @@ public class BookingServiceImpl implements BookingService {
 
         accountService.refundWhenCancelBooking(booking.getCustomerId(), booking.getId());
 
-        int pointWhenCancelBooking = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_CANCEL_BOOKING, Integer.class);
-        expertService.updateExpertPoint(expertId, -pointWhenCancelBooking);
+        LocalDateTime now = LocalDateTime.now();
+        long numberCancelThisMonth = bookingRepository.countByExpertIdAndStatusAndUpdatedAtMonthAndUpdatedAtYear(expertId, BookingStatus.CANCEl_BY_CUSTOMER, now.getMonthValue(), now.getYear() );
+        long numberCanCancelByExpert = policyService.getByKey(PolicyKey.NUMBER_CANCEL_BY_EXPERT, Long.class);
+        if (numberCancelThisMonth > numberCanCancelByExpert) {
+            int pointWhenCancelBooking = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_CANCEL_BOOKING, Integer.class);
+            expertService.updateExpertPoint(expertId, -pointWhenCancelBooking);
+        }
 
         return true;
     }
@@ -478,7 +541,7 @@ public class BookingServiceImpl implements BookingService {
     private Booking get(long id) {
         Booking booking = bookingRepository.findById(id);
         if (booking == null) {
-            throw new CustomException("not found booking with id " + id);
+            throw new CustomException("không tìm thấy buổi hẹn");
         }
 
         return booking;
@@ -507,13 +570,16 @@ public class BookingServiceImpl implements BookingService {
             return;
         }
 
-        String linkGgmeet = "meet.google.com/gotchajob";
+        String ggMeetLink = "https://meet.google.com/abc-defg-hij";
 
-        String subject = "[Gotcha Job] Notify interview";
-        String body = "thong bao ve buoi interview sap dien ra \n" +
-                "link gg meet: " + linkGgmeet + "\n" +
-                "booking id: " + booking.getId() + "\n";
-
+        String subject = "[Gotcha Job] Upcoming Interview Notification";
+        String body = "Dear " + customerInfo.getFullName() + ",\n\n" +
+                "We would like to remind you about your upcoming interview session. Please find the details below:\n\n" +
+                "Interview Link (Google Meet): " + ggMeetLink + "\n" +
+                "Booking ID: " + booking.getId() + "\n\n" +
+                "We wish you the best of luck during the interview!\n\n" +
+                "Best regards,\n" +
+                "Gotcha Job Team";
 
         emailService.sendEmail(expertEmail, subject, body);
         emailService.sendEmail(customerInfo.getEmail(), subject, body);

@@ -12,7 +12,7 @@ public class BookingReportMapper {
 
         return BookingReportListResponseDTO
                 .builder()
-                .id(bookingReport.getBookingId())
+                .id(bookingReport.getId())
                 .customerContent(bookingReport.getCustomerContent())
                 .expertContent(bookingReport.getExpertContent())
                 .staffNote(bookingReport.getStaffNote())
@@ -30,7 +30,7 @@ public class BookingReportMapper {
 
         return BookingReportForExpertResponseDTO
                 .builder()
-                .id(bookingReport.getBookingId())
+                .id(bookingReport.getId())
                 .customerContent(bookingReport.getCustomerContent())
                 .customerEvidence(bookingReport.getCustomerEvidence())
                 .createdAt(bookingReport.getCreatedAt())

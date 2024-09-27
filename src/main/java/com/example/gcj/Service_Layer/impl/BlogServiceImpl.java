@@ -4,16 +4,14 @@ import com.example.gcj.Repository_Layer.model.Blog;
 import com.example.gcj.Repository_Layer.model.BlogCategory;
 import com.example.gcj.Repository_Layer.model.BlogReaction;
 import com.example.gcj.Repository_Layer.model.User;
-import com.example.gcj.Repository_Layer.repository.BlogCategoryRepository;
-import com.example.gcj.Repository_Layer.repository.BlogCommentRepository;
-import com.example.gcj.Repository_Layer.repository.BlogReactionRepository;
-import com.example.gcj.Repository_Layer.repository.BlogRepository;
+import com.example.gcj.Repository_Layer.repository.*;
 import com.example.gcj.Service_Layer.dto.blog.BlogListResponseDTO;
 import com.example.gcj.Service_Layer.dto.blog.BlogResponseDTO;
 import com.example.gcj.Service_Layer.dto.blog.CreateBlogRequestDTO;
 import com.example.gcj.Service_Layer.dto.blog.UpdateBlogRequestDTO;
 import com.example.gcj.Service_Layer.dto.other.LikeDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
+import com.example.gcj.Service_Layer.dto.user.UserProfileDTO;
 import com.example.gcj.Service_Layer.mapper.BlogMapper;
 import com.example.gcj.Service_Layer.service.BlogService;
 import com.example.gcj.Service_Layer.service.PolicyService;
@@ -40,22 +38,18 @@ public class BlogServiceImpl implements BlogService {
     private final BlogCategoryRepository blogCategoryRepository;
     private final BlogCommentRepository blogCommentRepository;
     private final BlogReactionRepository blogReactionRepository;
+    private final StaffRepository staffRepository;
 
 
     @Override
-    public void createBlog(CreateBlogRequestDTO request) {
+    public void createBlog(CreateBlogRequestDTO request, long currentStaffId) {
         if (request == null) {
             throw new CustomException("Null request");
         }
 
-        User author = userService.currentUser();
-        if (author == null) {
-            throw new CustomException("invalid author");
-        }
         if (!blogCategoryRepository.existsById(request.getCategoryId())) {
             throw new CustomException("not found blog category with id " + request.getCategoryId());
         }
-
 
         Blog blog = Blog.builder()
                 .thumbnail(request.getThumbnail())
@@ -63,7 +57,7 @@ public class BlogServiceImpl implements BlogService {
                 .shortDescription(request.getShortDescription())
                 .content(request.getContent())
                 .category(BlogCategory.builder().id(request.getCategoryId()).build())
-                .author(author)
+                .authorId(currentStaffId)
                 .status(ACTIVE)
                 .build();
 
@@ -73,13 +67,15 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public PageResponseDTO<BlogListResponseDTO> blogList(Long categoryId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        Page<Blog> blogs = null;
-        if (categoryId == null) {
-            blogs = blogRepository.getAllByStatus(ACTIVE, pageable);
-        } else {
-            blogs = blogRepository.getAllByCategoryIdAndStatus(categoryId, ACTIVE, pageable);
-        }
-        return new PageResponseDTO<>(blogs.map(BlogMapper::toDto).toList(), blogs.getTotalPages());
+        Page<Blog> blogs = blogRepository.findByCategory(categoryId, pageable);
+
+        List<BlogListResponseDTO> responseList = blogs.map( b -> {
+                    UserProfileDTO authorInfo = staffRepository.getStaffProfile(b.getAuthorId());
+                    return BlogMapper.toDtoList(b, authorInfo);
+                }
+        ).toList();
+
+        return new PageResponseDTO<>(responseList, blogs.getTotalPages());
     }
 
     @Override
@@ -108,15 +104,27 @@ public class BlogServiceImpl implements BlogService {
 
         List<Blog> relateBlogs = blogRepository.findRelateBlogs(blog.getCategory().getId(), blog.getId(), numberRelateBlog);
         BlogResponseDTO response = BlogMapper.toDto(blog, relateBlogs);
+
+        List<BlogListResponseDTO> relateBlogList = relateBlogs.stream().map( b -> {
+                    UserProfileDTO authorInfo = staffRepository.getStaffProfile(b.getAuthorId());
+                    return BlogMapper.toDtoList(b, authorInfo);
+                }
+        ).toList();
+
         LikeDTO likeDTO = LikeDTO.builder()
                 .liked(liked)
                 .value(likeCount)
                 .build();
+
+        UserProfileDTO authorProfile = staffRepository.getStaffProfile(blog.getAuthorId());
+
         response.setLikes(likeDTO);
         response.setNumberComment(numberComment);
         response.setAverageRating(averageRating);
         response.setRatingQuantity(ratingQuantity);
         response.setRated(rated);
+        response.setRelateBlog(relateBlogList);
+        response.setProfile(authorProfile);
         return response;
     }
 

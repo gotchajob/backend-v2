@@ -9,10 +9,7 @@ import com.example.gcj.Service_Layer.dto.booking_report.*;
 import com.example.gcj.Service_Layer.dto.booking_report_suggest.BookingReportSuggestListResponseDTO;
 import com.example.gcj.Service_Layer.dto.other.PageResponseDTO;
 import com.example.gcj.Service_Layer.mapper.BookingReportMapper;
-import com.example.gcj.Service_Layer.service.BookingReportService;
-import com.example.gcj.Service_Layer.service.BookingReportSuggestService;
-import com.example.gcj.Service_Layer.service.ExpertService;
-import com.example.gcj.Service_Layer.service.PolicyService;
+import com.example.gcj.Service_Layer.service.*;
 import com.example.gcj.Shared.enums.PolicyKey;
 import com.example.gcj.Shared.exception.CustomException;
 import com.example.gcj.Shared.util.Util;
@@ -22,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,6 +32,7 @@ public class BookingReportServiceImpl implements BookingReportService {
     private final SearchRepository searchRepository;
     private final ExpertService expertService;
     private final PolicyService policyService;
+    private final AccountService accountService;
 
     @Override
     public List<BookingReportListResponseDTO> get() {
@@ -71,9 +70,9 @@ public class BookingReportServiceImpl implements BookingReportService {
             throw new CustomException("bad request");
         }
 
-        checkBookingId(request.getBookingId(), customerId);
+        checkIdAndUpdateBooking(request.getBookingId(), customerId);
         if (bookingReportRepository.existsByBookingIdAndStatus(request.getBookingId(), 1)) {
-            throw new CustomException("you are already report the booking");
+            throw new CustomException("bạn đã báo cáo lịch hẹn");
         }
 
         BookingReport build = BookingReport
@@ -81,6 +80,7 @@ public class BookingReportServiceImpl implements BookingReportService {
                 .customerContent(request.getContent())
                 .customerEvidence(request.getEvidence())
                 .bookingId(request.getBookingId())
+                .status(BookingReportStatus.PROCESSING)
                 .build();
         BookingReport save = bookingReportRepository.save(build);
 
@@ -112,8 +112,10 @@ public class BookingReportServiceImpl implements BookingReportService {
     @Override
     public boolean reject(long id, long staffId, BookingReportStaffNoteRequestDTO request) {
         BookingReport bookingReport = get(id);
-        if (bookingReport.getStatus() != BookingReportStatus.PROCESSING) {
-            throw new CustomException("current booking report is not processing");
+        if (bookingReport.getStatus() != BookingReportStatus.PROCESSING
+                && bookingReport.getStatus() != BookingReportStatus.EXPERT_PROCESSING
+                && bookingReport.getStatus() != BookingReportStatus.STAFF_PROCESSING) {
+            throw new CustomException("current status is not staff processing");
         }
 
         bookingReport.setStatus(BookingReportStatus.REJECT);
@@ -124,11 +126,14 @@ public class BookingReportServiceImpl implements BookingReportService {
         return true;
     }
 
+    @Transactional
     @Override
     public boolean approve(long id, long staffId, BookingReportStaffNoteRequestDTO request) {
         BookingReport bookingReport = get(id);
-        if (bookingReport.getStatus() != BookingReportStatus.PROCESSING) {
-            throw new CustomException("current booking report is not processing");
+        if (bookingReport.getStatus() != BookingReportStatus.PROCESSING
+                && bookingReport.getStatus() != BookingReportStatus.EXPERT_PROCESSING
+                && bookingReport.getStatus() != BookingReportStatus.STAFF_PROCESSING) {
+            throw new CustomException("current status is not staff processing");
         }
 
         bookingReport.setStatus(BookingReportStatus.APPROVE);
@@ -137,9 +142,19 @@ public class BookingReportServiceImpl implements BookingReportService {
 
         int expertPointWhenReportExpert = policyService.getByKey(PolicyKey.EXPERT_POINT_WHEN_REPORT_EXPERT, Integer.class);
         Booking booking = bookingRepository.findById(bookingReport.getBookingId());
+        if (booking == null) {
+            throw new CustomException("not found booking");
+        }
+        if (booking.getStatus() == BookingStatus.COMPLETE) {
+            throw new CustomException("cannot approve when booking complete");
+        }
+
+        booking.setStatus(BookingStatus.REPORTED);
+        bookingRepository.save(booking);
         expertService.updateExpertPoint(booking.getExpertId(), -expertPointWhenReportExpert);
 
-        //todo: refund or flex punishment
+        accountService.refundWhenReport(booking.getCustomerId(), booking.getId());
+
         return true;
     }
 
@@ -194,7 +209,12 @@ public class BookingReportServiceImpl implements BookingReportService {
     public PageResponseDTO<BookingReportListResponseDTO> getForCustomer(int pageNumber, int pageSize, String sortBy, long customerId) {
         Pageable pageable = Util.pageableConvert(pageNumber, pageSize, sortBy);
         Page<BookingReport> bookingReports = bookingReportRepository.findByCustomer(customerId, pageable);
-        return new PageResponseDTO<>(bookingReports.map(BookingReportMapper::toDto).toList(), bookingReports.getTotalPages());
+        List<BookingReportListResponseDTO> reportListResponseDTOS = bookingReports.map(BookingReportMapper::toDto).toList();
+        for (BookingReportListResponseDTO reportListResponseDTO : reportListResponseDTOS) {
+            reportListResponseDTO.setReportSuggest(bookingReportSuggestService.get(reportListResponseDTO.getId()));
+        }
+
+        return new PageResponseDTO<>(reportListResponseDTOS, bookingReports.getTotalPages());
     }
 
     private BookingReport get(long id) {
@@ -206,7 +226,7 @@ public class BookingReportServiceImpl implements BookingReportService {
         return bookingReport;
     }
 
-    private boolean checkBookingId(long bookingId, long customerId) {
+    private boolean checkIdAndUpdateBooking(long bookingId, long customerId) {
         Booking booking = bookingRepository.findById(bookingId);
         if (booking == null) {
             throw new CustomException("not found booking with id " + bookingId);
@@ -219,6 +239,10 @@ public class BookingReportServiceImpl implements BookingReportService {
         if (booking.getCustomerId() != customerId) {
             throw new CustomException("current customer is not same with customer in booking");
         }
+
+        long minusAddToBookingWhenReport = policyService.getByKey(PolicyKey.PLUS_MINUS_REPORT, Long.class);
+        booking.setExpireCompleteDate(booking.getExpireCompleteDate().plusMinutes(minusAddToBookingWhenReport));
+        bookingRepository.save(booking);
 
         return true;
     }

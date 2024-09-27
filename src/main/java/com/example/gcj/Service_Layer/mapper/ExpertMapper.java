@@ -38,6 +38,7 @@ public class ExpertMapper {
                 .cost(expert.getCost())
                 .shortDescription(expert.getShortDescription())
                 .backgroundImage(expert.getBackgroundImage())
+                .certificate(expert.getCertification())
 
                 .build();
     }
@@ -93,6 +94,7 @@ public class ExpertMapper {
                 .cost(expert.getCost())
                 .shortDescription(expert.getShortDescription())
                 .backgroundImage(expert.getBackgroundImage())
+                .certificate(expert.getCertification())
 
                 .build();
     }
@@ -119,6 +121,7 @@ public class ExpertMapper {
                 .cost(expert.getCost())
                 .shortDescription(expert.getShortDescription())
                 .backgroundImage(expert.getBackgroundImage())
+                .certificate(expert.getCertification())
                 .build();
     }
 }

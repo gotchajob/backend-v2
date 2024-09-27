@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface BlogRepository extends JpaRepository<Blog, Long> {
     Page<Blog> getAllByStatus(int status, Pageable pageable);
+    @Query("SELECT b FROM Blog b WHERE b.status != 0 AND (:categoryId IS NULL OR b.category.id =:categoryId) ")
+    Page<Blog> findByCategory(Long categoryId, Pageable pageable);
     Page<Blog> getAllByCategoryIdAndStatus(long categoryId, int status, Pageable pageable);
     Blog getByIdAndStatus(long id, int status);
     @Query(value = "SELECT * FROM blog b WHERE b.category_id = :categoryId AND b.id != :excludeBlogId ORDER BY RAND() LIMIT :limit", nativeQuery = true)

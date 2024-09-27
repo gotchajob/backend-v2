@@ -31,4 +31,5 @@ public class ExpertAccountResponse {
     private double cost;
     private String backgroundImage;
     private String shortDescription;
+    private String certificate;
 }

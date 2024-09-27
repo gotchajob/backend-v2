@@ -23,7 +23,6 @@ public class PolicyController {
     private final PolicyService policyService;
 
     @GetMapping("")
-    @Secured(Role.ADMIN)
     @Operation(description = "")
     public Response<List<PolicyListResponseDTO>> get(
     ) {
@@ -32,7 +31,6 @@ public class PolicyController {
     }
 
     @GetMapping("/{id}")
-    @Secured(Role.ADMIN)
     @Operation(description = "")
     public Response<PolicyResponseDTO> getById(
             @PathVariable @Min(1) long id
@@ -41,7 +39,6 @@ public class PolicyController {
         return Response.ok(responseDTO);
     }
     @GetMapping("/key/{key}")
-    @Secured(Role.ADMIN)
     @Operation(description = "")
     public Response<PolicyResponseDTO> getByKey(
             @PathVariable String key

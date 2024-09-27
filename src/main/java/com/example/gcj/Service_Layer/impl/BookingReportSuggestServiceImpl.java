@@ -46,9 +46,7 @@ public class BookingReportSuggestServiceImpl implements BookingReportSuggestServ
 
     @Override
     public List<BookingReportSuggestListResponseDTO> get(Long reportId) {
-        List<BookingReportSuggest> bookingReportSuggestList = reportId == null
-                ? bookingReportSuggestRepository.findAll()
-                : bookingReportSuggestRepository.findByReportId(reportId);
+        List<BookingReportSuggest> bookingReportSuggestList = bookingReportSuggestRepository.findByReportId(reportId);
 
         return bookingReportSuggestList.stream().map(BookingReportSuggestMapper::toDto).toList();
     }

@@ -60,7 +60,7 @@ public class BookingCustomerFeedbackServiceImpl implements BookingCustomerFeedba
 
         BookingCustomerFeedback save = bookingCustomerFeedbackRepository.save(build);
         if (request.getAnswers() != null) {
-            bookingCustomerFeedbackAnswerService.create(save.getBookingId(), request.getAnswers());
+            bookingCustomerFeedbackAnswerService.create(save.getId(), request.getAnswers());
         }
 
         if (request.getSkillRatings() != null) {

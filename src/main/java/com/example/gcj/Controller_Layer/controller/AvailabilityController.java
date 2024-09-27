@@ -52,7 +52,6 @@ public class AvailabilityController {
     }
 
     @GetMapping("/{id}")
-    @Secured(Role.STAFF)
     @Operation(description = "")
     public Response<AvailabilityResponseDTO> getById(
             @PathVariable long id

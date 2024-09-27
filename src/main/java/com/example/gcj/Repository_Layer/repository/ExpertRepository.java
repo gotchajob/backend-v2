@@ -3,6 +3,7 @@ package com.example.gcj.Repository_Layer.repository;
 import com.example.gcj.Repository_Layer.model.Expert;
 import com.example.gcj.Service_Layer.dto.expert.ExpertMatchListResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO;
+import com.example.gcj.Service_Layer.dto.user.UserProfileDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -64,5 +65,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     Expert getByEmail(String email);
     @Query("SELECT new com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO(u.id, u.firstName, u.lastName, u.email, u.avatar) FROM Expert e JOIN User u ON e.user.id = u.id WHERE e.id =:expertId AND e.status != 0")
     UserInfoResponseDTO getExpertInfo(long expertId);
+
+
 
 }

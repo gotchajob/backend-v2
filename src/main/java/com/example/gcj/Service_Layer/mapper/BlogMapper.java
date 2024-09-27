@@ -3,19 +3,22 @@ package com.example.gcj.Service_Layer.mapper;
 import com.example.gcj.Service_Layer.dto.blog.BlogListResponseDTO;
 import com.example.gcj.Service_Layer.dto.blog.BlogResponseDTO;
 import com.example.gcj.Repository_Layer.model.Blog;
+import com.example.gcj.Service_Layer.dto.user.UserProfileDTO;
 
 import java.util.List;
 
 public class BlogMapper {
 
-    public static BlogListResponseDTO toDto(Blog blog) {
+    public static BlogListResponseDTO toDtoList(Blog blog, UserProfileDTO authorInfo) {
         return BlogListResponseDTO.builder()
                 .id(blog.getId())
                 .title(blog.getTitle())
                 .thumbnail(blog.getThumbnail())
                 .shortDescription(blog.getShortDescription())
                 .createdAt(blog.getCreatedAt())
-                .profile(UserMapper.toUserProfile(blog.getAuthor()))
+                .categoryId(blog.getCategory().getId())
+                .category(blog.getCategory().getCategory())
+                .profile(authorInfo)
                 .build();
     }
 
@@ -28,8 +31,6 @@ public class BlogMapper {
                 .createdAt(blog.getCreatedAt())
                 .likes(null)
                 .category(blog.getCategory().getCategory())
-                .profile(UserMapper.toUserProfile(blog.getAuthor()))
-                .relateBlog(relateBlog.stream().map(BlogMapper::toDto).toList())
                 .build();
     }
 

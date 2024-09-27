@@ -1,5 +1,6 @@
 package com.example.gcj.Service_Layer.dto.booking;
 
+import com.example.gcj.Service_Layer.dto.user.UserBookingInfoResponseDTO;
 import com.example.gcj.Service_Layer.dto.user.UserInfoResponseDTO;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,5 +23,5 @@ public class BookingListResponseDTO {
     private boolean canCancel;
 
     private UserInfoResponseDTO expertInfo;
-    private UserInfoResponseDTO customerInfo;
+    private UserBookingInfoResponseDTO customerInfo;
 }

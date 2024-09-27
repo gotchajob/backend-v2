@@ -16,6 +16,8 @@ public class BlogListResponseDTO implements Serializable {
     private String title;
     private String thumbnail;
     private String shortDescription;
+    private long categoryId;
+    private String category;
     private Date createdAt;
     private UserProfileDTO profile;
 }

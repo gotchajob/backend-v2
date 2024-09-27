@@ -3,8 +3,6 @@ package com.example.gcj.Repository_Layer.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,10 +38,6 @@ public class User extends AbstractEntity{
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Account account;
-
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private List<Blog> blogs;
-
 
     public User(String email, String password, String firstName, String lastName) {
         this.email = email;
