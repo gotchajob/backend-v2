@@ -4,6 +4,7 @@ import com.example.gcj.Repository_Layer.model.ExpertSkillOption;
 import com.example.gcj.Repository_Layer.model.SkillOption;
 import com.example.gcj.Repository_Layer.repository.ExpertRepository;
 import com.example.gcj.Repository_Layer.repository.ExpertSkillOptionRepository;
+import com.example.gcj.Repository_Layer.repository.ExpertSkillRatingRepository;
 import com.example.gcj.Repository_Layer.repository.SkillOptionRepository;
 import com.example.gcj.Service_Layer.dto.expert_skill_option.CreateExpertSkillOptionDTO;
 import com.example.gcj.Service_Layer.dto.expert_skill_option.ExpertSkillOptionResponseDTO;
@@ -25,6 +26,7 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
     private final ExpertSkillOptionRepository expertSkillOptionRepository;
     private final ExpertRepository expertRepository;
     private final SkillOptionRepository skillOptionRepository;
+    private final ExpertSkillRatingRepository expertSkillRatingRepository;
 
 
     @Override
@@ -69,13 +71,27 @@ public class ExpertSkillOptionServiceImpl implements ExpertSkillOptionService {
     @Override
     public List<ExpertSkillOptionResponseDTO> getByExpertId(long expertId) {
         List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findByExpertId(expertId);
-        return expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
+        List<ExpertSkillOptionResponseDTO> list = expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
+        addRating(list);
+        return list;
     }
 
     @Override
     public List<ExpertSkillOptionResponseDTO> getByExpertId(long expertId, int status) {
         List<ExpertSkillOption> expertSkillOptions = expertSkillOptionRepository.findByExpertIdAndStatus(expertId, status);
-        return expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
+        List<ExpertSkillOptionResponseDTO> list = expertSkillOptions.stream().map(ExpertSkillOptionMapper::toDto).toList();
+        addRating(list);
+        return list;
+    }
+
+    private void addRating(List<ExpertSkillOptionResponseDTO> list) {
+        for (ExpertSkillOptionResponseDTO item : list) {
+            long totalRating = expertSkillRatingRepository.countByExpertSkillOptionId(item.getId());
+            long sum = expertSkillRatingRepository.sumRating(item.getId());
+
+            item.setTotalRating(totalRating);
+            item.setSumPoint(sum);
+        }
     }
 
     @Override

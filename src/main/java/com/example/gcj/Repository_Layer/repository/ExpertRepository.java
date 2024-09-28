@@ -42,11 +42,10 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
             "(CASE WHEN e.personalPoint >= :personalPoint THEN :weightPersonalPoint ELSE 0 END)) AS point) " +
             "FROM Expert e " +
             "JOIN e.user u " +
-            "WHERE e.status = 1 AND e.personalPoint >= :personalPoint AND u.status = 1 AND e.status = 1 AND (:main IS NULL OR " +
+            "WHERE e.status = 1 AND e.personalPoint >= :personalPoint AND u.status = 1 AND (:main IS NULL OR " +
             "(:main = 1 AND e.yearExperience >= :yearExperience) OR " +
             "(:main = 2 AND EXISTS (SELECT 1 FROM ExpertNationSupport ens WHERE ens.expertId = e.id AND ens.nation IN :nations AND ens.status = 1)) OR " +
             "(:main = 3 AND EXISTS (SELECT 1 FROM ExpertSkillOption eso WHERE eso.expertId = e.id AND eso.skillOption.id IN :skillOptionIds AND eso.status = 1))) " +
-            "GROUP BY e.id, u.id " +
             "ORDER BY point DESC, e.personalPoint DESC")
     List<ExpertMatchListResponseDTO> findMatchingExperts(
             @Param("yearExperience") Integer yearExperience,

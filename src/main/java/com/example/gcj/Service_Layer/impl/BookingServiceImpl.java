@@ -434,15 +434,16 @@ public class BookingServiceImpl implements BookingService {
         }
         String linkFeedback = "https://www.gotchajob.vn/feedback/" + bookingId;
 
-        String subject = "[Gotcha Job] Please Share Your Feedback on the Recent Booking";
-        String body = "Dear " + customerInfo.getFullName() + ",\n\n" +
-                "Thank you for completing your booking with us! We hope you had a great experience.\n\n" +
-                "We value your feedback and would appreciate it if you could take a moment to share your thoughts about the expert you booked. " +
-                "Please click the link below to provide your feedback:\n\n" +
+        String subject = "[Gotcha Job] Vui Lòng Chia Sẻ Phản Hồi Về Đặt Chỗ Gần Đây";
+        String body = "Kính gửi " + customerInfo.getFullName() + ",\n\n" +
+                "Cảm ơn bạn đã hoàn thành đặt chỗ với chúng tôi! Chúng tôi hy vọng bạn đã có một trải nghiệm tuyệt vời.\n\n" +
+                "Chúng tôi rất trân trọng ý kiến của bạn và sẽ rất biết ơn nếu bạn có thể dành chút thời gian chia sẻ cảm nhận của mình về chuyên gia mà bạn đã đặt chỗ. " +
+                "Vui lòng nhấp vào liên kết dưới đây để cung cấp phản hồi của bạn:\n\n" +
                 linkFeedback + "\n\n" +
-                "Your feedback helps us improve our service and ensure a better experience for all our users.\n\n" +
-                "Best regards,\n" +
-                "Gotcha Job Team";
+                "Phản hồi của bạn giúp chúng tôi cải thiện dịch vụ và mang lại trải nghiệm tốt hơn cho tất cả người dùng.\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ Gotcha Job";
+
 
         emailService.sendEmail(customerInfo.getEmail(), subject, body);
     }
@@ -572,14 +573,15 @@ public class BookingServiceImpl implements BookingService {
 
         String ggMeetLink = "https://meet.google.com/abc-defg-hij";
 
-        String subject = "[Gotcha Job] Upcoming Interview Notification";
-        String body = "Dear " + customerInfo.getFullName() + ",\n\n" +
-                "We would like to remind you about your upcoming interview session. Please find the details below:\n\n" +
-                "Interview Link (Google Meet): " + ggMeetLink + "\n" +
-                "Booking ID: " + booking.getId() + "\n\n" +
-                "We wish you the best of luck during the interview!\n\n" +
-                "Best regards,\n" +
-                "Gotcha Job Team";
+        String subject = "[Gotcha Job] Thông Báo Phỏng Vấn Sắp Tới";
+        String body = "Kính gửi " + customerInfo.getFullName() + ",\n\n" +
+                "Chúng tôi muốn nhắc bạn về buổi phỏng vấn sắp tới. Vui lòng xem thông tin chi tiết bên dưới:\n\n" +
+                "Liên kết phỏng vấn (Google Meet): " + ggMeetLink + "\n" +
+                "Mã đặt chỗ: " + booking.getId() + "\n\n" +
+                "Chúc bạn may mắn trong buổi phỏng vấn!\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ Gotcha Job";
+
 
         emailService.sendEmail(expertEmail, subject, body);
         emailService.sendEmail(customerInfo.getEmail(), subject, body);

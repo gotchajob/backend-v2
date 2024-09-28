@@ -436,23 +436,19 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {
-        String subject = "Approval Request to Become a Expert on Gotchajob";
-        String body = "Dear " + fullName + ",\n" +
+        String subject = "Yêu Cầu Phê Duyệt Để Trở Thành Chuyên Gia trên GotchaJob";
+        String body = "Kính gửi " + fullName + ",\n" +
                 "\n" +
-                "I hope this email finds you well.\n" +
+                "Hy vọng bạn nhận được email này trong tình trạng tốt.\n" +
                 "\n" +
-                "I am reaching out to formally request approval to become a expert on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
+                "Tôi viết thư này để chính thức yêu cầu phê duyệt trở thành chuyên gia trên GotchaJob"+
                 "\n" +
-                "To facilitate this process, I have created an account on Gotchajob with the following login credentials:\n" +
+                "Để tiến hành quy trình này, tôi đã tạo tài khoản trên GotchaJob với thông tin đăng nhập sau:\n" +
                 "\n" +
-                "Username: " + email + "\n" +
-                "Password: " + password +
+                "Tên đăng nhập: " + email + "\n" +
+                "Mật khẩu: " + password +
                 "\n" +
-                "I am committed to upholding the values and standards of Gotchajob and to providing valuable expertship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
-                "\n" +
-                "Thank you for considering my request. I look forward to the opportunity to serve as a expert on Gotchajob and make a meaningful difference in the lives of others.\n" +
-                "\n" +
-                "Warm regards,\n" +
+                "Trân trọng,\n" +
                 "\n" +
                 "[GotchaJob]\n";
 

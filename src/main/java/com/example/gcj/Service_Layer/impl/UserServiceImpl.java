@@ -557,64 +557,66 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendEmailApproveExpert(String email, String password, String fullName) {
-        String subject = "Approval Request to Become a Expert on Gotchajob";
-        String body = "Dear " + fullName + ",\n" +
+        String subject = "Thông Báo Chấp Nhận Đơn Xin Trở Thành Chuyên Gia trên GotchaJob";
+        String body = "Kính gửi " + fullName + ",\n" +
                 "\n" +
-                "I hope this email finds you well.\n" +
+                "Chúng tôi rất vui mừng thông báo rằng yêu cầu của bạn để trở thành chuyên gia trên GotchaJob đã được chấp nhận.\n" +
                 "\n" +
-                "I am reaching out to formally request approval to become a expert on Gotchajob, an esteemed platform that fosters growth and development within the professional community. As someone passionate about [mention your area of expertise or field], I am eager to contribute my knowledge and skills to support aspiring individuals in their career journeys.\n" +
+                "Thông tin tài khoản của bạn trên GotchaJob:\n" +
                 "\n" +
-                "To facilitate this process, I have created an account on Gotchajob with the following login credentials:\n" +
+                "Tên đăng nhập: " + email + "\n" +
+                "Mật khẩu: " + password + "\n" +
                 "\n" +
-                "Username: " + email + "\n" +
-                "Password: " + password +
+                "Chúng tôi tin rằng bạn sẽ tuân thủ các giá trị và tiêu chuẩn của GotchaJob, đồng thời cung cấp những dịch vụ tư vấn chuyên nghiệp có giá trị cho những ai cần. Những đóng góp của bạn sẽ tạo ra tác động tích cực đối với cộng đồng.\n" +
                 "\n" +
-                "I am committed to upholding the values and standards of Gotchajob and to providing valuable expertship to those in need. I am confident that my contributions will positively impact the community and help individuals achieve their career aspirations.\n" +
+                "Cảm ơn bạn đã tin tưởng và tham gia cùng chúng tôi. Chúng tôi rất mong được hợp tác với bạn và tạo ra sự khác biệt trong cuộc sống của người khác.\n" +
                 "\n" +
-                "Thank you for considering my request. I look forward to the opportunity to serve as a expert on Gotchajob and make a meaningful difference in the lives of others.\n" +
+                "Trân trọng,\n" +
                 "\n" +
-                "Warm regards,\n" +
-                "\n" +
-                "[GotchaJob]\n";
+                "Đội ngũ GotchaJob\n";
+
+
 
         emailService.sendEmail(email, subject, body);
     }
 
     private void sendEmailRejectExpert(String email, String fullName) {
-        String subject = "Rejection Notification for Expertship Application on Gotchajob";
-        String body = "Dear " + fullName + ",\n" +
+        String subject = "Thông Báo Từ Chối Đơn Ứng Tuyển Chuyên Gia trên GotchaJob";
+        String body = "Kính gửi " + fullName + ",\n" +
                 "\n" +
-                "I hope this message finds you well.\n" +
+                "Chúng tôi hy vọng bạn nhận được thông báo này trong tình trạng tốt.\n" +
                 "\n" +
-                "I am writing to inform you that unfortunately, my application to become a expert on Gotchajob has been declined. While I am naturally disappointed by this outcome, I respect the decision made by the selection committee.\n" +
+                "Chúng tôi viết thư này để thông báo rằng, rất tiếc, đơn ứng tuyển của bạn để trở thành chuyên gia trên GotchaJob đã bị từ chối. Mặc dù chúng tôi rất cảm kích về sự quan tâm của bạn, nhưng sau khi xem xét kỹ lưỡng, hội đồng xét duyệt đã quyết định không tiếp nhận ứng tuyển này.\n" +
                 "\n" +
-                "Although I won't have the opportunity to contribute as a expert at this time, I remain deeply committed to supporting individuals in their professional growth and development. I will continue to seek out avenues where I can share my expertise and provide guidance to those in need.\n" +
+                "Dù không có cơ hội đóng góp với tư cách chuyên gia vào thời điểm này, chúng tôi khuyến khích bạn tiếp tục tìm kiếm những cơ hội khác để chia sẻ kiến thức và kỹ năng của mình. Chúng tôi rất đánh giá cao sự cam kết của bạn đối với sự phát triển nghề nghiệp của bản thân.\n" +
                 "\n" +
-                "I appreciate the time and consideration given to my application. Should there be any feedback or suggestions for improvement, I am open to receiving them as they would help me enhance my qualifications for future opportunities.\n" +
+                "Nếu bạn có bất kỳ câu hỏi nào hoặc cần thêm thông tin, vui lòng liên hệ với chúng tôi. Chúng tôi cũng rất hoan nghênh phản hồi hoặc ý kiến của bạn để cải thiện quy trình tuyển chọn trong tương lai.\n" +
                 "\n" +
-                "Thank you once again for considering my application.\n" +
+                "Cảm ơn bạn đã quan tâm đến GotchaJob và đã dành thời gian cho đơn ứng tuyển của mình. Chúc bạn những điều tốt đẹp nhất trong hành trình nghề nghiệp của mình.\n" +
                 "\n" +
-                "Best regards,\n" +
+                "Trân trọng,\n" +
                 "\n" +
-                "GotchaJob\n";
+                "Đội ngũ GotchaJob\n";
+
+
 
         emailService.sendEmail(email, subject, body);
     }
 
     private void sendEmailVerify(String email, String code, String fullName) {
-        String subject = "Verify Your Email for GotchaJob";
-        String body = "Hi " + fullName + ",\n" +
+        String subject = "Xác Minh Email của Bạn cho GotchaJob";
+        String body = "Chào " + fullName + ",\n" +
                 "\n" +
-                "Thank you for registering with GotchaJob. To complete your registration and verify your email, please use the following verification code:\n" +
+                "Cảm ơn bạn đã đăng ký với GotchaJob. Để hoàn tất quá trình đăng ký và xác minh email, vui lòng sử dụng mã xác minh sau:\n" +
                 "\n" +
-                "Your verification code: \n" + code +
+                "Mã xác minh của bạn: \n" + code +
                 "\n" +
-                "This code will expire in 10 minutes.\n" +
+                "Mã này sẽ hết hạn trong 10 phút.\n" +
                 "\n" +
-                "If you did not create an account with GotchaJob, please disregard this email.\n" +
+                "Nếu bạn không tạo tài khoản với GotchaJob, vui lòng bỏ qua email này.\n" +
                 "\n" +
-                "Best regards,\n" +
-                "GotchaJob Team\n";
+                "Trân trọng,\n" +
+                "Đội ngũ GotchaJob\n";
 
         emailService.sendEmail(email, subject, body);
     }

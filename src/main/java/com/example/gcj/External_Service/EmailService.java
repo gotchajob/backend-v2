@@ -4,8 +4,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EmailService {
     final static String DEV_EMAIL = "gotchajob.dev@gmail.com";
@@ -45,13 +43,13 @@ public class EmailService {
     }
 
     public void sendEmailGetLinkFormMentor(String email, String url) {
-        String subject = "Link form to register mentor of GotchaJob.com";
-        String body = "Dear " + email + ",\n" +
-                "\n" +
-                "click link to get form register mentor: \n" +
-                url + "\n" +
-                "Best regards,\n" +
-                "GotchaJob";
+        String subject = "Liên Kết Đăng Ký Mentor của GotchaJob.com";
+        String body = "Kính gửi " + email + ",\n\n" +
+                "Vui lòng nhấp vào liên kết dưới đây để nhận biểu mẫu đăng ký mentor:\n" +
+                url + "\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ GotchaJob";
+
 
         sendEmail(email, subject, body);
     }

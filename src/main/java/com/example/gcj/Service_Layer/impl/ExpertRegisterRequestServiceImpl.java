@@ -212,18 +212,13 @@ public class ExpertRegisterRequestServiceImpl implements ExpertRegisterRequestSe
     }
 
     private void sendEmailRejectExpert(String email, String reason, String url) {
-        String subject = "Rejection Notification for Expertship Application on Gotchajob";
-        String body = "Dear +\n" +
-                "\n" +
-                "I hope this message finds you well.\n" +
-                "\n" +
-                "reason: " + reason +
-                "\n" +
-                "this new url to update form: " + url +
-                "\n" +
-                "Best regards,\n" +
-                "\n" +
-                "GotchaJob\n";
+        String subject = "Thông Báo Từ Chối Đơn Ứng Tuyển Chuyên Gia trên GotchaJob";
+        String body = "Kính gửi,\n\n" +
+                "Hy vọng rằng bạn nhận được thông báo này trong tình trạng tốt.\n\n" +
+                "Lý do từ chối: " + reason + "\n\n" +
+                "Vui lòng truy cập vào liên kết này để cập nhật đơn của bạn: " + url + "\n\n" +
+                "Trân trọng,\n\n" +
+                "Đội ngũ GotchaJob\n";
 
         emailService.sendEmail(email, subject, body);
     }

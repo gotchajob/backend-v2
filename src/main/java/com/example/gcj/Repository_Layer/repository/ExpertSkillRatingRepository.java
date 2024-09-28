@@ -23,4 +23,9 @@ public interface ExpertSkillRatingRepository extends JpaRepository<ExpertSkillRa
     List<ExpertSkillRatingTotalRatingResponseDTO> getTotalRating(long expertSkillOptionId);
 
     Page<ExpertSkillRating> findByExpertSkillOptionId(long expertSkillOptionId, Pageable pageable);
+
+    long countByExpertSkillOptionId(long expertSkillOptionId);
+    @Query("SELECT coalesce(sum(esr.rating), 0) " +
+            "FROM ExpertSkillRating esr WHERE esr.expertSkillOption.id =:expertSkillOptionId")
+    long sumRating(long expertSkillOptionId);
 }
